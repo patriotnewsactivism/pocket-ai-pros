@@ -1,73 +1,135 @@
-# Welcome to your Lovable project
+# BuildMyBot – Production-Ready Workspace
 
-## Project info
+BuildMyBot now ships with a live Express API, SQLite persistence, and a React + Vite front-end. There are no mocks or simulations—the API writes to a real database and can stream answers from OpenAI when a key is provided.
 
-**URL**: https://lovable.dev/projects/93d4f5be-a6f1-456c-98a3-05954fe6a022
+## Tech stack
 
-## How can I edit this code?
+- Front-end: Vite · React 18 · TypeScript · Tailwind · shadcn/ui
+- Back-end: Express · @tanstack/react-query client · SQLite (via better-sqlite3)
+- AI: OpenAI Responses API (opt-in via `OPENAI_API_KEY`)
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+- Node.js 18+ and npm 9+
+- PowerShell 7 (recommended on Windows)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/93d4f5be-a6f1-456c-98a3-05954fe6a022) and start prompting.
+## Quick start (Windows PowerShell)
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
+```powershell
+# Clone and install
+git clone <YOUR_REPO_URL>
 cd <YOUR_PROJECT_NAME>
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Configure environment
+Copy-Item .env.example .env
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Edit .env with your favourite editor and set:
+#   PORT=4000
+#   CLIENT_ORIGIN=http://localhost:5173
+#   DATABASE_PATH=./data/buildmybot.db
+#   OPENAI_API_KEY=<optional, enables live GPT responses>
+
+# Launch API + web app together
+npm run dev:full
+
+# or run them separately
+npm run server:dev   # PowerShell tab 1 – Express API on port 4000
+npm run dev          # PowerShell tab 2 – Vite dev server on port 5173
 ```
 
-**Edit a file directly in GitHub**
+The first run creates `data/buildmybot.db`. This file stores every bot, knowledge article, and conversation.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Production build
 
-**Use GitHub Codespaces**
+```powershell
+# Compile the API and front-end
+npm run build:full
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Start the API from the build output
+npm run server:start
 
-## What technologies are used for this project?
+# Preview the static web UI
+npm run preview
+```
 
-This project is built with:
+## Managing real assistants via API
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+No bots ship by default. Use the REST API to create your own. The examples below use PowerShell’s `Invoke-RestMethod`; swap for `curl` if you prefer.
 
-## How can I deploy this project?
+### 1. Create a bot with knowledge
 
-Simply open [Lovable](https://lovable.dev/projects/93d4f5be-a6f1-456c-98a3-05954fe6a022) and click on Share -> Publish.
+```powershell
+$bot = Invoke-RestMethod -Method Post -Uri http://localhost:4000/api/bots -ContentType 'application/json' -Body (@{
+    name = 'Customer Success Copilot'
+    summary = 'Resolves onboarding and billing questions with links to verified documentation.'
+    industry = 'SaaS'
+    primaryGoal = 'Accelerate onboarding resolutions'
+    tone = 'Helpful and concise'
+    status = 'active'
+    persona = @{
+        tagline = 'Your 24/7 onboarding concierge'
+        voice = 'Friendly, modern, and precise'
+        strengths = @('Understands pricing', 'Guides new admins', 'Escalates high-risk conversations')
+    }
+    knowledgeDocuments = @(
+        @{
+            title = 'Getting started checklist'
+            content = 'Invite teammates, connect Slack, and configure the billing webhook before launch.'
+            tags = @('onboarding','setup')
+        },
+        @{
+            title = 'Billing escalation policy'
+            content = 'Refunds above $1000 require finance approval. Create Jira ticket in project BILLING.'
+            tags = @('billing','policy')
+        }
+    )
+} | ConvertTo-Json -Depth 6)
 
-## Can I connect a custom domain to my Lovable project?
+"Created bot id: $($bot.bot.id)"
+```
 
-Yes, you can!
+### 2. Chat with the bot
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```powershell
+Invoke-RestMethod -Method Post -Uri "http://localhost:4000/api/bots/$($bot.bot.id)/conversation" `
+    -ContentType 'application/json' `
+    -Body (@{ message = 'How do I approve a large refund?' } | ConvertTo-Json)
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### 3. Inspect analytics
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:4000/api/analytics/summary
+```
+
+Bots, knowledge documents, and conversation history persist automatically in SQLite. Delete `data/buildmybot.db` if you want a fresh start.
+
+## Live AI configuration
+
+- Set `OPENAI_API_KEY` in `.env` to enable GPT-backed answers. The server uses `gpt-4o-mini` by default—override with `OPENAI_MODEL` if desired.
+- Without a key, responses are grounded solely in your knowledge documents (no mock text is generated).
+
+## Front-end entry points
+
+- `src/components/LiveDemo.tsx` streams real conversations from the API.
+- `src/components/AnalyticsOverview.tsx` visualises live metrics pulled from the database.
+
+## Scripts reference
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start Vite only (expects API already running) |
+| `npm run server:dev` | Start the Express API with hot reload |
+| `npm run dev:full` | Run API and Vite together (concurrently) |
+| `npm run server:build` | Type-check & emit the API to `dist/server` |
+| `npm run build` | Build the web app (no API) |
+| `npm run build:full` | Build API + web app |
+| `npm run server:start` | Launch the compiled API from `dist/server` |
+| `npm run preview` | Preview the built web app |
+
+## Notes
+
+- The repository no longer includes seeded demo data. Everything you see in the UI reflects what exists in SQLite.
+- Use migrations automatically executed on server boot—no manual SQL required.
+- For backups, copy the `data/buildmybot.db` file or set `DATABASE_PATH` to a managed volume.

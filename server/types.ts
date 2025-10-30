@@ -52,13 +52,6 @@ export interface ConversationMessage {
   metadata?: Record<string, unknown>;
 }
 
-export interface Database {
-  bots: Bot[];
-  knowledgeDocuments: KnowledgeDocument[];
-  conversations: ConversationMessage[];
-  lastUpdated: string;
-}
-
 export interface AnalyticsSummary {
   totalBots: number;
   activeBots: number;

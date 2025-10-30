@@ -83,9 +83,10 @@ export const createBotsRouter = (store: DataStore) => {
         updatedAt: timestamp
       };
 
-      await store.insertBot(bot, knowledgeDocuments);
+      const createdBot = await store.insertBot(bot, knowledgeDocuments);
+      const createdKnowledge = await store.listKnowledgeDocuments(createdBot.id);
 
-      res.status(201).json({ bot, knowledgeDocuments });
+      res.status(201).json({ bot: createdBot, knowledgeDocuments: createdKnowledge });
     } catch (error) {
       next(error);
     }

@@ -123,6 +123,12 @@ const LiveDemo = () => {
     }
   }, [bots, selectedBotId]);
 
+  useEffect(() => {
+    if (bots.length === 0 && selectedBotId) {
+      setSelectedBotId(undefined);
+    }
+  }, [bots, selectedBotId]);
+
   const selectedBot = useMemo(() => bots.find((bot) => bot.id === selectedBotId), [bots, selectedBotId]);
 
   const { data: conversationData, isLoading: conversationLoading } = useConversation(selectedBotId, 40);
@@ -187,7 +193,7 @@ const LiveDemo = () => {
                     {botsError.message || "Unable to load bots. Please refresh and try again."}
                   </p>
                 )}
-                {!botsLoading && !botsError && (
+                {!botsLoading && !botsError && bots.length > 0 && (
                   <Select value={selectedBotId} onValueChange={setSelectedBotId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a bot" />
@@ -203,6 +209,16 @@ const LiveDemo = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                )}
+
+                {!botsLoading && !botsError && bots.length === 0 && (
+                  <div className="rounded-lg border border-dashed border-muted bg-muted/30 p-4 text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">No assistants yet.</p>
+                    <p className="mt-2">
+                      Create a bot via the BuildMyBot API to power this workspace. Use the onboarding guide below to
+                      add your first live assistant.
+                    </p>
+                  </div>
                 )}
 
                 {selectedBot && (
@@ -266,14 +282,19 @@ const LiveDemo = () => {
                 )}
                 <ScrollArea className="h-[420px] pr-2">
                   <div className="flex flex-col gap-4">
-                    {messages.length === 0 && !conversationLoading && (
+                    {!selectedBot && !botsLoading && !conversationLoading && (
+                      <div className="text-center text-sm text-muted-foreground py-12 space-y-3">
+                        <p>No assistant is connected yet.</p>
+                        <p>Use the API to create a bot, then return here to chat with it live.</p>
+                      </div>
+                    )}
+                    {selectedBot && messages.length === 0 && !conversationLoading && (
                       <div className="text-center text-sm text-muted-foreground py-12">
                         Send a message to see how BuildMyBot responds in real time.
                       </div>
                     )}
-                    {messages.map((message) => (
-                      <MessageBubble key={message.id} message={message} />
-                    ))}
+                    {selectedBot &&
+                      messages.map((message) => <MessageBubble key={message.id} message={message} />)}
                     {sendMessage.isPending && (
                       <div className="flex justify-start">
                         <div className="flex items-center gap-2 rounded-xl border px-3 py-2 text-xs text-muted-foreground">
