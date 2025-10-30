@@ -127,29 +127,38 @@ BuildMyBot/
 
 ## 🔌 API Integration
 
-### Current State
-Uses **mock API** for development. All forms work with simulated responses.
+### ⚠️ CRITICAL: REAL BACKEND REQUIRED
 
-### Connect to Real Backend
+This application uses **REAL API calls ONLY**. There are **NO MOCKS** or **SIMULATIONS**.
 
-1. **Update `.env` file:**
+You **MUST** set up the backend before the app will function.
+
+### Quick Backend Setup
+
+1. **Set up the backend:**
+   ```bash
+   cd backend-example
+   npm install
+   # Configure database and email service
+   npm start
+   ```
+
+2. **Configure `.env` file:**
    ```env
-   VITE_API_BASE_URL=https://your-api.com/api
+   VITE_API_BASE_URL=http://localhost:3000/api
    ```
 
-2. **Expected API Endpoints:**
+3. **Required API Endpoints:**
    ```
-   POST /api/contact
-   POST /api/subscribe
-   POST /api/reseller/apply
-   POST /api/auth/signup
-   GET  /api/pricing
-   GET  /api/stats
+   POST /api/contact          - Contact form (saves to DB, sends email)
+   POST /api/subscribe        - Newsletter (saves to DB)
+   POST /api/reseller/apply   - Reseller application (saves to DB, sends email)
+   POST /api/auth/signup      - User registration (saves to DB, sends email)
+   GET  /api/pricing          - Get pricing from DB
+   GET  /api/stats            - Get real statistics from DB
    ```
 
-3. **App automatically switches** from mock to real API!
-
-See [README_PROJECT.md](./README_PROJECT.md) for detailed API documentation.
+**See [BACKEND_SETUP.md](./BACKEND_SETUP.md) for complete implementation guide.**
 
 ## 🎨 Customization
 

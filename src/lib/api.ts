@@ -128,53 +128,5 @@ export const api = {
   }),
 };
 
-// Mock API for development (when backend is not available)
-export const mockApi = {
-  submitContact: async (data: Record<string, unknown>) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Mock: Contact form submitted', data);
-    return { success: true, message: 'Thank you for contacting us!' };
-  },
-
-  subscribe: async (email: string) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Mock: Newsletter subscription', email);
-    return { success: true, message: 'Successfully subscribed!' };
-  },
-
-  applyReseller: async (data: Record<string, unknown>) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Mock: Reseller application', data);
-    return { success: true, message: 'Application received!' };
-  },
-
-  signUp: async (data: Record<string, unknown>) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Mock: Sign up', data);
-    return { success: true, message: 'Account created!', userId: '123' };
-  },
-
-  getPricing: async () => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return {
-      plans: [
-        { id: 'starter', name: 'Starter', price: 29 },
-        { id: 'professional', name: 'Professional', price: 99 },
-        { id: 'enterprise', name: 'Enterprise', price: 299 },
-      ],
-    };
-  },
-
-  getStats: async () => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return {
-      totalBots: 523,
-      activeUsers: 1247,
-      messagesProcessed: 45678,
-      uptime: 99.9,
-    };
-  },
-};
-
-// Export the appropriate API based on environment
-export default env.isDevelopment ? mockApi : api;
+// Export the real API - NO MOCKS OR SIMULATIONS
+export default api;
