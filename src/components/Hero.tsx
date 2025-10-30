@@ -27,12 +27,14 @@ const Hero = () => {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Button variant="hero" size="xl" className="group">
-                Start Building Free
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Button variant="hero" size="xl" className="group" asChild>
+                <a href="#live-demo">
+                  Start Building Free
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </a>
               </Button>
-              <Button variant="outline-gradient" size="xl">
-                View Pricing
+              <Button variant="outline-gradient" size="xl" asChild>
+                <a href="#pricing">View Pricing</a>
               </Button>
             </div>
 

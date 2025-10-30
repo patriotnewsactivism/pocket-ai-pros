@@ -26,19 +26,31 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <button 
+            <button
               onClick={() => scrollToSection("features")}
               className="text-foreground hover:text-primary transition-colors"
             >
               Features
             </button>
-            <button 
+            <button
+              onClick={() => scrollToSection("live-demo")}
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              Live Demo
+            </button>
+            <button
+              onClick={() => scrollToSection("analytics")}
+              className="text-foreground hover:text-primary transition-colors"
+            >
+              Analytics
+            </button>
+            <button
               onClick={() => scrollToSection("pricing")}
               className="text-foreground hover:text-primary transition-colors"
             >
               Pricing
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection("reseller")}
               className="text-foreground hover:text-primary transition-colors"
             >
@@ -61,19 +73,31 @@ const Header = () => {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 space-y-4">
-            <button 
+            <button
               onClick={() => scrollToSection("features")}
               className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
             >
               Features
             </button>
-            <button 
+            <button
+              onClick={() => scrollToSection("live-demo")}
+              className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
+            >
+              Live Demo
+            </button>
+            <button
+              onClick={() => scrollToSection("analytics")}
+              className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
+            >
+              Analytics
+            </button>
+            <button
               onClick={() => scrollToSection("pricing")}
               className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
             >
               Pricing
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection("reseller")}
               className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
             >

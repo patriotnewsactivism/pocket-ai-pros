@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "node",
+    "rootDir": "server",
+    "outDir": "dist/server",
+    "declaration": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true,
+    "noEmit": false,
+    "skipLibCheck": true,
+    "strict": false
+  },
+  "include": ["server/**/*.ts"],
+  "exclude": ["node_modules"]
+}
