@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, DollarSign, TrendingUp, Handshake, Award, HeadphonesIcon } from "lucide-react";
 import resellerPartner from "@/assets/reseller-partner.jpg";
+import { ResellerDialog } from "./ResellerDialog";
 
 const benefits = [
   {
@@ -85,9 +85,7 @@ const Reseller = () => {
               </div>
             </div>
 
-            <Button variant="hero" size="xl" className="w-full sm:w-auto">
-              Apply for Reseller Program
-            </Button>
+            <ResellerDialog />
           </div>
 
           <div className="relative">

@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Zap, Crown, Rocket } from "lucide-react";
+import { ContactDialog } from "./ContactDialog";
 
 const pricingPlans = [
   {
@@ -111,13 +111,21 @@ const Pricing = () => {
                 </CardContent>
 
                 <CardFooter>
-                  <Button 
-                    variant={plan.popular ? "hero" : "outline-gradient"} 
-                    size="lg" 
-                    className="w-full"
-                  >
-                    Get Started
-                  </Button>
+                  <ContactDialog 
+                    defaultPlan={plan.name}
+                    trigger={
+                      <button 
+                        className={`w-full inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                          plan.popular 
+                            ? "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 shadow-lg" 
+                            : "bg-gradient-to-r from-transparent to-transparent border-2 border-primary/50 hover:border-primary hover:bg-primary/5"
+                        }`}
+                        aria-label={`Get started with ${plan.name} plan`}
+                      >
+                        Get Started
+                      </button>
+                    }
+                  />
                 </CardFooter>
               </Card>
             );
