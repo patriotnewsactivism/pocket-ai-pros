@@ -57,7 +57,29 @@ BuildMyBot is a fully functional, production-ready landing page for an AI chatbo
 
 ## 🚀 Quick Start
 
-### For Windows Users (Recommended)
+### 🤖 NEW: Autonomous Setup (Recommended)
+
+**Get your complete AI chatbot business running in 10 minutes:**
+
+```bash
+# Choose your business type and go!
+./autonomous-setup.sh [ecommerce|saas|realestate|healthcare|education|hospitality|finance|support]
+
+# Example for e-commerce:
+./autonomous-setup.sh ecommerce
+```
+
+This will automatically:
+- ✅ Setup AI chatbot with industry-specific responses
+- ✅ Configure Supabase database
+- ✅ Generate business template
+- ✅ Install dependencies
+- ✅ Build application
+- ✅ Prepare for deployment
+
+**See [QUICK_START_AUTONOMOUS.md](./QUICK_START_AUTONOMOUS.md) for detailed guide**
+
+### For Windows Users
 
 1. **Initial Setup:**
    ```powershell
