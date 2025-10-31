@@ -137,6 +137,87 @@ CREATE POLICY "Users can view their own messages" ON messages
 CREATE POLICY "Users can insert their own messages" ON messages
     FOR INSERT WITH CHECK (auth.uid()::text = user_id::text);
 
+-- Chat Sessions Table (for AI Chatbot)
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(255) UNIQUE NOT NULL,
+    business_type VARCHAR(50) NOT NULL,
+    visitor_name VARCHAR(255),
+    visitor_email VARCHAR(255),
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_message_at TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'active'
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_sessions_session ON chat_sessions(session_id);
+CREATE INDEX IF NOT EXISTS idx_chat_sessions_email ON chat_sessions(visitor_email);
+
+-- Chat Messages Table (for AI Chatbot Conversations)
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    content TEXT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    metadata JSONB
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_messages_session ON chat_messages(session_id);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_timestamp ON chat_messages(timestamp DESC);
+
+-- Chat Leads Table (for Lead Capture from Chatbot)
+CREATE TABLE IF NOT EXISTS chat_leads (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    phone VARCHAR(50),
+    business_type VARCHAR(50),
+    captured_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'new'
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_leads_email ON chat_leads(email);
+CREATE INDEX IF NOT EXISTS idx_chat_leads_captured ON chat_leads(captured_at DESC);
+
+-- Business Templates Table (for Different Industry Configurations)
+CREATE TABLE IF NOT EXISTS business_templates (
+    id SERIAL PRIMARY KEY,
+    template_id VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    industry VARCHAR(100) NOT NULL,
+    configuration JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Enable RLS for new tables
+ALTER TABLE chat_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE business_templates ENABLE ROW LEVEL SECURITY;
+
+-- Policies for chat tables (public can insert, authenticated can view)
+CREATE POLICY "Anyone can create chat sessions" ON chat_sessions
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can view chat sessions" ON chat_sessions
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Anyone can send chat messages" ON chat_messages
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can view chat messages" ON chat_messages
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Anyone can submit chat leads" ON chat_leads
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can view chat leads" ON chat_leads
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Anyone can view business templates" ON business_templates
+    FOR SELECT WITH CHECK (true);
+
 -- Insert sample data for testing (optional - remove in production)
 INSERT INTO users (name, email, company, plan, status) VALUES
 ('Demo User', 'demo@buildmybot.ai', 'Demo Company', 'professional', 'active')
@@ -156,6 +237,18 @@ INSERT INTO messages (bot_id, user_id, message, response, tokens_used) VALUES
  'You can reset your password by clicking on the "Forgot Password" link on the login page.', 
  150)
 ON CONFLICT DO NOTHING;
+
+-- Insert business templates
+INSERT INTO business_templates (template_id, name, industry, configuration) VALUES
+('ecommerce', 'E-Commerce Store', 'Retail & E-Commerce', '{"enabled": true}'::jsonb),
+('saas', 'SaaS Platform', 'Software & Technology', '{"enabled": true}'::jsonb),
+('realestate', 'Real Estate', 'Real Estate', '{"enabled": true}'::jsonb),
+('healthcare', 'Healthcare', 'Healthcare & Medical', '{"enabled": true}'::jsonb),
+('education', 'Education', 'Education & E-Learning', '{"enabled": true}'::jsonb),
+('hospitality', 'Hospitality', 'Hospitality & Tourism', '{"enabled": true}'::jsonb),
+('finance', 'Financial Services', 'Finance & Banking', '{"enabled": true}'::jsonb),
+('support', 'Customer Support', 'Customer Support', '{"enabled": true}'::jsonb)
+ON CONFLICT (template_id) DO NOTHING;
 
 -- Success message
 DO $$
