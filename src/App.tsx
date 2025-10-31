@@ -4,8 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Analytics } from "@/components/Analytics";
+import { LiveChat } from "@/components/LiveChat";
 import { validateEnv } from "@/config/env";
 import Index from "./pages/Index";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Refund from "./pages/Refund";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
@@ -29,7 +34,7 @@ validateEnv();
 const App = () => {
   useEffect(() => {
     // Add any global initialization here
-    console.log('BuildMyBot initialized');
+    console.log('BuildMyBot initialized - Production Ready');
   }, []);
 
   return (
@@ -38,9 +43,14 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <Analytics />
+          <LiveChat />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/refund" element={<Refund />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
