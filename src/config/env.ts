@@ -4,6 +4,10 @@
  */
 
 export const env = {
+  // Supabase Configuration
+  supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
+  supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+  
   // API Configuration
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
   apiTimeout: Number(import.meta.env.VITE_API_TIMEOUT) || 30000,
@@ -25,7 +29,8 @@ export const env = {
 // Validate required environment variables
 export function validateEnv() {
   const required = {
-    VITE_API_BASE_URL: env.apiBaseUrl,
+    VITE_SUPABASE_URL: env.supabaseUrl,
+    VITE_SUPABASE_ANON_KEY: env.supabaseAnonKey,
   };
 
   const missing = Object.entries(required)
@@ -33,9 +38,10 @@ export function validateEnv() {
     .map(([key]) => key);
 
   if (missing.length > 0) {
-    console.warn(
-      `Missing optional environment variables: ${missing.join(', ')}\n` +
-      'The app will use default values.'
+    console.error(
+      `Missing required environment variables: ${missing.join(', ')}\n` +
+      'Please check your .env file and ensure all required variables are set.'
     );
+    throw new Error('Missing required environment variables');
   }
 }

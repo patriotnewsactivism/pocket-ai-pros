@@ -57,7 +57,7 @@ const pricingPlans = [
 
 const Pricing = () => {
   return (
-    <section id="pricing" className="py-24 bg-gradient-to-b from-background to-primary/5">
+    <section id="pricing" className="py-24 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-4xl lg:text-5xl font-bold">

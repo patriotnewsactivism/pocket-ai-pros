@@ -17,9 +17,9 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 220 15% 10%;
 
-    --primary: 262 83% 58%;
+    --primary: 210 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 262 90% 68%;
+    --primary-glow: 210 100% 60%;
 
     --secondary: 195 100% 50%;
     --secondary-foreground: 0 0% 100%;
@@ -27,7 +27,7 @@ All colors MUST be HSL.
     --muted: 220 15% 95%;
     --muted-foreground: 220 10% 45%;
 
-    --accent: 280 85% 60%;
+    --accent: 180 100% 45%;
     --accent-foreground: 0 0% 100%;
 
     --success: 142 76% 36%;
@@ -38,17 +38,17 @@ All colors MUST be HSL.
 
     --border: 220 15% 90%;
     --input: 220 15% 90%;
-    --ring: 262 83% 58%;
+    --ring: 210 100% 50%;
 
     --radius: 0.75rem;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(280 85% 60%));
-    --gradient-secondary: linear-gradient(135deg, hsl(195 100% 50%), hsl(262 83% 58%));
-    --gradient-hero: linear-gradient(180deg, hsl(220 25% 98%), hsl(262 83% 58% / 0.05));
+    /* Gradients - Tech-focused blue/cyan */
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 50%), hsl(195 100% 50%));
+    --gradient-secondary: linear-gradient(135deg, hsl(195 100% 50%), hsl(180 100% 45%));
+    --gradient-hero: linear-gradient(180deg, hsl(220 25% 98%), hsl(210 100% 98%));
     
     /* Shadows */
-    --shadow-glow: 0 0 40px hsl(262 83% 58% / 0.3);
+    --shadow-glow: 0 0 40px hsl(210 100% 50% / 0.3);
     --shadow-card: 0 10px 30px -10px hsl(220 15% 10% / 0.1);
 
     /* Animations */
@@ -65,7 +65,7 @@ All colors MUST be HSL.
     --popover: 220 20% 12%;
     --popover-foreground: 220 15% 95%;
 
-    --primary: 262 83% 58%;
+    --primary: 210 100% 50%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 195 100% 50%;
@@ -74,7 +74,7 @@ All colors MUST be HSL.
     --muted: 220 15% 20%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 280 85% 60%;
+    --accent: 180 100% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 50%;
@@ -82,9 +82,9 @@ All colors MUST be HSL.
 
     --border: 220 15% 20%;
     --input: 220 15% 20%;
-    --ring: 262 83% 58%;
+    --ring: 210 100% 50%;
 
-    --shadow-glow: 0 0 40px hsl(262 83% 58% / 0.5);
+    --shadow-glow: 0 0 40px hsl(210 100% 50% / 0.5);
     --shadow-card: 0 10px 30px -10px hsl(0 0% 0% / 0.3);
   }
 }
@@ -106,6 +106,13 @@ All colors MUST be HSL.
 
   .animate-fade-in-up {
     animation: fadeInUp 0.8s ease-out;
+  }
+
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, hsl(var(--primary) / 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--primary) / 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 
   @keyframes fadeIn {
