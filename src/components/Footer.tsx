@@ -1,5 +1,6 @@
 import { Bot, Mail, Github, Linkedin, Twitter } from "lucide-react";
 import { ContactDialog } from "./ContactDialog";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const scrollToSection = (id: string) => {
@@ -97,28 +98,28 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="/privacy" className="hover:text-primary transition-colors">
+                <Link to="/privacy" className="hover:text-primary transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/terms" className="hover:text-primary transition-colors">
+                <Link to="/terms" className="hover:text-primary transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/cookies" className="hover:text-primary transition-colors">
-                  Cookie Policy
-                </a>
+                <Link to="/refund" className="hover:text-primary transition-colors">
+                  Refund Policy
+                </Link>
               </li>
               <li>
-                <a href="/security" className="hover:text-primary transition-colors">
+                <a href="https://buildmybot.ai/security" className="hover:text-primary transition-colors">
                   Security
                 </a>
               </li>
               <li>
-                <a href="/compliance" className="hover:text-primary transition-colors">
-                  Compliance
+                <a href="https://buildmybot.ai/compliance" className="hover:text-primary transition-colors">
+                  GDPR Compliance
                 </a>
               </li>
             </ul>
