@@ -16,10 +16,10 @@ const Hero = () => {
 
   return (
     <section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-primary/5 to-background"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background to-background"
       aria-label="Hero section"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-5" aria-hidden="true" />
       
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
