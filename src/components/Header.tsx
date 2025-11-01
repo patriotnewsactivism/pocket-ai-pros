@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Bot, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react"; // 'Bot' icon removed
 import { useState } from "react";
 import { ContactDialog } from "./ContactDialog";
+import { LogoIcon } from "./LogoIcon"; // Import the new LogoIcon
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,11 +19,13 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border" role="banner">
       <nav className="container mx-auto px-4 py-4" role="navigation" aria-label="Main navigation">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center" aria-hidden="true">
-              <Bot className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">BuildMyBot</span>
+          {/* --- NEW LOGO AND LOGOTYPE --- */}
+          <div className="flex items-center gap-3">
+            <LogoIcon className="w-9 h-9" />
+            <span className="text-xl font-bold tracking-tight">
+              BUILD<span className="font-light opacity-80">MY</span>BOT
+              <span className="text-lg font-light text-primary opacity-90 ml-1">.APP</span>
+            </span>
           </div>
 
           {/* Desktop Navigation */}
