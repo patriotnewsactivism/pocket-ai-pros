@@ -41,14 +41,12 @@ const Hero = () => {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <ContactDialog 
-                trigger={
-                  <Button variant="hero" size="xl" className="group">
-                    Start Building Free
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-                  </Button>
-                }
-              />
+              <a href="/auth">
+                <Button variant="hero" size="xl" className="group">
+                  Start Building Free
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                </Button>
+              </a>
               <Button variant="outline-gradient" size="xl" onClick={scrollToPricing}>
                 View Pricing
               </Button>

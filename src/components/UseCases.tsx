@@ -7,7 +7,9 @@ import {
   Plane, 
   Coins,
   Briefcase,
-  Home
+  Home,
+  Wrench,
+  Landmark
 } from "lucide-react";
 
 const useCases = [
@@ -66,6 +68,20 @@ const useCases = [
     description: "Tenant support, maintenance requests, and lease information",
     benefits: ["Faster resolution", "Tenant satisfaction", "Reduced workload"],
     color: "from-secondary to-accent",
+  },
+  {
+    icon: Wrench,
+    title: "Repair Shops",
+    description: "Service scheduling, quote requests, and repair status updates",
+    benefits: ["50% more bookings", "Faster quotes", "Customer satisfaction"],
+    color: "from-primary to-accent",
+  },
+  {
+    icon: Landmark,
+    title: "Politicians & Government",
+    description: "Constituent inquiries, event information, and policy questions",
+    benefits: ["Better engagement", "24/7 availability", "Efficient outreach"],
+    color: "from-accent to-primary",
   },
 ];
 

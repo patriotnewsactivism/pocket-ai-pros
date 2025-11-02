@@ -4,13 +4,28 @@ import { ContactDialog } from "./ContactDialog";
 
 const pricingPlans = [
   {
+    name: "Free",
+    price: "$0",
+    description: "Try it out with no commitment",
+    icon: Zap,
+    features: [
+      "1 Custom AI Bot",
+      "60 conversations/month",
+      "GPT-4o-mini powered",
+      "Basic analytics",
+      "Community support",
+      "Standard training data",
+    ],
+    popular: false,
+  },
+  {
     name: "Starter",
     price: "$29",
     description: "Perfect for small businesses getting started",
     icon: Zap,
     features: [
       "1 Custom AI Bot",
-      "1,000 messages/month",
+      "750 conversations/month",
       "GPT-4o-mini powered",
       "Basic analytics",
       "Email support",
@@ -25,7 +40,7 @@ const pricingPlans = [
     icon: Crown,
     features: [
       "5 Custom AI Bots",
-      "10,000 messages/month",
+      "5,000 conversations/month",
       "GPT-4o-mini powered",
       "Advanced analytics",
       "Priority support",
@@ -36,13 +51,32 @@ const pricingPlans = [
     popular: true,
   },
   {
-    name: "Enterprise",
-    price: "$299",
-    description: "Unlimited power for large organizations",
+    name: "Executive",
+    price: "$199",
+    description: "Serious power for scaling businesses",
     icon: Rocket,
     features: [
+      "10 Custom AI Bots",
+      "15,000 conversations/month",
+      "GPT-4o-mini powered",
+      "Premium analytics",
+      "Priority support",
+      "Custom integrations",
+      "API access",
+      "Multi-language support",
+      "Team collaboration",
+    ],
+    popular: false,
+  },
+  {
+    name: "Enterprise",
+    price: "$399",
+    description: "Unlimited scale for large organizations",
+    icon: Crown,
+    features: [
       "Unlimited AI Bots",
-      "Unlimited messages",
+      "50,000 conversations included",
+      "$0.01 per extra conversation",
       "GPT-4o-mini + premium models",
       "Enterprise analytics",
       "24/7 dedicated support",
@@ -69,7 +103,7 @@ const Pricing = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
           {pricingPlans.map((plan, index) => {
             const Icon = plan.icon;
             return (
@@ -111,21 +145,18 @@ const Pricing = () => {
                 </CardContent>
 
                 <CardFooter>
-                  <ContactDialog 
-                    defaultPlan={plan.name}
-                    trigger={
-                      <button 
-                        className={`w-full inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                          plan.popular 
-                            ? "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 shadow-lg" 
-                            : "bg-gradient-to-r from-transparent to-transparent border-2 border-primary/50 hover:border-primary hover:bg-primary/5"
-                        }`}
-                        aria-label={`Get started with ${plan.name} plan`}
-                      >
-                        Get Started
-                      </button>
-                    }
-                  />
+                  <a href="/auth" className="w-full">
+                    <button 
+                      className={`w-full inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                        plan.popular 
+                          ? "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 shadow-lg" 
+                          : "bg-gradient-to-r from-transparent to-transparent border-2 border-primary/50 hover:border-primary hover:bg-primary/5"
+                      }`}
+                      aria-label={`Get started with ${plan.name} plan`}
+                    >
+                      Get Started
+                    </button>
+                  </a>
                 </CardFooter>
               </Card>
             );

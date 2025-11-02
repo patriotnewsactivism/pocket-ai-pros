@@ -11,6 +11,9 @@ import NotFound from '@/pages/NotFound';
 import Terms from '@/pages/Terms';
 import Privacy from '@/pages/Privacy';
 import Refund from '@/pages/Refund';
+import Auth from '@/pages/Auth';
+import Dashboard from '@/pages/Dashboard';
+import ResellerDashboard from '@/pages/ResellerDashboard';
 import { validateEnv } from '@/config/env';
 import './App.css';
 
@@ -45,6 +48,9 @@ function App() {
           <Analytics />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/reseller" element={<ResellerDashboard />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/refund" element={<Refund />} />

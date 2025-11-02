@@ -51,7 +51,7 @@ const Header = () => {
             >
               Reseller Program
             </button>
-            <ContactDialog trigger={<Button variant="hero" size="sm">Get Started Free</Button>} />
+            <a href="/auth"><Button variant="hero" size="sm">Get Started Free</Button></a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -89,7 +89,7 @@ const Header = () => {
             >
               Reseller Program
             </button>
-            <ContactDialog trigger={<Button variant="hero" size="sm" className="w-full">Get Started Free</Button>} />
+            <a href="/auth" className="w-full"><Button variant="hero" size="sm" className="w-full">Get Started Free</Button></a>
           </div>
         )}
       </nav>

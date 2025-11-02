@@ -2,35 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* NEW BRANDING PALETTE:
-  - Primary (Trust): Confident Blue
-  - Secondary (Intelligence): AI Cyan/Teal
-  - Accent (Action/Revenue): Energetic Gold
+/* PROFESSIONAL PURPLE/INDIGO BRANDING:
+  - Primary: Deep Purple (Authority & Innovation)
+  - Secondary: Rich Indigo (Intelligence & Trust)
+  - Accent: Vibrant Purple (Energy & Premium)
 */
 
 @layer base {
   :root {
-    --background: 220 25% 98%;
-    --foreground: 220 15% 10%;
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 10%;
+    --card-foreground: 224 71% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 10%;
+    --popover-foreground: 224 71% 4%;
 
-    --primary: 210 100% 50%;
+    --primary: 263 70% 50%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 210 100% 60%;
+    --primary-glow: 263 70% 60%;
 
-    --secondary: 180 100% 45%; /* Was accent, now secondary */
+    --secondary: 243 75% 59%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 15% 95%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 45 100% 50%; /* NEW: Gold/Yellow for action */
-    --accent-foreground: 220 15% 10%; /* Dark text for high contrast on yellow */
+    --accent: 271 81% 56%;
+    --accent-foreground: 0 0% 100%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
@@ -38,56 +38,56 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
-    --ring: 210 100% 50%;
+    --border: 220 14% 91%;
+    --input: 220 14% 91%;
+    --ring: 263 70% 50%;
 
     --radius: 0.75rem;
 
-    /* Gradients - Updated with new Accent */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--accent)));
-    --gradient-hero: linear-gradient(180deg, hsl(220 25% 98%), hsl(210 100% 98%));
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(263 70% 50%), hsl(243 75% 59%));
+    --gradient-secondary: linear-gradient(135deg, hsl(243 75% 59%), hsl(271 81% 56%));
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%), hsl(263 70% 98%));
     
     /* Shadows */
-    --shadow-glow: 0 0 40px hsl(210 100% 50% / 0.3);
-    --shadow-card: 0 10px 30px -10px hsl(220 15% 10% / 0.1);
+    --shadow-glow: 0 0 40px hsl(263 70% 50% / 0.3);
+    --shadow-card: 0 10px 30px -10px hsl(224 71% 4% / 0.1);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 222 47% 11%;
+    --background: 224 71% 4%;
     --foreground: 210 40% 98%;
 
-    --card: 222 47% 11%;
+    --card: 224 71% 4%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222 47% 11%;
+    --popover: 224 71% 4%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 263 70% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 47% 18%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 243 75% 59%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 271 81% 56%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 217 91% 60%;
+    --ring: 263 70% 50%;
 
-    --shadow-glow: 0 0 40px hsla(217, 91%, 60%, 0.15);
-    --shadow-card: 0 10px 30px -10px hsla(217, 91%, 60%, 0.2);
+    --shadow-glow: 0 0 40px hsl(263 70% 50% / 0.3);
+    --shadow-card: 0 10px 30px -10px hsl(263 70% 50% / 0.2);
   }
 }
 
