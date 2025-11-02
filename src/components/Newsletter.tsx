@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { db } from "@/lib/supabase";
+import { trackEvent } from "./Analytics";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !email.includes("@")) {
@@ -21,14 +23,21 @@ const Newsletter = () => {
       return;
     }
 
-    // In production, this would call your newsletter API
-    console.log("Newsletter subscription:", email);
-    
-    setIsSubscribed(true);
-    toast({
-      title: "Successfully subscribed!",
-      description: "Welcome to the BuildMyBot newsletter.",
-    });
+    try {
+      await db.createSubscriber(email);
+      setIsSubscribed(true);
+      trackEvent('newsletterSignup');
+      toast({
+        title: "Successfully subscribed!",
+        description: "You'll receive AI insights and updates.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Subscription failed",
+        description: error.message || "Please try again later.",
+        variant: "destructive",
+      });
+    }
 
     // Reset after 3 seconds
     setTimeout(() => {
@@ -38,7 +47,7 @@ const Newsletter = () => {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-br from-primary via-secondary to-accent relative overflow-hidden">
+    <section className="py-16 bg-gradient-to-br from-primary/90 via-primary to-primary/80 relative overflow-hidden">
       <div className="absolute inset-0 bg-grid-pattern opacity-10" aria-hidden="true" />
       
       <div className="container mx-auto px-4 relative z-10">

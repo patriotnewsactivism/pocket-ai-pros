@@ -11,6 +11,7 @@ import FAQ from "@/components/FAQ";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import { SEO } from "@/components/SEO";
+import { AIChatbot } from "@/components/AIChatbot";
 
 const Index = () => {
   return (
@@ -31,6 +32,7 @@ const Index = () => {
           <Newsletter />
         </main>
         <Footer />
+        <AIChatbot businessType="support" />
       </div>
     </>
   );

@@ -15,10 +15,13 @@ export const env = {
   // Feature Flags
   enableAnalytics: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
   enableChatWidget: import.meta.env.VITE_ENABLE_CHAT_WIDGET === 'true',
+  enableAIChatbot: import.meta.env.VITE_ENABLE_AI_CHATBOT === 'true',
+  businessType: import.meta.env.VITE_BUSINESS_TYPE || 'support',
 
   // External Services
   stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY || '',
   googleAnalyticsId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID || '',
+  openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
 
   // Environment
   appEnv: import.meta.env.VITE_APP_ENV || 'development',
