@@ -10,25 +10,25 @@
 
 @layer base {
   :root {
-    --background: 0 0% 15%; /* Dark Gray */
-    --foreground: 0 0% 95%; /* Off-white */
+    --background: 0 0% 12%; /* Dark Gray */
+    --foreground: 0 0% 100%; /* Pure White */
 
-    --card: 0 0% 20%; /* Lighter card background */
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 18%; /* Lighter card background */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 15%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 0 65% 40%; /* Burgundy Red */
+    --primary: 0 65% 45%; /* Brighter Burgundy */
     --primary-foreground: 45 100% 95%; 
 
-    --secondary: 45 80% 60%; /* Gold */
+    --secondary: 45 85% 65%; /* Brighter Gold */
     --secondary-foreground: 0 0% 8%;
 
-    --muted: 0 0% 25%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 40 70% 55%; /* Muted Gold */
+    --accent: 40 75% 60%; /* Brighter Muted Gold */
     --accent-foreground: 0 0% 8%;
 
     --success: 142 76% 40%;
@@ -39,30 +39,30 @@
 
     --border: 0 0% 30%;
     --input: 0 0% 30%;
-    --ring: 45 80% 60%; 
+    --ring: 45 85% 65%; /* Brighter Gold Ring */
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 0 0% 15%; /* Dark Gray */
-    --foreground: 0 0% 95%; /* Off-white */
+    --background: 0 0% 12%; /* Dark Gray */
+    --foreground: 0 0% 100%; /* Pure White */
 
-    --card: 0 0% 20%; /* Lighter card background */
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 18%; /* Lighter card background */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 15%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 0 65% 40%;
+    --primary: 0 65% 45%; /* Brighter Burgundy */
     --primary-foreground: 45 100% 95%;
 
-    --secondary: 45 80% 60%;
+    --secondary: 45 85% 65%; /* Brighter Gold */
     --secondary-foreground: 0 0% 8%;
 
-    --muted: 0 0% 25%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 40 70% 55%;
+    --accent: 40 75% 60%; /* Brighter Muted Gold */
     --accent-foreground: 0 0% 8%;
 
     --destructive: 0 63% 45%;
@@ -70,7 +70,7 @@
 
     --border: 0 0% 30%;
     --input: 0 0% 30%;
-    --ring: 45 80% 60%;
+    --ring: 45 85% 65%; /* Brighter Gold Ring */
   }
 }
 
@@ -82,7 +82,7 @@
   body {
     @apply bg-background text-foreground;
     font-size: 1.05rem; /* Increased base font size */
-    font-weight: 450; /* Slightly bolder font */
+    font-weight: 500; /* Bolder font (Medium) */
   }
 
   h1, h2, h3 {
