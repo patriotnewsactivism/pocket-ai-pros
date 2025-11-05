@@ -4,9 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Bot, MessageSquare, LogOut, Plus, TrendingUp } from 'lucide-react';
+import { Bot, MessageSquare, LogOut, Plus, TrendingUp, Trash2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import type { User } from '@supabase/supabase-js';
+import CreateBotDialog from '@/components/CreateBotDialog';
 
 interface UserProfile {
   full_name: string;
@@ -31,6 +32,8 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [bots, setBots] = useState<BotData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createBotOpen, setCreateBotOpen] = useState(false);
+  const [isReseller, setIsReseller] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -49,7 +52,18 @@ export default function Dashboard() {
     setUser(user);
     await loadProfile(user.id);
     await loadBots(user.id);
+    await checkResellerStatus(user.id);
     setLoading(false);
+  };
+
+  const checkResellerStatus = async (userId: string) => {
+    const { data } = await supabase
+      .from('resellers')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
+    
+    setIsReseller(!!data);
   };
 
   const loadProfile = async (userId: string) => {
@@ -100,10 +114,61 @@ export default function Dashboard() {
       return;
     }
 
+    setCreateBotOpen(true);
+  };
+
+  const handleDeleteBot = async (botId: string) => {
+    if (!confirm('Are you sure you want to delete this bot? This action cannot be undone.')) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('bots')
+      .delete()
+      .eq('id', botId);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete bot',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     toast({
-      title: 'Bot creation coming soon',
-      description: 'Bot builder is under development.',
+      title: 'Success',
+      description: 'Bot deleted successfully',
     });
+
+    if (user) {
+      await loadBots(user.id);
+    }
+  };
+
+  const handleUpgradePlan = async (plan: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan, email: user?.email }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success!',
+        description: `You're now on the ${plan} plan!`,
+      });
+
+      if (user) {
+        await loadProfile(user.id);
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to upgrade plan',
+        variant: 'destructive',
+      });
+    }
   };
 
   if (loading) {
@@ -137,10 +202,17 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex gap-2">
+            {isReseller && (
+              <Button variant="outline" onClick={() => navigate('/reseller-dashboard')}>
+                Reseller Portal
+              </Button>
+            )}
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -156,10 +228,16 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" onClick={() => navigate('/#pricing')}>
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Upgrade Plan
-              </Button>
+              {profile?.plan === 'free' ? (
+                <Button className="w-full" onClick={() => navigate('/#pricing')}>
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Upgrade Plan
+                </Button>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center">
+                  Active subscription
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -242,9 +320,15 @@ export default function Dashboard() {
                           {bot.conversations_count} conversations
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
-                        Manage
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteBot(bot.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -253,6 +337,16 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </main>
+
+      <CreateBotDialog
+        open={createBotOpen}
+        onOpenChange={setCreateBotOpen}
+        onBotCreated={() => {
+          if (user) {
+            loadBots(user.id);
+          }
+        }}
+      />
     </div>
   );
 }

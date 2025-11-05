@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, DollarSign, TrendingUp, LogOut, Bot } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import type { User } from '@supabase/supabase-js';
 
 interface ResellerData {
@@ -17,6 +18,7 @@ export default function ResellerDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [reseller, setReseller] = useState<ResellerData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -126,7 +128,7 @@ export default function ResellerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-success">
-                {reseller?.commission_rate || 20}%
+                {reseller?.commission_rate || 40}%
               </div>
             </CardContent>
           </Card>
@@ -148,19 +150,19 @@ export default function ResellerDashboard() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Starter ($29/mo):</span>
-                <span className="font-semibold">${(29 * (reseller?.commission_rate || 20) / 100).toFixed(2)}</span>
+                <span className="font-semibold">${(29 * (reseller?.commission_rate || 40) / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Professional ($99/mo):</span>
-                <span className="font-semibold">${(99 * (reseller?.commission_rate || 20) / 100).toFixed(2)}</span>
+                <span className="font-semibold">${(99 * (reseller?.commission_rate || 40) / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Executive ($199/mo):</span>
-                <span className="font-semibold">${(199 * (reseller?.commission_rate || 20) / 100).toFixed(2)}</span>
+                <span className="font-semibold">${(199 * (reseller?.commission_rate || 40) / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Enterprise ($399/mo):</span>
-                <span className="font-semibold">${(399 * (reseller?.commission_rate || 20) / 100).toFixed(2)}</span>
+                <span className="font-semibold">${(399 * (reseller?.commission_rate || 40) / 100).toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>
@@ -212,6 +214,10 @@ export default function ResellerDashboard() {
               <Button
                 onClick={() => {
                   navigator.clipboard.writeText(`${window.location.origin}/?ref=${user?.id}`);
+                  toast({
+                    title: 'Copied!',
+                    description: 'Referral link copied to clipboard',
+                  });
                 }}
               >
                 Copy Link

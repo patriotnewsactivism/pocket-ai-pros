@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,8 +11,17 @@ import { Loader2, Bot } from 'lucide-react';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const referralId = searchParams.get('ref');
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Store referral ID in localStorage if present
+    if (referralId) {
+      localStorage.setItem('referral_id', referralId);
+    }
+  }, [referralId]);
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,22 +49,25 @@ export default function Auth() {
       if (authError) throw authError;
 
       if (authData.user) {
-        // Create user profile with proper error handling
-        const { error: profileError } = await supabase.from('users').insert({
-          id: authData.user.id,
-          email: email,
-          full_name: fullName,
-          company: company,
-          plan: 'free',
-          status: 'active',
-          conversations_used: 0,
-          conversations_limit: 60,
-          bots_limit: 1,
-        });
-
-        // Ignore duplicate key errors (user might already exist)
-        if (profileError && profileError.code !== '23505') {
-          console.error('Profile creation error:', profileError);
+        // Get referral ID from localStorage if it exists
+        const storedReferralId = localStorage.getItem('referral_id');
+        
+        if (storedReferralId) {
+          // Track the referral - increment client count for reseller
+          const { data: reseller } = await supabase
+            .from('resellers')
+            .select('clients_count')
+            .eq('user_id', storedReferralId)
+            .single();
+          
+          if (reseller) {
+            await supabase
+              .from('resellers')
+              .update({ clients_count: (reseller.clients_count || 0) + 1 })
+              .eq('user_id', storedReferralId);
+          }
+          
+          localStorage.removeItem('referral_id');
         }
 
         toast({
