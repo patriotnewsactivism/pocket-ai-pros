@@ -22,10 +22,10 @@ export default function Auth() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
-    const company = formData.get('company') as string;
+    const company = formData.get('company') as string || '';
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -37,16 +37,26 @@ export default function Auth() {
         }
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      if (data.user) {
-        // Create user profile
-        await supabase.from('users').insert({
-          id: data.user.id,
+      if (authData.user) {
+        // Create user profile with proper error handling
+        const { error: profileError } = await supabase.from('users').insert({
+          id: authData.user.id,
           email: email,
           full_name: fullName,
           company: company,
+          plan: 'free',
+          status: 'active',
+          conversations_used: 0,
+          conversations_limit: 60,
+          bots_limit: 1,
         });
+
+        // Ignore duplicate key errors (user might already exist)
+        if (profileError && profileError.code !== '23505') {
+          console.error('Profile creation error:', profileError);
+        }
 
         toast({
           title: 'Account created!',
@@ -58,7 +68,7 @@ export default function Auth() {
     } catch (error: any) {
       toast({
         title: 'Sign up failed',
-        description: error.message,
+        description: error.message || 'Please try again',
         variant: 'destructive',
       });
     } finally {
@@ -100,11 +110,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg">
               <Bot className="w-8 h-8 text-primary-foreground" />
             </div>
           </div>

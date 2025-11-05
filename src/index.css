@@ -10,67 +10,67 @@
 
 @layer base {
   :root {
-    --background: 0 0% 12%; /* Dark Gray */
-    --foreground: 0 0% 100%; /* Pure White */
+    --background: 0 0% 98%; /* Light background */
+    --foreground: 0 0% 10%; /* Dark text */
 
-    --card: 0 0% 18%; /* Lighter card background */
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%; /* White cards */
+    --card-foreground: 0 0% 10%;
 
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 0 65% 45%; /* Brighter Burgundy */
-    --primary-foreground: 45 100% 95%; 
+    --primary: 262 83% 58%; /* Purple */
+    --primary-foreground: 0 0% 100%; 
 
-    --secondary: 45 85% 65%; /* Brighter Gold */
-    --secondary-foreground: 0 0% 8%;
+    --secondary: 220 14% 96%; /* Light gray */
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 0 0% 22%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 40 75% 60%; /* Brighter Muted Gold */
-    --accent-foreground: 0 0% 8%;
+    --accent: 262 83% 95%; /* Light purple accent */
+    --accent-foreground: 262 83% 58%;
 
-    --success: 142 76% 40%;
+    --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
-    --destructive: 0 63% 45%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 30%;
-    --input: 0 0% 30%;
-    --ring: 45 85% 65%; /* Brighter Gold Ring */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 262 83% 58%;
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 0 0% 12%; /* Dark Gray */
-    --foreground: 0 0% 100%; /* Pure White */
+    --background: 0 0% 12%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 18%; /* Lighter card background */
+    --card: 0 0% 18%;
     --card-foreground: 0 0% 98%;
 
     --popover: 0 0% 12%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 0 65% 45%; /* Brighter Burgundy */
-    --primary-foreground: 45 100% 95%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 45 85% 65%; /* Brighter Gold */
-    --secondary-foreground: 0 0% 8%;
+    --secondary: 220 14% 16%;
+    --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 22%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 40 75% 60%; /* Brighter Muted Gold */
-    --accent-foreground: 0 0% 8%;
+    --accent: 262 83% 20%;
+    --accent-foreground: 262 83% 98%;
 
     --destructive: 0 63% 45%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 30%;
     --input: 0 0% 30%;
-    --ring: 45 85% 65%; /* Brighter Gold Ring */
+    --ring: 262 83% 58%;
   }
 }
 

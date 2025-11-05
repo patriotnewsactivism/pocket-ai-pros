@@ -16,7 +16,7 @@ const Hero = () => {
 
   return (
     <section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background to-background"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-accent/5 to-background"
       aria-label="Hero section"
     >
       <div className="absolute inset-0 bg-grid-pattern opacity-5" aria-hidden="true" />
