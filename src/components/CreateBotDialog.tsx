@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,6 +12,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Bot, Loader2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const botSchema = z.object({
+  name: z.string()
+    .min(3, 'Bot name must be at least 3 characters')
+    .max(100, 'Bot name must not exceed 100 characters')
+    .trim(),
+  description: z.string()
+    .max(500, 'Description must not exceed 500 characters')
+    .trim()
+    .optional(),
+});
+
+type BotFormData = z.infer<typeof botSchema>;
 
 interface CreateBotDialogProps {
   open: boolean;
@@ -25,36 +40,35 @@ export default function CreateBotDialog({
   onOpenChange,
   onBotCreated,
 }: CreateBotDialogProps) {
-  const [loading, setLoading] = useState(false);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
   const { toast } = useToast();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    watch,
+  } = useForm<BotFormData>({
+    resolver: zodResolver(botSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!name.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Bot name is required',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const description = watch('description') || '';
 
-    setLoading(true);
-
+  const onSubmit = async (data: BotFormData) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         throw new Error('Not authenticated');
       }
 
       const { error } = await supabase.from('bots').insert({
         user_id: user.id,
-        name: name.trim(),
-        description: description.trim() || null,
+        name: data.name,
+        description: data.description || null,
         status: 'active',
         conversations_count: 0,
         configuration: {},
@@ -67,18 +81,16 @@ export default function CreateBotDialog({
         description: 'Your bot has been created successfully.',
       });
 
-      setName('');
-      setDescription('');
+      reset();
       onOpenChange(false);
       onBotCreated();
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create bot';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to create bot',
+        description: errorMessage,
         variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -95,17 +107,18 @@ export default function CreateBotDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Bot Name *</Label>
             <Input
               id="name"
               placeholder="e.g., Customer Support Bot"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={100}
-              disabled={loading}
+              {...register('name')}
+              disabled={isSubmitting}
             />
+            {errors.name && (
+              <p className="text-xs text-destructive">{errors.name.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -113,12 +126,13 @@ export default function CreateBotDialog({
             <Textarea
               id="description"
               placeholder="Describe what this bot will do..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register('description')}
               rows={4}
-              maxLength={500}
-              disabled={loading}
+              disabled={isSubmitting}
             />
+            {errors.description && (
+              <p className="text-xs text-destructive">{errors.description.message}</p>
+            )}
             <p className="text-xs text-muted-foreground">
               {description.length}/500 characters
             </p>
@@ -128,13 +142,16 @@ export default function CreateBotDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
+              onClick={() => {
+                reset();
+                onOpenChange(false);
+              }}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? (
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Creating...

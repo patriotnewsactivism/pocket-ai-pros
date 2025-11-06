@@ -49,9 +49,22 @@ export default function Auth() {
       if (authError) throw authError;
 
       if (authData.user) {
+        // Check if email confirmation is required
+        const session = authData.session;
+
+        if (!session) {
+          // Email confirmation required
+          toast({
+            title: 'Check your email!',
+            description: 'We sent you a confirmation link. Please verify your email before signing in.',
+          });
+          setLoading(false);
+          return;
+        }
+
         // Get referral ID from localStorage if it exists
         const storedReferralId = localStorage.getItem('referral_id');
-        
+
         if (storedReferralId) {
           // Track the referral - increment client count for reseller
           const { data: reseller } = await supabase
@@ -59,14 +72,14 @@ export default function Auth() {
             .select('clients_count')
             .eq('user_id', storedReferralId)
             .single();
-          
+
           if (reseller) {
             await supabase
               .from('resellers')
               .update({ clients_count: (reseller.clients_count || 0) + 1 })
               .eq('user_id', storedReferralId);
           }
-          
+
           localStorage.removeItem('referral_id');
         }
 

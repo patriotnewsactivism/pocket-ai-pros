@@ -173,14 +173,13 @@ export const api = {
     try {
       return await db.getStats();
     } catch (error) {
-      console.error('Failed to fetch stats:', error);
-      // Return default values on error
-      return {
-        totalBots: 500,
-        activeUsers: 250,
-        messagesProcessed: 150000,
-        uptime: 99.9,
-      };
+      // In production, log to monitoring service
+      // Return minimal stats instead of fake data to indicate error state
+      throw new ApiError(
+        'Failed to fetch statistics',
+        500,
+        error
+      );
     }
   },
 };

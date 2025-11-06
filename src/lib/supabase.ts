@@ -143,28 +143,17 @@ export const db = {
 
   // Statistics
   async getStats(): Promise<Stats> {
-    try {
-      const [botsResult, usersResult, messagesResult] = await Promise.all([
-        supabase.from('bots').select('id', { count: 'exact', head: true }),
-        supabase.from('users').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-        supabase.from('messages').select('id', { count: 'exact', head: true }),
-      ]);
+    const [botsResult, usersResult, messagesResult] = await Promise.all([
+      supabase.from('bots').select('id', { count: 'exact', head: true }),
+      supabase.from('users').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+      supabase.from('messages').select('id', { count: 'exact', head: true }),
+    ]);
 
-      return {
-        totalBots: botsResult.count || 0,
-        activeUsers: usersResult.count || 0,
-        messagesProcessed: messagesResult.count || 0,
-        uptime: 99.9,
-      };
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-      // Return default values if tables don't exist yet
-      return {
-        totalBots: 500,
-        activeUsers: 250,
-        messagesProcessed: 150000,
-        uptime: 99.9,
-      };
-    }
+    return {
+      totalBots: botsResult.count || 0,
+      activeUsers: usersResult.count || 0,
+      messagesProcessed: messagesResult.count || 0,
+      uptime: 99.9,
+    };
   },
 };

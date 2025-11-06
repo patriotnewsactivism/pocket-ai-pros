@@ -43,27 +43,31 @@ export default function Dashboard() {
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       navigate('/auth');
       return;
     }
 
     setUser(user);
-    await loadProfile(user.id);
-    await loadBots(user.id);
-    await checkResellerStatus(user.id);
-    setLoading(false);
-  };
 
-  const checkResellerStatus = async (userId: string) => {
-    const { data } = await supabase
-      .from('resellers')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
-    
-    setIsReseller(!!data);
+    // Parallelize database queries for faster loading
+    const [profileResult, botsResult, resellerResult] = await Promise.all([
+      supabase.from('users').select('*').eq('id', user.id).single(),
+      supabase.from('bots').select('*').eq('user_id', user.id).eq('status', 'active').order('created_at', { ascending: false }),
+      supabase.from('resellers').select('id').eq('user_id', user.id).single()
+    ]);
+
+    if (profileResult.data) {
+      setProfile(profileResult.data);
+    }
+
+    if (botsResult.data) {
+      setBots(botsResult.data);
+    }
+
+    setIsReseller(!!resellerResult.data);
+    setLoading(false);
   };
 
   const loadProfile = async (userId: string) => {
@@ -74,7 +78,11 @@ export default function Dashboard() {
       .single();
 
     if (error) {
-      console.error('Error loading profile:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load profile',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -90,7 +98,11 @@ export default function Dashboard() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error loading bots:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load bots',
+        variant: 'destructive',
+      });
       return;
     }
 
