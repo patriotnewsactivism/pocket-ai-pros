@@ -1,1 +1,13 @@
 project_id = "fjbwmpyfnhmndzkdsvfi"
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.create-checkout-session]
+verify_jwt = true
+
+[functions.check-subscription]
+verify_jwt = true
+
+[functions.process-reseller-application]
+verify_jwt = false

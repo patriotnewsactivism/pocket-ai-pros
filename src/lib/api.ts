@@ -73,10 +73,16 @@ export const api = {
     expectedClients?: number;
   }) {
     try {
-      await db.createResellerApplication(data);
+      const { supabase } = await import('./supabase');
+      const { data: result, error } = await supabase.functions.invoke('process-reseller-application', {
+        body: data,
+      });
+
+      if (error) throw error;
+
       return {
         success: true,
-        message: "Application received! We'll review within 2 business days.",
+        message: result.message || "Application received! We'll review within 2 business days.",
       };
     } catch (error) {
       throw new ApiError(

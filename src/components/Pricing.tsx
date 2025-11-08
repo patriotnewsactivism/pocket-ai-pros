@@ -1,6 +1,9 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Zap, Crown, Rocket } from "lucide-react";
-import { ContactDialog } from "./ContactDialog";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const pricingPlans = [
   {
@@ -90,6 +93,49 @@ const pricingPlans = [
 ];
 
 const Pricing = () => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const handleSubscribe = async (planName: string) => {
+    if (planName === "Free") {
+      window.location.href = "/auth";
+      return;
+    }
+
+    setLoading(planName);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to subscribe to a plan.",
+        });
+        window.location.href = "/auth";
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { plan: planName.toLowerCase() },
+      });
+
+      if (error) throw error;
+
+      if (data.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (error) {
+      console.error("Subscription error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to start checkout. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
+
   return (
     <section id="pricing" className="py-24 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
@@ -145,18 +191,17 @@ const Pricing = () => {
                 </CardContent>
 
                 <CardFooter>
-                  <a href="/auth" className="w-full">
-                    <button 
-                      className={`w-full inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                        plan.popular 
-                          ? "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 shadow-lg" 
-                          : "bg-gradient-to-r from-transparent to-transparent border-2 border-primary/50 hover:border-primary hover:bg-primary/5"
-                      }`}
-                      aria-label={`Get started with ${plan.name} plan`}
-                    >
-                      Get Started
-                    </button>
-                  </a>
+                  <Button
+                    onClick={() => handleSubscribe(plan.name)}
+                    disabled={loading === plan.name}
+                    className={`w-full ${
+                      plan.popular 
+                        ? "bg-gradient-to-r from-primary to-accent hover:opacity-90" 
+                        : ""
+                    }`}
+                  >
+                    {loading === plan.name ? "Processing..." : "Get Started"}
+                  </Button>
                 </CardFooter>
               </Card>
             );
