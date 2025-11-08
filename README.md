@@ -113,6 +113,13 @@ This will automatically:
    npm run build
    ```
 
+4. **Configure Environment Variables (once):**
+   ```bash
+   cp .env.example .env
+   ```
+   - Populate Supabase URL and anon key when you're ready to connect to Supabase.
+   - Local development without Supabase is supported; you'll see a console warning until the keys are added.
+
 The app will be available at `http://localhost:8080`
 
 ## 📚 Documentation
