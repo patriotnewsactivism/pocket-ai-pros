@@ -7,6 +7,7 @@ type BooleanLike = boolean | 'true' | 'false' | undefined;
 
 type BuildMyBotMetaEnv = ImportMetaEnv & Record<string, string | boolean | undefined>;
 
+<<<<<<< HEAD
 const parseBoolean = (value: unknown): boolean =>
   value === true || (typeof value === 'string' && value.toLowerCase() === 'true');
 
@@ -57,7 +58,7 @@ export const createEnv = (metaEnv: BuildMyBotMetaEnv = import.meta.env) => {
     // External Services
     stripePublicKey: getString(metaEnv?.VITE_STRIPE_PUBLIC_KEY) || '',
     googleAnalyticsId: getString(metaEnv?.VITE_GOOGLE_ANALYTICS_ID) || '',
-    openaiApiKey: getString(metaEnv?.VITE_OPENAI_API_KEY) || '',
+    // Note: OpenAI API key removed - now handled securely via edge function
 
     // Environment
     appEnv: getString(metaEnv?.VITE_APP_ENV) || 'development',
