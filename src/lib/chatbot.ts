@@ -345,13 +345,13 @@ export class Chatbot {
       }
     }
 
-    // Use OpenAI if API key is available
-    if (env.isDevelopment === false && process.env.VITE_OPENAI_API_KEY) {
+    // Use Supabase Edge Function if AI chatbot is enabled
+    if (env.enableAIChatbot) {
       try {
-        const aiResponse = await this.getOpenAIResponse(userMessage);
+        const aiResponse = await this.requestAIResponse(userMessage);
         return aiResponse;
       } catch (error) {
-        console.error('OpenAI error:', error);
+        console.error('AI response error:', error);
       }
     }
 
@@ -360,41 +360,40 @@ export class Chatbot {
   }
 
   /**
-   * Get response from OpenAI API
+   * Request AI-generated response via Supabase Edge Function
    */
-  private async getOpenAIResponse(userMessage: string): Promise<string> {
-    const apiKey = process.env.VITE_OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-
-    const systemPrompt = `You are a helpful ${this.template.name} for a ${this.businessType} business. 
+  private async requestAIResponse(userMessage: string): Promise<string> {
+    const systemPrompt = `You are a helpful ${this.template.name} for a ${this.businessType} business.
 Your capabilities include: ${this.template.capabilities.join(', ')}.
 Be friendly, professional, and concise. If you can't answer something, offer to connect them with a human agent.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...this.conversationHistory.slice(-10).map(msg => ({
-            role: msg.role,
-            content: msg.content,
-          })),
-          { role: 'user', content: userMessage },
-        ],
-        max_tokens: 150,
-        temperature: 0.7,
-      }),
-    });
+    const conversation = this.conversationHistory.slice(-10).map((message) => ({
+      role: message.role,
+      content: message.content,
+    }));
 
-    const data = await response.json();
-    return data.choices[0]?.message?.content || 'I apologize, but I need a moment to process that. Could you rephrase your question?';
+    const { data, error } = await supabase.functions.invoke<{ content?: string }>(
+      'generate-chat-response',
+      {
+        body: {
+          userMessage,
+          systemPrompt,
+          conversation,
+        },
+      },
+    );
+
+    if (error) {
+      const message = typeof error === 'string' ? error : error.message ?? 'Failed to generate AI response';
+      throw new Error(message);
+    }
+
+    const content = typeof data?.content === 'string' ? data.content.trim() : '';
+    if (!content) {
+      throw new Error('AI response was empty');
+    }
+
+    return content;
   }
 
   /**
