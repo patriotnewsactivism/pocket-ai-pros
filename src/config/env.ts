@@ -7,7 +7,8 @@ type BooleanLike = boolean | 'true' | 'false' | undefined;
 
 type BuildMyBotMetaEnv = ImportMetaEnv & Record<string, string | boolean | undefined>;
 
-<<<<<<< HEAD
+type SupabaseKeySource = 'anon' | 'publishable' | 'none';
+
 const parseBoolean = (value: unknown): boolean =>
   value === true || (typeof value === 'string' && value.toLowerCase() === 'true');
 
@@ -30,7 +31,30 @@ const normalizeBooleanFlag = (value: BooleanLike): boolean | undefined => {
   return undefined;
 };
 
-const getString = (value: unknown): string => (typeof value === 'string' ? value : '');
+const getString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
+
+const resolveSupabaseKey = (
+  metaEnv: BuildMyBotMetaEnv
+): { key: string; source: SupabaseKeySource } => {
+  const anonKey = getString(metaEnv?.VITE_SUPABASE_ANON_KEY);
+  const publishableKey = getString(metaEnv?.VITE_SUPABASE_PUBLISHABLE_KEY);
+
+  if (publishableKey && anonKey && publishableKey !== anonKey) {
+    console.warn(
+      'Detected a mismatch between VITE_SUPABASE_PUBLISHABLE_KEY and VITE_SUPABASE_ANON_KEY. Using the publishable key.'
+    );
+  }
+
+  if (publishableKey) {
+    return { key: publishableKey, source: 'publishable' };
+  }
+
+  if (anonKey) {
+    return { key: anonKey, source: 'anon' };
+  }
+
+  return { key: '', source: 'none' };
+};
 
 export const createEnv = (metaEnv: BuildMyBotMetaEnv = import.meta.env) => {
   const devFlag = normalizeBooleanFlag(metaEnv?.DEV as BooleanLike);
@@ -39,11 +63,13 @@ export const createEnv = (metaEnv: BuildMyBotMetaEnv = import.meta.env) => {
 
   const isDevelopment = devFlag ?? mode === 'development';
   const isProduction = prodFlag ?? mode === 'production';
+  const { key: supabaseAnonKey, source: supabaseKeySource } = resolveSupabaseKey(metaEnv);
 
   return {
     // Supabase Configuration
     supabaseUrl: getString(metaEnv?.VITE_SUPABASE_URL) || '',
-    supabaseAnonKey: getString(metaEnv?.VITE_SUPABASE_ANON_KEY) || '',
+    supabaseAnonKey,
+    supabaseKeySource,
 
     // API Configuration
     apiBaseUrl: getString(metaEnv?.VITE_API_BASE_URL) || 'http://localhost:3000/api',
@@ -73,14 +99,12 @@ export const env: EnvConfig = createEnv();
 
 // Validate required environment variables
 export function validateEnv(config: EnvConfig = env) {
-  const required = {
-    VITE_SUPABASE_URL: config.supabaseUrl,
-    VITE_SUPABASE_ANON_KEY: config.supabaseAnonKey,
-  } as const;
+  const required = [
+    ['VITE_SUPABASE_URL', config.supabaseUrl],
+    ['VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY', config.supabaseAnonKey],
+  ] as const;
 
-  const missing = Object.entries(required)
-    .filter(([, value]) => !value)
-    .map(([key]) => key);
+  const missing = required.filter(([, value]) => !value).map(([key]) => key);
 
   if (missing.length === 0) {
     return;

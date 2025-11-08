@@ -15,12 +15,53 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+describe('createEnv', () => {
+  it('prefers the publishable Supabase key when both keys are provided', () => {
+    const envConfig = createEnv(
+      buildMetaEnv({
+        VITE_SUPABASE_URL: 'https://example.supabase.co',
+        VITE_SUPABASE_ANON_KEY: 'anon-key',
+        VITE_SUPABASE_PUBLISHABLE_KEY: 'publishable-key',
+      })
+    );
+
+    expect(envConfig.supabaseAnonKey).toBe('publishable-key');
+    expect(envConfig.supabaseKeySource).toBe('publishable');
+  });
+
+  it('logs a warning when both Supabase keys are present but different', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    createEnv(
+      buildMetaEnv({
+        VITE_SUPABASE_URL: 'https://example.supabase.co',
+        VITE_SUPABASE_ANON_KEY: 'anon-key',
+        VITE_SUPABASE_PUBLISHABLE_KEY: 'publishable-key',
+      })
+    );
+
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy.mock.calls[0][0]).toContain('Detected a mismatch between VITE_SUPABASE_PUBLISHABLE_KEY');
+  });
+});
+
 describe('validateEnv', () => {
   it('does not throw when Supabase configuration is complete', () => {
     const envConfig = createEnv(
       buildMetaEnv({
         VITE_SUPABASE_URL: 'https://example.supabase.co',
         VITE_SUPABASE_ANON_KEY: 'anon-key',
+      })
+    );
+
+    expect(() => validateEnv(envConfig)).not.toThrow();
+  });
+
+  it('does not throw when Supabase publishable key is provided without anon key', () => {
+    const envConfig = createEnv(
+      buildMetaEnv({
+        VITE_SUPABASE_URL: 'https://example.supabase.co',
+        VITE_SUPABASE_PUBLISHABLE_KEY: 'publishable-key',
       })
     );
 
