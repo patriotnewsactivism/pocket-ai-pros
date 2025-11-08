@@ -7,7 +7,6 @@ type BooleanLike = boolean | 'true' | 'false' | undefined;
 
 type BuildMyBotMetaEnv = ImportMetaEnv & Record<string, string | boolean | undefined>;
 
-<<<<<<< HEAD
 const parseBoolean = (value: unknown): boolean =>
   value === true || (typeof value === 'string' && value.toLowerCase() === 'true');
 
