@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
