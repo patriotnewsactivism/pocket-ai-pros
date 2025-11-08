@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroBot from "@/assets/hero-bot.jpg";
 import { ContactDialog } from "./ContactDialog";
 import { useStats } from "@/hooks/useApi";
@@ -41,12 +42,12 @@ const Hero = () => {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <a href="/auth">
+              <Link to="/auth">
                 <Button variant="hero" size="xl" className="group">
                   Start Building Free
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </Button>
-              </a>
+              </Link>
               <Button variant="outline-gradient" size="xl" onClick={scrollToPricing}>
                 View Pricing
               </Button>
