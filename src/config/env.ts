@@ -21,8 +21,6 @@ export const env = {
   // External Services
   stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY || '',
   googleAnalyticsId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID || '',
-  openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
-
   // Environment
   appEnv: import.meta.env.VITE_APP_ENV || 'development',
   isDevelopment: import.meta.env.DEV,
