@@ -74,6 +74,7 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
+      client_reference_id: user.id, // Link payment to user for webhook processing
       line_items: [
         {
           price: planConfig.price_id,
