@@ -1,3 +1,8 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,12 +12,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useResellerApplication } from "@/hooks/useApi";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import {
+  ResellerApplicationFormValues,
+  resellerApplicationSchema,
+} from "@/lib/schemas/reseller";
 
 interface ResellerDialogProps {
   trigger?: React.ReactNode;
@@ -20,50 +34,36 @@ interface ResellerDialogProps {
 
 export function ResellerDialog({ trigger }: ResellerDialogProps) {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    phone: "",
-    experience: "",
-    expectedClients: "",
-  });
-
   const { mutate: applyReseller, isPending } = useResellerApplication();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<ResellerApplicationFormValues>({
+    resolver: zodResolver(resellerApplicationSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      company: "",
+      phone: "",
+      experience: "",
+      expectedClients: "",
+    },
+  });
+
+  const onSubmit = form.handleSubmit((values) => {
     applyReseller(
       {
-        ...formData,
-        expectedClients: formData.expectedClients
-          ? Number(formData.expectedClients)
+        ...values,
+        expectedClients: values.expectedClients
+          ? Number.parseInt(values.expectedClients, 10)
           : undefined,
       },
       {
         onSuccess: () => {
-          setFormData({
-            name: "",
-            email: "",
-            company: "",
-            phone: "",
-            experience: "",
-            expectedClients: "",
-          });
+          form.reset();
           setOpen(false);
         },
       }
     );
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -78,97 +78,137 @@ export function ResellerDialog({ trigger }: ResellerDialogProps) {
         <DialogHeader>
           <DialogTitle>Reseller Program Application</DialogTitle>
           <DialogDescription>
-            Join our reseller program and start earning recurring commissions. We'll review your application within 2 business days.
+            Join our reseller program and start earning recurring commissions.
+            We'll review your application within 2 business days.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="reseller-name">Full Name *</Label>
-              <Input
-                id="reseller-name"
+        <Form {...form}>
+          <form onSubmit={onSubmit} noValidate className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
                 name="name"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="John Doe"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name *</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="John Doe"
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="reseller-email">Email Address *</Label>
-              <Input
-                id="reseller-email"
+              <FormField
+                control={form.control}
                 name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="john@company.com"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address *</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="john@company.com"
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="reseller-company">Company Name *</Label>
-              <Input
-                id="reseller-company"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
                 name="company"
-                required
-                value={formData.company}
-                onChange={handleChange}
-                placeholder="Acme Inc."
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company Name *</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="Acme Inc."
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="reseller-phone">Phone Number</Label>
-              <Input
-                id="reseller-phone"
+              <FormField
+                control={form.control}
                 name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="+1 (555) 123-4567"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="tel"
+                        placeholder="+1 (555) 123-4567"
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="reseller-clients">
-              Expected Number of Clients
-            </Label>
-            <Input
-              id="reseller-clients"
+            <FormField
+              control={form.control}
               name="expectedClients"
-              type="number"
-              min="1"
-              value={formData.expectedClients}
-              onChange={handleChange}
-              placeholder="10"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Expected Number of Clients</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      min="1"
+                      placeholder="10"
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="reseller-experience">
-              Your Experience & Why You'd Be a Great Partner
-            </Label>
-            <Textarea
-              id="reseller-experience"
+            <FormField
+              control={form.control}
               name="experience"
-              value={formData.experience}
-              onChange={handleChange}
-              placeholder="Tell us about your experience in sales, your existing client base, and why you're interested in partnering with us..."
-              rows={5}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Your Experience &amp; Why You'd Be a Great Partner
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      rows={5}
+                      placeholder="Tell us about your experience in sales, your existing client base, and why you're interested in partnering with us..."
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting Application...
-              </>
-            ) : (
-              "Submit Application"
-            )}
-          </Button>
-        </form>
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting Application...
+                </>
+              ) : (
+                "Submit Application"
+              )}
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

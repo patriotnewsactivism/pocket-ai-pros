@@ -1,91 +1,108 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckCircle2, Mail } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Mail, CheckCircle2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { db } from "@/lib/supabase";
+import { useNewsletterSubscription } from "@/hooks/useApi";
+import {
+  NewsletterSubscriptionFormValues,
+  newsletterSubscriptionSchema,
+} from "@/lib/schemas/newsletter";
 import { trackEvent } from "./Analytics";
 
 const Newsletter = () => {
-  const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const { toast } = useToast();
+  const { mutate: subscribe, isPending } = useNewsletterSubscription();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !email.includes("@")) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const form = useForm<NewsletterSubscriptionFormValues>({
+    resolver: zodResolver(newsletterSubscriptionSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-    try {
-      await db.createSubscriber(email);
-      setIsSubscribed(true);
-      trackEvent('newsletterSignup');
-      toast({
-        title: "Successfully subscribed!",
-        description: "You'll receive AI insights and updates.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Subscription failed",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
-    }
-
-    // Reset after 3 seconds
-    setTimeout(() => {
-      setEmail("");
-      setIsSubscribed(false);
-    }, 3000);
-  };
+  const onSubmit = form.handleSubmit((values) => {
+    subscribe(values.email, {
+      onSuccess: () => {
+        setIsSubscribed(true);
+        trackEvent("newsletterSignup");
+        form.reset();
+        setTimeout(() => {
+          setIsSubscribed(false);
+        }, 3000);
+      },
+    });
+  });
 
   return (
     <section className="py-16 bg-gradient-to-br from-primary/90 via-primary to-primary/80 relative overflow-hidden">
       <div className="absolute inset-0 bg-grid-pattern opacity-10" aria-hidden="true" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur rounded-2xl mb-6">
             <Mail className="w-8 h-8 text-white" />
           </div>
-          
+
           <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
             Stay Ahead of the AI Curve
           </h2>
-          
+
           <p className="text-xl text-white/90 mb-8">
-            Get the latest AI insights, product updates, and exclusive tips delivered to your inbox every week
+            Get the latest AI insights, product updates, and exclusive tips
+            delivered to your inbox every week
           </p>
 
           {!isSubscribed ? (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-white/95 backdrop-blur border-white/20 h-12 text-base"
-                required
-              />
-              <Button 
-                type="submit"
-                size="lg"
-                className="bg-white text-primary hover:bg-white/90 font-semibold px-8 h-12"
+            <Form {...form}>
+              <form
+                onSubmit={onSubmit}
+                noValidate
+                className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto"
               >
-                Subscribe Free
-              </Button>
-            </form>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          placeholder="Enter your email"
+                          className="flex-1 bg-white/95 backdrop-blur border-white/20 h-12 text-base"
+                          disabled={isPending}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-left" />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="bg-white text-primary hover:bg-white/90 font-semibold px-8 h-12"
+                  disabled={isPending}
+                >
+                  Subscribe Free
+                </Button>
+              </form>
+            </Form>
           ) : (
             <div className="flex items-center justify-center gap-3 bg-white/20 backdrop-blur rounded-xl px-6 py-4 max-w-xl mx-auto">
               <CheckCircle2 className="w-6 h-6 text-white" />
-              <span className="text-white font-semibold text-lg">Thanks for subscribing!</span>
+              <span className="text-white font-semibold text-lg">
+                Thanks for subscribing!
+              </span>
             </div>
           )}
 

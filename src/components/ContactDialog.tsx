@@ -1,3 +1,8 @@
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,12 +12,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useContactForm } from "@/hooks/useApi";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import {
+  ContactFormValues,
+  contactFormSchema,
+} from "@/lib/schemas/contact";
 
 interface ContactDialogProps {
   trigger?: React.ReactNode;
@@ -21,33 +35,42 @@ interface ContactDialogProps {
 
 export function ContactDialog({ trigger, defaultPlan }: ContactDialogProps) {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    message: defaultPlan ? `I'm interested in the ${defaultPlan} plan.` : "",
-  });
-
   const { mutate: submitContact, isPending } = useContactForm();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitContact(formData, {
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      company: "",
+      message: defaultPlan ? `I'm interested in the ${defaultPlan} plan.` : "",
+    },
+  });
+
+  useEffect(() => {
+    if (!defaultPlan) return;
+    const currentMessage = form.getValues("message");
+    if (!currentMessage) {
+      form.setValue("message", `I'm interested in the ${defaultPlan} plan.`, {
+        shouldDirty: false,
+        shouldTouch: false,
+      });
+    }
+  }, [defaultPlan, form]);
+
+  const onSubmit = form.handleSubmit((values) => {
+    submitContact(values, {
       onSuccess: () => {
-        setFormData({ name: "", email: "", company: "", message: "" });
+        form.reset({
+          name: "",
+          email: "",
+          company: "",
+          message: defaultPlan ? `I'm interested in the ${defaultPlan} plan.` : "",
+        });
         setOpen(false);
       },
     });
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -58,65 +81,94 @@ export function ContactDialog({ trigger, defaultPlan }: ContactDialogProps) {
         <DialogHeader>
           <DialogTitle>Get Started with BuildMyBot</DialogTitle>
           <DialogDescription>
-            Fill out the form below and we'll get you set up with your AI bot in no time.
+            Fill out the form below and we'll get you set up with your AI bot
+            in no time.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name *</Label>
-            <Input
-              id="name"
+        <Form {...form}>
+          <form onSubmit={onSubmit} noValidate className="space-y-4">
+            <FormField
+              control={form.control}
               name="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Doe"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name *</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="John Doe"
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
-            <Input
-              id="email"
+            <FormField
+              control={form.control}
               name="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="john@company.com"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address *</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="john@company.com"
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="company">Company Name</Label>
-            <Input
-              id="company"
+            <FormField
+              control={form.control}
               name="company"
-              value={formData.company}
-              onChange={handleChange}
-              placeholder="Acme Inc."
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Acme Inc."
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="message">Tell us about your needs</Label>
-            <Textarea
-              id="message"
+            <FormField
+              control={form.control}
               name="message"
-              value={formData.message}
-              onChange={handleChange}
-              placeholder="I'm looking to build an AI bot for..."
-              rows={4}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tell us about your needs</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      rows={4}
+                      placeholder="I'm looking to build an AI bot for..."
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting...
-              </>
-            ) : (
-              "Submit Request"
-            )}
-          </Button>
-        </form>
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Request"
+              )}
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
