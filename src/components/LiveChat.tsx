@@ -6,24 +6,149 @@
 import { useEffect } from 'react';
 import { env } from '@/config/env';
 
-// Configuration for different chat providers
-const CHAT_CONFIG = {
-  // Tawk.to (Free, recommended for small businesses)
-  tawkTo: {
-    enabled: true, // Set to true to enable
-    propertyId: 'YOUR_TAWK_PROPERTY_ID', // Get from tawk.to
-    widgetId: 'YOUR_TAWK_WIDGET_ID',
-  },
-  // Intercom (Premium, advanced features)
-  intercom: {
-    enabled: false,
-    appId: 'YOUR_INTERCOM_APP_ID', // Get from intercom.com
-  },
-  // Crisp (Good middle ground)
-  crisp: {
-    enabled: false,
-    websiteId: 'YOUR_CRISP_WEBSITE_ID', // Get from crisp.chat
-  },
+type TawkConfig = {
+  propertyId: string;
+  widgetId: string;
+};
+
+type IntercomConfig = {
+  appId: string;
+};
+
+type CrispConfig = {
+  websiteId: string;
+};
+
+type TawkApi = {
+  showWidget?: () => void;
+  hideWidget?: () => void;
+  maximize?: () => void;
+  setAttributes?: (attributes: { name: string; email: string }) => void;
+};
+
+type CrispCommand = [string, ...unknown[]];
+
+type CrispQueue = Array<CrispCommand> & {
+  push: (...items: CrispCommand[]) => number;
+};
+
+type LiveChatWindow = Window & {
+  Tawk_API?: TawkApi;
+  Intercom?: (command: string, ...args: unknown[]) => void;
+  intercomSettings?: {
+    app_id: string;
+    alignment?: string;
+    horizontal_padding?: number;
+    vertical_padding?: number;
+  };
+  $crisp?: CrispQueue;
+  CRISP_WEBSITE_ID?: string;
+};
+
+const hasTawkValues = Boolean(env.tawkPropertyId || env.tawkWidgetId);
+
+const tawkConfig: TawkConfig | null =
+  env.tawkPropertyId && env.tawkWidgetId
+    ? {
+        propertyId: env.tawkPropertyId,
+        widgetId: env.tawkWidgetId,
+      }
+    : null;
+
+const intercomConfig: IntercomConfig | null = env.intercomAppId
+  ? {
+      appId: env.intercomAppId,
+    }
+  : null;
+
+const crispConfig: CrispConfig | null = env.crispWebsiteId
+  ? {
+      websiteId: env.crispWebsiteId,
+    }
+  : null;
+
+const isTawkActive = Boolean(tawkConfig);
+const isIntercomActive = !isTawkActive && Boolean(intercomConfig);
+const isCrispActive = !isTawkActive && !isIntercomActive && Boolean(crispConfig);
+const hasConfiguredProvider = isTawkActive || isIntercomActive || isCrispActive;
+
+const getLiveChatWindow = (): LiveChatWindow => window as LiveChatWindow;
+
+type Cleanup = () => void;
+
+const mountTawkWidget = (config: TawkConfig): Cleanup => {
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.src = `https://embed.tawk.to/${config.propertyId}/${config.widgetId}`;
+  script.charset = 'UTF-8';
+  script.setAttribute('crossorigin', '*');
+  script.dataset.chatProvider = 'tawk';
+  document.body.appendChild(script);
+
+  return () => {
+    script.remove();
+  };
+};
+
+const mountIntercomWidget = (config: IntercomConfig): Cleanup => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.intercomSettings = {
+    app_id: config.appId,
+    alignment: 'right',
+    horizontal_padding: 20,
+    vertical_padding: 20,
+  };
+
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.src = `https://widget.intercom.io/widget/${config.appId}`;
+  script.dataset.chatProvider = 'intercom';
+  document.body.appendChild(script);
+
+  return () => {
+    script.remove();
+    delete chatWindow.intercomSettings;
+  };
+};
+
+const mountCrispWidget = (config: CrispConfig): Cleanup => {
+  const chatWindow = getLiveChatWindow();
+  const crispQueue: CrispQueue = (chatWindow.$crisp ?? []) as CrispQueue;
+  chatWindow.$crisp = crispQueue;
+  chatWindow.CRISP_WEBSITE_ID = config.websiteId;
+
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.async = true;
+  script.src = 'https://client.crisp.chat/l.js';
+  script.dataset.chatProvider = 'crisp';
+  document.body.appendChild(script);
+
+  return () => {
+    script.remove();
+    if (chatWindow.$crisp === crispQueue) {
+      delete chatWindow.$crisp;
+    }
+    if (chatWindow.CRISP_WEBSITE_ID === config.websiteId) {
+      delete chatWindow.CRISP_WEBSITE_ID;
+    }
+  };
+};
+
+const ensureProviderConfigured = () => {
+  if (!env.enableChatWidget) {
+    console.warn('LiveChat: Chat widget is disabled.');
+    return false;
+  }
+
+  if (!hasConfiguredProvider) {
+    console.warn('LiveChat: No chat provider is configured.');
+    return false;
+  }
+
+  return true;
 };
 
 export function LiveChat() {
@@ -32,130 +157,178 @@ export function LiveChat() {
       return;
     }
 
-    // Tawk.to Integration (Free)
-    if (CHAT_CONFIG.tawkTo.enabled) {
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.async = true;
-      script.src = `https://embed.tawk.to/${CHAT_CONFIG.tawkTo.propertyId}/${CHAT_CONFIG.tawkTo.widgetId}`;
-      script.charset = 'UTF-8';
-      script.setAttribute('crossorigin', '*');
-      document.body.appendChild(script);
-
-      return () => {
-        document.body.removeChild(script);
-      };
+    if (isTawkActive && tawkConfig) {
+      return mountTawkWidget(tawkConfig);
     }
 
-    // Intercom Integration (Premium)
-    if (CHAT_CONFIG.intercom.enabled) {
-      const w = window as any;
-      w.intercomSettings = {
-        app_id: CHAT_CONFIG.intercom.appId,
-        alignment: 'right',
-        horizontal_padding: 20,
-        vertical_padding: 20,
-      };
-
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.async = true;
-      script.src = `https://widget.intercom.io/widget/${CHAT_CONFIG.intercom.appId}`;
-      document.body.appendChild(script);
-
-      return () => {
-        document.body.removeChild(script);
-      };
+    if (isIntercomActive && intercomConfig) {
+      return mountIntercomWidget(intercomConfig);
     }
 
-    // Crisp Integration (Mid-tier)
-    if (CHAT_CONFIG.crisp.enabled) {
-      const w = window as any;
-      w.$crisp = [];
-      w.CRISP_WEBSITE_ID = CHAT_CONFIG.crisp.websiteId;
-
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.async = true;
-      script.src = 'https://client.crisp.chat/l.js';
-      document.body.appendChild(script);
-
-      return () => {
-        document.body.removeChild(script);
-      };
+    if (isCrispActive && crispConfig) {
+      return mountCrispWidget(crispConfig);
     }
+
+    if (hasTawkValues) {
+      console.warn(
+        'LiveChat: Both VITE_TAWK_PROPERTY_ID and VITE_TAWK_WIDGET_ID must be set to enable Tawk.to.'
+      );
+    } else {
+      console.warn('LiveChat: Chat widget enabled but no provider configuration found.');
+    }
+
+    return undefined;
   }, []);
 
   return null;
 }
 
-// Helper functions to control chat widget
+const showTawkWidget = () => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.Tawk_API?.showWidget?.();
+};
+
+const hideTawkWidget = () => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.Tawk_API?.hideWidget?.();
+};
+
+const openTawkWidget = () => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.Tawk_API?.maximize?.();
+};
+
+const updateTawkUser = (name: string, email: string) => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.Tawk_API?.setAttributes?.({
+    name,
+    email,
+  });
+};
+
+const showIntercomWidget = () => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.Intercom?.('show');
+};
+
+const hideIntercomWidget = () => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.Intercom?.('hide');
+};
+
+const openIntercomWidget = () => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.Intercom?.('show');
+};
+
+const updateIntercomUser = (name: string, email: string) => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.Intercom?.('update', {
+    name,
+    email,
+  });
+};
+
+const pushCrispCommand = (command: CrispCommand) => {
+  const chatWindow = getLiveChatWindow();
+  chatWindow.$crisp?.push(command);
+};
+
 export const chat = {
-  // Show/hide chat widget
   show: () => {
-    if (CHAT_CONFIG.tawkTo.enabled) {
-      (window as any).Tawk_API?.showWidget();
+    if (!ensureProviderConfigured()) {
+      return;
     }
-    if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('show');
+
+    if (isTawkActive) {
+      showTawkWidget();
+      return;
     }
-    if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['do', 'chat:show']);
+
+    if (isIntercomActive) {
+      showIntercomWidget();
+      return;
+    }
+
+    if (isCrispActive) {
+      pushCrispCommand(['do', 'chat:show']);
     }
   },
 
   hide: () => {
-    if (CHAT_CONFIG.tawkTo.enabled) {
-      (window as any).Tawk_API?.hideWidget();
+    if (!ensureProviderConfigured()) {
+      return;
     }
-    if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('hide');
+
+    if (isTawkActive) {
+      hideTawkWidget();
+      return;
     }
-    if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['do', 'chat:hide']);
+
+    if (isIntercomActive) {
+      hideIntercomWidget();
+      return;
+    }
+
+    if (isCrispActive) {
+      pushCrispCommand(['do', 'chat:hide']);
     }
   },
 
-  // Open chat window
   open: () => {
-    if (CHAT_CONFIG.tawkTo.enabled) {
-      (window as any).Tawk_API?.maximize();
+    if (!ensureProviderConfigured()) {
+      return;
     }
-    if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('show');
+
+    if (isTawkActive) {
+      openTawkWidget();
+      return;
     }
-    if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['do', 'chat:open']);
+
+    if (isIntercomActive) {
+      openIntercomWidget();
+      return;
+    }
+
+    if (isCrispActive) {
+      pushCrispCommand(['do', 'chat:open']);
     }
   },
 
-  // Set user information
   setUser: (name: string, email: string) => {
-    if (CHAT_CONFIG.tawkTo.enabled) {
-      (window as any).Tawk_API?.setAttributes({
-        name,
-        email,
-      });
+    if (!ensureProviderConfigured()) {
+      return;
     }
-    if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('update', {
-        name,
-        email,
-      });
+
+    if (isTawkActive) {
+      updateTawkUser(name, email);
+      return;
     }
-    if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['set', 'user:email', [email]]);
-      (window as any).$crisp?.push(['set', 'user:nickname', [name]]);
+
+    if (isIntercomActive) {
+      updateIntercomUser(name, email);
+      return;
+    }
+
+    if (isCrispActive) {
+      pushCrispCommand(['set', 'user:email', [email]]);
+      pushCrispCommand(['set', 'user:nickname', [name]]);
     }
   },
 
-  // Send a message programmatically
   sendMessage: (message: string) => {
-    if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('showNewMessage', message);
+    if (!ensureProviderConfigured()) {
+      return;
     }
-    if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['do', 'message:send', ['text', message]]);
+
+    if (isIntercomActive) {
+      const chatWindow = getLiveChatWindow();
+      chatWindow.Intercom?.('showNewMessage', message);
+      return;
+    }
+
+    if (isCrispActive) {
+      pushCrispCommand(['do', 'message:send', ['text', message]]);
     }
   },
 };
