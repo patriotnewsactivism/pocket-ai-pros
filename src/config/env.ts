@@ -18,6 +18,20 @@ export const env = {
   enableAIChatbot: import.meta.env.VITE_ENABLE_AI_CHATBOT === 'true',
   businessType: import.meta.env.VITE_BUSINESS_TYPE || 'support',
 
+  // Chat Providers
+  chatProviders: {
+    tawkTo: {
+      propertyId: import.meta.env.VITE_TAWK_PROPERTY_ID || '',
+      widgetId: import.meta.env.VITE_TAWK_WIDGET_ID || '',
+    },
+    intercom: {
+      appId: import.meta.env.VITE_INTERCOM_APP_ID || '',
+    },
+    crisp: {
+      websiteId: import.meta.env.VITE_CRISP_WEBSITE_ID || '',
+    },
+  },
+
   // External Services
   stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY || '',
   googleAnalyticsId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID || '',
@@ -28,6 +42,8 @@ export const env = {
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
 } as const;
+
+export type EnvConfig = typeof env;
 
 // Validate required environment variables
 export function validateEnv() {
