@@ -28,7 +28,7 @@ export function AIChatbot({ businessType = 'support' }: AIChatbotProps) {
   const template = getBusinessTemplate(businessType);
 
   // Check if chatbot is enabled
-  const isChatbotEnabled = env.enableAIChatbot || env.isDevelopment;
+  const isChatbotEnabled = env.enableAIChatbot;
 
   useEffect(() => {
     if (isOpen && !hasStarted) {
