@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm audit fix:*)",
+      "Bash(npm run build:*)",
+      "Bash(test:*)",
+      "Bash(\"backend-example/.env\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
