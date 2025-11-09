@@ -227,7 +227,7 @@ export default function Dashboard() {
           </div>
           <div className="flex gap-2">
             {isReseller && (
-              <Button variant="outline" onClick={() => navigate('/reseller-dashboard')}>
+              <Button variant="outline" onClick={() => navigate('/reseller')}>
                 Reseller Portal
               </Button>
             )}
