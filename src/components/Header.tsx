@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react"; // 'Bot' icon removed
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ContactDialog } from "./ContactDialog";
 import { LogoIcon } from "./LogoIcon"; // Import the new LogoIcon
 
@@ -44,14 +45,14 @@ const Header = () => {
             >
               Pricing
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection("reseller")}
               className="text-foreground hover:text-primary transition-colors"
               aria-label="Navigate to reseller program section"
             >
               Reseller Program
             </button>
-            <a href="/auth"><Button variant="hero" size="sm">Get Started Free</Button></a>
+            <Link to="/auth"><Button variant="hero" size="sm">Get Started Free</Button></Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -82,14 +83,14 @@ const Header = () => {
             >
               Pricing
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection("reseller")}
               className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
               aria-label="Navigate to reseller program section"
             >
               Reseller Program
             </button>
-            <a href="/auth" className="w-full"><Button variant="hero" size="sm" className="w-full">Get Started Free</Button></a>
+            <Link to="/auth" className="w-full"><Button variant="hero" size="sm" className="w-full">Get Started Free</Button></Link>
           </div>
         )}
       </nav>

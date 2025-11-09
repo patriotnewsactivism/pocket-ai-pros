@@ -5,7 +5,9 @@
       "Bash(npm audit fix:*)",
       "Bash(npm run build:*)",
       "Bash(test:*)",
-      "Bash(\"backend-example/.env\")"
+      "Bash(\"backend-example/.env\")",
+      "Bash(git add .env)",
+      "Bash(npm test)"
     ],
     "deny": [],
     "ask": []

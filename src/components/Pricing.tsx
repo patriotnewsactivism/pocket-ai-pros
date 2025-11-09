@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const pricingPlans = [
   {
@@ -94,24 +95,25 @@ const pricingPlans = [
 
 const Pricing = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleSubscribe = async (planName: string) => {
     if (planName === "Free") {
-      window.location.href = "/auth";
+      navigate("/auth");
       return;
     }
 
     setLoading(planName);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         toast({
           title: "Authentication Required",
           description: "Please sign in to subscribe to a plan.",
         });
-        window.location.href = "/auth";
+        navigate("/auth");
         return;
       }
 
