@@ -69,7 +69,7 @@ serve(async (req) => {
 
     // Check for existing Stripe customer
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId = customers.data.length > 0 ? customers.data[0].id : undefined;
+    const customerId = customers.data.length > 0 ? customers.data[0].id : undefined;
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ComponentProps } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -14,7 +14,7 @@ import Refund from '@/pages/Refund';
 import Auth from '@/pages/Auth';
 import Dashboard from '@/pages/Dashboard';
 import ResellerDashboard from '@/pages/ResellerDashboard';
-import { validateEnv } from '@/config/env';
+import { env, validateEnv } from '@/config/env';
 import './App.css';
 
 // Create a client
@@ -29,8 +29,27 @@ const queryClient = new QueryClient({
   },
 });
 
-// Get business type from environment or default to 'support'
-const businessType = (import.meta.env.VITE_BUSINESS_TYPE || 'support') as any;
+type ChatbotBusinessType = NonNullable<ComponentProps<typeof AIChatbot>['businessType']>;
+
+const SUPPORTED_BUSINESS_TYPES: ReadonlyArray<ChatbotBusinessType> = [
+  'ecommerce',
+  'saas',
+  'realestate',
+  'healthcare',
+  'education',
+  'hospitality',
+  'finance',
+  'support',
+];
+
+const DEFAULT_BUSINESS_TYPE: ChatbotBusinessType = 'support';
+
+const isChatbotBusinessType = (value: string): value is ChatbotBusinessType =>
+  SUPPORTED_BUSINESS_TYPES.includes(value as ChatbotBusinessType);
+
+const businessType: ChatbotBusinessType = isChatbotBusinessType(env.businessType)
+  ? env.businessType
+  : DEFAULT_BUSINESS_TYPE;
 
 function App() {
   useEffect(() => {

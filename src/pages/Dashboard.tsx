@@ -147,25 +147,48 @@ export default function Dashboard() {
   };
 
   const handleUpgradePlan = async (plan: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan, email: user?.email }
+    if (!user) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please sign in again to manage your subscription.',
+        variant: 'destructive',
       });
+      navigate('/auth');
+      return;
+    }
 
-      if (error) throw error;
+    try {
+      const normalizedPlan = plan.toLowerCase();
+      const { data, error } = await supabase.functions.invoke<{ url?: string }>(
+        'create-checkout-session',
+        {
+          body: { plan: normalizedPlan },
+        }
+      );
+
+      if (error) {
+        throw new Error(error.message || 'Failed to start checkout session');
+      }
+
+      const checkoutUrl = data?.url;
+      if (!checkoutUrl) {
+        throw new Error('No checkout URL returned. Please try again.');
+      }
+
+      const checkoutWindow = window.open(checkoutUrl, '_blank', 'noopener');
+      if (!checkoutWindow) {
+        throw new Error('Unable to open checkout window. Please allow pop-ups and try again.');
+      }
 
       toast({
-        title: 'Success!',
-        description: `You're now on the ${plan} plan!`,
+        title: 'Complete your upgrade',
+        description: 'Finish the checkout in the newly opened tab to activate your plan.',
       });
-
-      if (user) {
-        await loadProfile(user.id);
-      }
-    } catch (error: any) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to start checkout session';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to upgrade plan',
+        description: message,
         variant: 'destructive',
       });
     }
