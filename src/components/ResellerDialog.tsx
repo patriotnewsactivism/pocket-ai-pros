@@ -50,7 +50,14 @@ export function ResellerApplicationForm({ onSubmitted }: ResellerApplicationForm
   }, [isPending, form]);
 
   const onSubmit = form.handleSubmit((values) => {
-    applyReseller(values, {
+    applyReseller({
+      name: values.name || '',
+      email: values.email || '',
+      company: values.company || '',
+      phone: values.phone,
+      experience: values.experience,
+      expectedClients: values.expectedClients,
+    }, {
       onSuccess: () => {
         form.reset({
           name: "",

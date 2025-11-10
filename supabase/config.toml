@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.process-reseller-application]
 verify_jwt = false
+
+[functions.bot-chat]
+verify_jwt = false

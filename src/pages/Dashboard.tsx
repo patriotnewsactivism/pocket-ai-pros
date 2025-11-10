@@ -344,6 +344,12 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => navigate(`/bot/${bot.id}/chat`)}
+                        >
+                          Chat
+                        </Button>
                         <Button 
                           variant="outline" 
                           size="sm"

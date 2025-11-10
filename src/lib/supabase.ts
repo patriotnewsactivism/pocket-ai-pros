@@ -18,7 +18,7 @@ const createDisabledSupabaseClient = (): SupabaseClient => {
     },
   };
 
-  return new Proxy({}, handler) as SupabaseClient;
+  return new Proxy({}, handler) as unknown as SupabaseClient;
 };
 
 export const isSupabaseConfigured = Boolean(env.supabaseUrl && env.supabaseAnonKey);

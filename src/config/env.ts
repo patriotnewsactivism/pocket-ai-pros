@@ -3,93 +3,40 @@
  * All environment variables should be accessed through this file
  */
 
-type BooleanLike = boolean | 'true' | 'false' | undefined;
-
 type BuildMyBotMetaEnv = ImportMetaEnv & Record<string, string | boolean | undefined>;
 
-type SupabaseKeySource = 'anon' | 'publishable' | 'none';
-
-const parseBoolean = (value: unknown): boolean =>
-  value === true || (typeof value === 'string' && value.toLowerCase() === 'true');
-
-const parseNumber = (value: unknown, fallback: number): number => {
-  const numeric = typeof value === 'string' || typeof value === 'number' ? Number(value) : NaN;
-  return Number.isFinite(numeric) ? numeric : fallback;
-};
-
-const normalizeBooleanFlag = (value: BooleanLike): boolean | undefined => {
-  if (typeof value === 'boolean') {
-    return value;
-  }
-
-  if (typeof value === 'string') {
-    const normalized = value.toLowerCase();
-    if (normalized === 'true') return true;
-    if (normalized === 'false') return false;
-  }
-
-  return undefined;
-};
-
-const getString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
-
-const resolveSupabaseKey = (
-  metaEnv: BuildMyBotMetaEnv
-): { key: string; source: SupabaseKeySource } => {
-  const anonKey = getString(metaEnv?.VITE_SUPABASE_ANON_KEY);
-  const publishableKey = getString(metaEnv?.VITE_SUPABASE_PUBLISHABLE_KEY);
-
-  if (publishableKey && anonKey && publishableKey !== anonKey) {
-    console.warn(
-      'Detected a mismatch between VITE_SUPABASE_PUBLISHABLE_KEY and VITE_SUPABASE_ANON_KEY. Using the publishable key.'
-    );
-  }
-
-  if (publishableKey) {
-    return { key: publishableKey, source: 'publishable' };
-  }
-
-  if (anonKey) {
-    return { key: anonKey, source: 'anon' };
-  }
-
-  return { key: '', source: 'none' };
-};
-
 export const createEnv = (metaEnv: BuildMyBotMetaEnv = import.meta.env) => {
-  const devFlag = normalizeBooleanFlag(metaEnv?.DEV as BooleanLike);
-  const prodFlag = normalizeBooleanFlag(metaEnv?.PROD as BooleanLike);
-  const mode = getString(metaEnv?.MODE);
-
-  const isDevelopment = devFlag ?? mode === 'development';
-  const isProduction = prodFlag ?? mode === 'production';
-  const { key: supabaseAnonKey, source: supabaseKeySource } = resolveSupabaseKey(metaEnv);
+  const supabaseUrl = (typeof metaEnv?.VITE_SUPABASE_URL === 'string' ? metaEnv.VITE_SUPABASE_URL.trim() : '') || '';
+  const supabaseAnonKey = (typeof metaEnv?.VITE_SUPABASE_PUBLISHABLE_KEY === 'string' 
+    ? metaEnv.VITE_SUPABASE_PUBLISHABLE_KEY.trim() 
+    : typeof metaEnv?.VITE_SUPABASE_ANON_KEY === 'string'
+    ? metaEnv.VITE_SUPABASE_ANON_KEY.trim()
+    : '') || '';
 
   return {
     // Supabase Configuration
-    supabaseUrl: getString(metaEnv?.VITE_SUPABASE_URL) || '',
+    supabaseUrl,
     supabaseAnonKey,
-    supabaseKeySource,
+    supabaseKeySource: 'publishable' as const,
 
     // API Configuration
-    apiBaseUrl: getString(metaEnv?.VITE_API_BASE_URL) || 'http://localhost:3000/api',
-    apiTimeout: parseNumber(metaEnv?.VITE_API_TIMEOUT, 30000),
+    apiBaseUrl: (typeof metaEnv?.VITE_API_BASE_URL === 'string' ? metaEnv.VITE_API_BASE_URL : '') || 'http://localhost:3000/api',
+    apiTimeout: 30000,
 
     // Feature Flags
-    enableAnalytics: parseBoolean(metaEnv?.VITE_ENABLE_ANALYTICS),
-    enableChatWidget: parseBoolean(metaEnv?.VITE_ENABLE_CHAT_WIDGET),
-    enableAIChatbot: parseBoolean(metaEnv?.VITE_ENABLE_AI_CHATBOT),
-    businessType: getString(metaEnv?.VITE_BUSINESS_TYPE) || 'support',
+    enableAnalytics: metaEnv?.VITE_ENABLE_ANALYTICS === 'true',
+    enableChatWidget: metaEnv?.VITE_ENABLE_CHAT_WIDGET === 'true',
+    enableAIChatbot: metaEnv?.VITE_ENABLE_AI_CHATBOT === 'true',
+    businessType: (typeof metaEnv?.VITE_BUSINESS_TYPE === 'string' ? metaEnv.VITE_BUSINESS_TYPE : '') || 'support',
 
     // External Services
-    stripePublicKey: getString(metaEnv?.VITE_STRIPE_PUBLIC_KEY) || '',
-    googleAnalyticsId: getString(metaEnv?.VITE_GOOGLE_ANALYTICS_ID) || '',
-    // Note: OpenAI API key removed - now handled securely via edge function
+    stripePublicKey: (typeof metaEnv?.VITE_STRIPE_PUBLIC_KEY === 'string' ? metaEnv.VITE_STRIPE_PUBLIC_KEY : '') || '',
+    googleAnalyticsId: (typeof metaEnv?.VITE_GOOGLE_ANALYTICS_ID === 'string' ? metaEnv.VITE_GOOGLE_ANALYTICS_ID : '') || '',
 
     // Environment
-    appEnv: getString(metaEnv?.VITE_APP_ENV) || 'development',
-    isDevelopment,
-    isProduction,
+    appEnv: (typeof metaEnv?.VITE_APP_ENV === 'string' ? metaEnv.VITE_APP_ENV : '') || 'development',
+    isDevelopment: metaEnv?.DEV === true,
+    isProduction: metaEnv?.PROD === true,
   } as const;
 };
 
@@ -97,30 +44,9 @@ export type EnvConfig = ReturnType<typeof createEnv>;
 
 export const env: EnvConfig = createEnv();
 
-// Validate required environment variables
 export function validateEnv(config: EnvConfig = env) {
-  const required = [
-    ['VITE_SUPABASE_URL', config.supabaseUrl],
-    ['VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY', config.supabaseAnonKey],
-  ] as const;
-
-  const missing = required.filter(([, value]) => !value).map(([key]) => key);
-
-  if (missing.length === 0) {
-    return;
+  // Just log warnings, don't throw to prevent blank screens
+  if (!config.supabaseUrl || !config.supabaseAnonKey) {
+    console.warn('Supabase configuration missing - some features may not work');
   }
-
-  const message =
-    `Missing required environment variables: ${missing.join(', ')}\n` +
-    'Please check your .env file and ensure all required variables are set.';
-
-  if (config.isDevelopment) {
-    console.warn(
-      `${message}\nSupabase-powered features will be disabled in development until the keys are provided.`
-    );
-    return;
-  }
-
-  console.error(message);
-  throw new Error('Missing required environment variables');
 }

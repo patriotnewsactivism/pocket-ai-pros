@@ -1,4 +1,4 @@
-import { useEffect, type ComponentProps } from 'react';
+import { type ComponentProps } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -14,7 +14,8 @@ import Refund from '@/pages/Refund';
 import Auth from '@/pages/Auth';
 import Dashboard from '@/pages/Dashboard';
 import ResellerDashboard from '@/pages/ResellerDashboard';
-import { env, validateEnv } from '@/config/env';
+import BotChat from '@/pages/BotChat';
+import { env } from '@/config/env';
 import './App.css';
 
 // Create a client
@@ -52,14 +53,6 @@ const businessType: ChatbotBusinessType = isChatbotBusinessType(env.businessType
   : DEFAULT_BUSINESS_TYPE;
 
 function App() {
-  useEffect(() => {
-    try {
-      validateEnv();
-    } catch (error) {
-      console.error('Environment validation error:', error);
-    }
-  }, []);
-
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -71,6 +64,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reseller" element={<ResellerDashboard />} />
             <Route path="/reseller-dashboard" element={<Navigate to="/reseller" replace />} />
+            <Route path="/bot/:botId/chat" element={<BotChat />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/refund" element={<Refund />} />

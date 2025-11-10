@@ -50,7 +50,12 @@ export function ContactForm({ defaultMessage, onSubmitted }: ContactFormProps) {
   }, [defaultMessage, form]);
 
   const onSubmit = form.handleSubmit((values) => {
-    submitContact(values, {
+    submitContact({
+      name: values.name || '',
+      email: values.email || '',
+      company: values.company,
+      message: values.message || '',
+    }, {
       onSuccess: () => {
         form.reset({
           name: "",
