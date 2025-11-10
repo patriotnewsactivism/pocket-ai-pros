@@ -47,6 +47,10 @@ const faqs = [
     question: "What happens if I exceed my message limit?",
     answer: "We'll notify you when you reach 80% of your limit. You can upgrade your plan at any time, or purchase additional message packs. We never shut off your bot mid-conversation - customer experience comes first.",
   },
+  {
+    question: "What qualifies as a conversation?",
+    answer: "A conversation is counted when a chat session closes, not for each individual message sent back and forth. This means you and your customer can exchange multiple messages within a single conversation. The conversation ends when the chat window is closed or the session times out, giving you great value and flexibility in customer interactions.",
+  },
 ];
 
 const FAQ = () => {
