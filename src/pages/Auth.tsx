@@ -71,20 +71,23 @@ export default function Auth() {
       if (authError) throw authError;
 
       if (authData.user) {
+        // Link user to referrer if they signed up via referral link
         const storedReferralId = localStorage.getItem("referral_id");
 
         if (storedReferralId) {
-          const { data: reseller } = await supabase
-            .from("resellers")
-            .select("clients_count")
-            .eq("user_id", storedReferralId)
+          // Find the referrer by their referral code
+          const { data: referrer } = await supabase
+            .from("users")
+            .select("id")
+            .eq("referral_code", storedReferralId)
             .single();
 
-          if (reseller) {
+          if (referrer) {
+            // Update the new user with the referrer's ID
             await supabase
-              .from("resellers")
-              .update({ clients_count: (reseller.clients_count || 0) + 1 })
-              .eq("user_id", storedReferralId);
+              .from("users")
+              .update({ referred_by: referrer.id })
+              .eq("id", authData.user.id);
           }
 
           localStorage.removeItem("referral_id");

@@ -12,11 +12,21 @@ interface ResellerData {
   total_earnings: number;
   clients_count: number;
   status: string;
+  referral_code?: string;
+}
+
+interface ResellerClient {
+  id: string;
+  email: string;
+  full_name: string;
+  plan: string;
+  created_at: string;
 }
 
 export default function ResellerDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [reseller, setReseller] = useState<ResellerData | null>(null);
+  const [clients, setClients] = useState<ResellerClient[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -35,6 +45,13 @@ export default function ResellerDashboard() {
 
     setUser(user);
 
+    // Get user's referral code
+    const { data: userData } = await supabase
+      .from('users')
+      .select('referral_code')
+      .eq('id', user.id)
+      .single();
+
     // Check if user is a reseller
     const { data, error } = await supabase
       .from('resellers')
@@ -47,7 +64,19 @@ export default function ResellerDashboard() {
       return;
     }
 
-    setReseller(data);
+    setReseller({ ...data, referral_code: userData?.referral_code });
+
+    // Load referred clients
+    const { data: clientsData } = await supabase
+      .from('users')
+      .select('id, email, full_name, plan, created_at')
+      .eq('referred_by', user.id)
+      .order('created_at', { ascending: false });
+
+    if (clientsData) {
+      setClients(clientsData);
+    }
+
     setLoading(false);
   };
 
@@ -208,12 +237,12 @@ export default function ResellerDashboard() {
               <input
                 type="text"
                 readOnly
-                value={`${window.location.origin}/?ref=${user?.id}`}
+                value={`${window.location.origin}/auth?ref=${reseller?.referral_code || user?.id}`}
                 className="flex-1 px-4 py-2 border rounded-lg bg-muted"
               />
               <Button
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/?ref=${user?.id}`);
+                  navigator.clipboard.writeText(`${window.location.origin}/auth?ref=${reseller?.referral_code || user?.id}`);
                   toast({
                     title: 'Copied!',
                     description: 'Referral link copied to clipboard',
@@ -223,6 +252,50 @@ export default function ResellerDashboard() {
                 Copy Link
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Clients List Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Clients</CardTitle>
+            <CardDescription>
+              {clients.length} total client{clients.length !== 1 ? 's' : ''}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {clients.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No clients yet. Share your referral link to get started!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {clients.map((client) => (
+                  <div
+                    key={client.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium">{client.full_name || client.email}</p>
+                      <p className="text-sm text-muted-foreground">{client.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold capitalize">
+                        {client.plan === 'free' ? (
+                          <span className="text-muted-foreground">Free Plan</span>
+                        ) : (
+                          <span className="text-primary">{client.plan}</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Joined {new Date(client.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>

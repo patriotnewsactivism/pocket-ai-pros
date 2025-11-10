@@ -202,6 +202,9 @@ export type Database = {
           commission_rate: number | null
           created_at: string | null
           id: string
+          last_payout_date: string | null
+          paid_earnings: number | null
+          pending_earnings: number | null
           status: string | null
           total_earnings: number | null
           user_id: string | null
@@ -211,6 +214,9 @@ export type Database = {
           commission_rate?: number | null
           created_at?: string | null
           id?: string
+          last_payout_date?: string | null
+          paid_earnings?: number | null
+          pending_earnings?: number | null
           status?: string | null
           total_earnings?: number | null
           user_id?: string | null
@@ -220,6 +226,9 @@ export type Database = {
           commission_rate?: number | null
           created_at?: string | null
           id?: string
+          last_payout_date?: string | null
+          paid_earnings?: number | null
+          pending_earnings?: number | null
           status?: string | null
           total_earnings?: number | null
           user_id?: string | null
@@ -297,6 +306,8 @@ export type Database = {
           id: string
           phone: string | null
           plan: string | null
+          referral_code: string | null
+          referred_by: string | null
           status: string | null
           updated_at: string | null
         }
@@ -312,6 +323,8 @@ export type Database = {
           id?: string
           phone?: string | null
           plan?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           status?: string | null
           updated_at?: string | null
         }
@@ -327,17 +340,27 @@ export type Database = {
           id?: string
           phone?: string | null
           plan?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           status?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_reseller_earnings: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
