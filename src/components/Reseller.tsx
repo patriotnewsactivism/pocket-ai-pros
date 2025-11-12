@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, DollarSign, TrendingUp, Handshake, Award, HeadphonesIcon, Target, Rocket, Shield } from "lucide-react";
+import { Users, DollarSign, TrendingUp, Handshake, Award, HeadphonesIcon, Target, Rocket, Shield, Gem } from "lucide-react";
 import resellerPartner from "@/assets/reseller-partner.jpg";
 import { ResellerDialog } from "./ResellerDialog";
 
@@ -7,7 +7,7 @@ const benefits = [
   {
     icon: DollarSign,
     title: "Generous Commission",
-    description: "Earn up to 30% recurring commission on every sale",
+    description: "Earn up to 50% recurring commission on every sale",
   },
   {
     icon: TrendingUp,
@@ -40,7 +40,7 @@ const commissionTiers = [
   {
     tier: "Bronze Partner",
     icon: Target,
-    clients: "1-10 clients",
+    clients: "0-49 clients",
     commission: "20%",
     perks: ["Partner dashboard", "Email support", "Marketing materials"],
     color: "from-orange-500 to-orange-600",
@@ -48,18 +48,32 @@ const commissionTiers = [
   {
     tier: "Silver Partner",
     icon: Award,
-    clients: "11-50 clients",
-    commission: "25%",
+    clients: "50-149 clients",
+    commission: "30%",
     perks: ["All Bronze perks", "Priority support", "Co-marketing opportunities", "Custom training"],
     color: "from-slate-400 to-slate-500",
   },
   {
     tier: "Gold Partner",
     icon: Rocket,
-    clients: "51+ clients",
-    commission: "30%",
+    clients: "150-249 clients",
+    commission: "40%",
     perks: ["All Silver perks", "Dedicated account manager", "White-label options", "Revenue share bonuses", "Exclusive features"],
     color: "from-yellow-400 to-yellow-600",
+  },
+  {
+    tier: "Platinum Partner",
+    icon: Gem,
+    clients: "250+ clients",
+    commission: "50%",
+    perks: [
+      "All Gold perks",
+      "Priority revenue payouts",
+      "Joint enterprise deals",
+      "Invites to roadmap previews",
+      "Exclusive feature access",
+    ],
+    color: "from-purple-500 to-purple-700",
   },
 ];
 
@@ -117,20 +131,20 @@ const Reseller = () => {
                 <h4 className="text-2xl font-bold">Earning Potential</h4>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">10 Clients × $99/month</span>
-                    <span className="text-xl font-bold text-primary">$297/month</span>
-                  </div>
-                  <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">50 Clients × $99/month</span>
-                    <span className="text-xl font-bold text-secondary">$1,485/month</span>
+                    <span className="text-xl font-bold text-primary">$1,485/month</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">100 Clients × $99/month</span>
-                    <span className="text-2xl font-bold text-accent">$2,970/month</span>
+                    <span className="text-muted-foreground">150 Clients × $99/month</span>
+                    <span className="text-xl font-bold text-secondary">$5,940/month</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">250 Clients × $99/month</span>
+                    <span className="text-2xl font-bold text-accent">$12,375/month</span>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground pt-4">
-                  * Based on 30% commission on Professional plan
+                  * Based on tiered commissions up to 50% on the Professional plan
                 </p>
               </div>
             </div>
@@ -182,10 +196,10 @@ const Reseller = () => {
             {commissionTiers.map((tier, index) => {
               const Icon = tier.icon;
               return (
-                <Card 
-                  key={index} 
+                <Card
+                  key={index}
                   className={`transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-card/80 backdrop-blur border-2 ${
-                    index === 2 ? "border-primary/50" : "border-muted"
+                    index === commissionTiers.length - 1 ? "border-primary/50" : "border-muted"
                   }`}
                 >
                   <CardContent className="p-6">
