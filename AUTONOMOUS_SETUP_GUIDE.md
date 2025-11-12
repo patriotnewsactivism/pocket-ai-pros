@@ -198,7 +198,7 @@ Edit your `.env` file:
 
 ```env
 # Required for AI Chatbot (Recommended)
-VITE_OPENAI_API_KEY=sk-your_key_here
+OPENAI_API_KEY=sk-your_key_here
 
 # Required for Payments
 VITE_STRIPE_PUBLIC_KEY=pk_live_your_key
@@ -238,7 +238,7 @@ VITE_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
 
 ### Step 3: Setup Database
 
-1. Go to [Supabase Dashboard](https://iobjmdcxhinnumxzbmnc.supabase.co)
+1. Go to [Supabase Dashboard](https://<your-project-ref>.supabase.co)
 2. Open SQL Editor
 3. Copy contents of `supabase-setup.sql`
 4. Paste and click "Run"

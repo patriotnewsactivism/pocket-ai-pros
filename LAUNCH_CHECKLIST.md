@@ -10,7 +10,7 @@ Complete guide to push your product live and start accepting customers.
 
 #### 1.1 Database Configuration
 - [ ] **Deploy Supabase Database Schema**
-  - Log into https://supabase.com/dashboard/project/fjbwmpyfnhmndzkdsvfi
+  - Log into https://supabase.com/dashboard/project/<your-project-ref>
   - Go to SQL Editor
   - Run `supabase-setup.sql` script
   - Verify all tables created successfully
@@ -116,7 +116,7 @@ Complete guide to push your product live and start accepting customers.
 
 - [ ] **Get Production API Key**
   - Create API key
-  - Add to `.env`: `VITE_OPENAI_API_KEY`
+  - Add to `.env`: `OPENAI_API_KEY`
   - Store securely
 
 - [ ] **Configure Usage Limits**
@@ -695,7 +695,7 @@ Complete guide to push your product live and start accepting customers.
     - ✓ VITE_SUPABASE_URL
     - ✓ VITE_SUPABASE_ANON_KEY
     - ✓ VITE_STRIPE_PUBLIC_KEY
-    - ✓ VITE_OPENAI_API_KEY
+    - ✓ OPENAI_API_KEY
     - ✓ VITE_GOOGLE_ANALYTICS_ID
     - ✓ SENDGRID_API_KEY
     - ✓ All email addresses configured

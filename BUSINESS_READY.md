@@ -191,7 +191,7 @@ Your BuildMyBot platform is now **100% ready to generate revenue** straight out 
 **Setup Required (2 minutes):**
 1. Your Supabase is already configured!
 2. Just run the SQL setup:
-   - Go to [Supabase SQL Editor](https://iobjmdcxhinnumxzbmnc.supabase.co)
+   - Go to [Supabase SQL Editor](https://<your-project-ref>.supabase.co)
    - Run `/supabase-setup.sql`
    - Done!
 
@@ -388,7 +388,7 @@ Create a `.env` file with:
 
 ```env
 # Supabase (Already configured)
-VITE_SUPABASE_URL=https://iobjmdcxhinnumxzbmnc.supabase.co
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGci...
 
 # Stripe (Add yours)

@@ -26,7 +26,7 @@ Your application uses **Supabase Edge Functions** as the primary backend. The we
 2. Click **Add endpoint**
 3. Enter your webhook URL:
    ```
-   https://iobjmdcxhinnumxzbmnc.supabase.co/functions/v1/stripe-webhook
+   https://<your-project-ref>.supabase.co/functions/v1/stripe-webhook
    ```
 4. Select events to listen to:
    - `checkout.session.completed`
@@ -54,14 +54,14 @@ VITE_STRIPE_PUBLIC_KEY=pk_test_YOUR_KEY_HERE
 #### Supabase Edge Functions (via Supabase Dashboard)
 
 1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
-2. Select your project: `fjbwmpyfnhmndzkdsvfi`
+2. Select your project: `<your-project-ref>`
 3. Navigate to **Project Settings** → **Edge Functions** → **Secrets**
 4. Add these secrets:
 
 ```
 STRIPE_SECRET_KEY=sk_live_YOUR_SECRET_KEY
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET
-SUPABASE_URL=https://fjbwmpyfnhmndzkdsvfi.supabase.co
+SUPABASE_URL=https://<your-project-ref>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 ```
 
@@ -80,7 +80,7 @@ npm install -g supabase
 supabase login
 
 # Link your project
-supabase link --project-ref fjbwmpyfnhmndzkdsvfi
+supabase link --project-ref <your-project-ref>
 
 # Deploy the webhook function
 supabase functions deploy stripe-webhook
@@ -155,7 +155,7 @@ brew install stripe/stripe-cli/stripe
 stripe login
 
 # Forward webhooks to your local Supabase function
-stripe listen --forward-to https://iobjmdcxhinnumxzbmnc.supabase.co/functions/v1/stripe-webhook
+stripe listen --forward-to https://<your-project-ref>.supabase.co/functions/v1/stripe-webhook
 ```
 
 3. Test with Stripe test cards:

@@ -60,7 +60,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...   # from Stripe webhooks dashboard
 **Required Actions:**
 ```bash
 # Add to .env:
-VITE_OPENAI_API_KEY=sk-proj-...
+OPENAI_API_KEY=sk-proj-...
 ```
 **Get key from:** https://platform.openai.com/api-keys
 
@@ -82,7 +82,7 @@ SUPPORT_EMAIL=support@yourdomain.com
 **Status:** ⚠️ Not deployed
 **Impact:** Database tables don't exist yet, app will fail on data operations
 **Required Actions:**
-1. Log into Supabase dashboard: https://supabase.com/dashboard/project/fjbwmpyfnhmndzkdsvfi
+1. Log into Supabase dashboard: https://supabase.com/dashboard/project/<your-project-ref>
 2. Go to SQL Editor
 3. Copy contents of `supabase-setup.sql`
 4. Run the SQL script to create all tables

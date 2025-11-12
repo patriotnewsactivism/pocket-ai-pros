@@ -44,7 +44,7 @@ This document defines the expert personas (agents) you can invoke to assist with
 * `src/pages/Auth.tsx` (Input validation)
 
 **Example Prompt:**
-"Act as `SecurityGuardian`. The file `src/lib/chatbot.ts` makes a direct call to OpenAI, exposing `VITE_OPENAI_API_KEY`. Refactor this. Create a new Supabase Edge Function named `get-ai-response` and modify `src/lib/chatbot.ts` to securely invoke it."
+"Act as `SecurityGuardian`. The file `src/lib/chatbot.ts` makes a direct call to OpenAI, exposing a client-side API key. Refactor this by moving the key to `OPENAI_API_KEY` in Supabase Edge Functions and modifying `src/lib/chatbot.ts` to securely invoke it."
 
 ---
 
