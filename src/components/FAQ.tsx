@@ -37,7 +37,7 @@ const faqs = [
   },
   {
     question: "How does the reseller program work?",
-    answer: "Our reseller program offers up to 30% recurring commission on all sales. You'll get access to white-label options, co-marketing materials, and a dedicated partner dashboard to track your earnings and performance. Apply through the Reseller Program section to get started.",
+    answer: "Our reseller program offers up to 50% recurring commission on all sales. You'll get access to white-label options, co-marketing materials, and a dedicated partner dashboard to track your earnings and performance. Apply through the Reseller Program section to get started.",
   },
   {
     question: "Can the bot handle multiple languages?",
