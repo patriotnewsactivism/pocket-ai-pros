@@ -15,6 +15,18 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+describe('createEnv', () => {
+  it('does not expose OpenAI credentials from the client environment', () => {
+    const envConfig = createEnv(
+      buildMetaEnv({
+        VITE_OPENAI_API_KEY: 'sk-example',
+      })
+    );
+
+    expect('openaiApiKey' in envConfig).toBe(false);
+  });
+});
+
 describe('validateEnv', () => {
   it('does not throw when Supabase configuration is complete', () => {
     const envConfig = createEnv(

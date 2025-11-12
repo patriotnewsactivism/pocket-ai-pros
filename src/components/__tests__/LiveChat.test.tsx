@@ -25,7 +25,6 @@ const baseEnv: EnvConfig = {
   },
   stripePublicKey: '',
   googleAnalyticsId: '',
-  openaiApiKey: '',
   appEnv: 'test',
   isDevelopment: true,
   isProduction: false,
