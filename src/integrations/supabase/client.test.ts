@@ -6,7 +6,7 @@ const createClientMock = vi.fn();
 const createMockEnv = (overrides: Partial<EnvConfig> = {}): EnvConfig => ({
   supabaseUrl: 'https://example.supabase.co',
   supabaseAnonKey: 'anon-key',
-  supabaseKeySource: 'publishable',
+  supabaseKeySource: 'VITE_SUPABASE_ANON_KEY',
   apiBaseUrl: 'http://localhost:3000/api',
   apiTimeout: 30000,
   enableAnalytics: false,

@@ -5,19 +5,65 @@
 
 type BuildMyBotMetaEnv = ImportMetaEnv & Record<string, string | boolean | undefined>;
 
+const SUPABASE_URL_KEYS = [
+  'VITE_SUPABASE_URL',
+  'NEXT_PUBLIC_SUPABASE_URL',
+  'PUBLIC_SUPABASE_URL',
+  'SUPABASE_URL',
+] as const;
+
+const SUPABASE_ANON_KEY_KEYS = [
+  'VITE_SUPABASE_PUBLISHABLE_KEY',
+  'VITE_SUPABASE_ANON_KEY',
+  'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  'NEXT_PUBLIC_SUPABASE_KEY',
+  'PUBLIC_SUPABASE_ANON_KEY',
+  'PUBLIC_SUPABASE_KEY',
+  'SUPABASE_ANON_KEY',
+  'SUPABASE_PUBLIC_ANON_KEY',
+] as const;
+
+type EnvLookupResult = {
+  value: string;
+  source: string | null;
+};
+
+const readProcessEnv = (key: string): string => {
+  if (typeof process !== 'undefined' && typeof process.env === 'object') {
+    const raw = process.env[key];
+    if (typeof raw === 'string') {
+      return raw.trim();
+    }
+  }
+  return '';
+};
+
+const getEnvValue = (metaEnv: BuildMyBotMetaEnv, keys: readonly string[]): EnvLookupResult => {
+  for (const key of keys) {
+    const metaValue = metaEnv?.[key];
+    if (typeof metaValue === 'string' && metaValue.trim()) {
+      return { value: metaValue.trim(), source: key };
+    }
+
+    const processValue = readProcessEnv(key);
+    if (processValue) {
+      return { value: processValue, source: key };
+    }
+  }
+
+  return { value: '', source: null };
+};
+
 export const createEnv = (metaEnv: BuildMyBotMetaEnv = import.meta.env) => {
-  const supabaseUrl = (typeof metaEnv?.VITE_SUPABASE_URL === 'string' ? metaEnv.VITE_SUPABASE_URL.trim() : '') || '';
-  const supabaseAnonKey = (typeof metaEnv?.VITE_SUPABASE_PUBLISHABLE_KEY === 'string' 
-    ? metaEnv.VITE_SUPABASE_PUBLISHABLE_KEY.trim() 
-    : typeof metaEnv?.VITE_SUPABASE_ANON_KEY === 'string'
-    ? metaEnv.VITE_SUPABASE_ANON_KEY.trim()
-    : '') || '';
+  const { value: supabaseUrl } = getEnvValue(metaEnv, SUPABASE_URL_KEYS);
+  const { value: supabaseAnonKey, source: supabaseKeySource } = getEnvValue(metaEnv, SUPABASE_ANON_KEY_KEYS);
 
   return {
     // Supabase Configuration
     supabaseUrl,
     supabaseAnonKey,
-    supabaseKeySource: 'publishable' as const,
+    supabaseKeySource: supabaseKeySource ?? 'unknown',
 
     // API Configuration
     apiBaseUrl: (typeof metaEnv?.VITE_API_BASE_URL === 'string' ? metaEnv.VITE_API_BASE_URL : '') || 'http://localhost:3000/api',
