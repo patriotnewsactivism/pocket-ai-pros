@@ -20,8 +20,8 @@ This comprehensive code review identified **23 critical issues**, **15 high-prio
 **Severity:** CRITICAL 🔴
 
 ```env
-VITE_SUPABASE_URL=https://iobjmdcxhinnumxzbmnc.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 **Issue:** Real production Supabase credentials are committed to the repository. This is a MAJOR security breach.
@@ -44,10 +44,10 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Severity:** CRITICAL 🔴
 
 ```typescript
-openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
+openaiApiKey: import.meta.env.OPENAI_API_KEY || '',
 ```
 
-**Issue:** OpenAI API key is being loaded in the client-side code. All `VITE_` prefixed variables are bundled into the frontend and publicly accessible.
+**Issue:** OpenAI API credentials must never be accessible in the browser. Reading `OPENAI_API_KEY` (or any `VITE_` variant) from the client bundles the secret into the frontend, making it trivial to exfiltrate.
 
 **Impact:**
 - Exposed API keys can be extracted from browser
@@ -55,9 +55,9 @@ openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
 - Potentially unlimited billing charges
 
 **Fix:**
-- Remove `VITE_OPENAI_API_KEY` from client-side code
-- Move all AI interactions to serverless functions (Supabase Edge Functions)
-- Use environment variables without `VITE_` prefix for server-side only
+- Remove any client-side references to OpenAI credentials
+- Keep `OPENAI_API_KEY` exclusively in Supabase Edge Functions or other secure backends
+- Route all AI requests through secured endpoints instead of direct browser calls
 
 ---
 
@@ -577,7 +577,7 @@ const [profile, bots, resellerStatus] = await Promise.all([
 
 1. ✅ Rotate Supabase credentials
 2. ✅ Remove real credentials from `.env.example`
-3. ✅ Remove `VITE_OPENAI_API_KEY` from client
+3. ✅ Remove `OPENAI_API_KEY` from client
 4. ✅ Move AI functionality to Edge Functions
 5. ✅ Fix environment variable naming inconsistency
 6. ✅ Add null checks in create-checkout function
@@ -630,15 +630,15 @@ const [profile, bots, resellerStatus] = await Promise.all([
 
 ### File: `.env.example`
 ```diff
-- VITE_SUPABASE_URL=https://iobjmdcxhinnumxzbmnc.supabase.co
-- VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+- VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+- VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 + VITE_SUPABASE_URL=https://your-project.supabase.co
 + VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 ### File: `src/config/env.ts`
 ```diff
-- openaiApiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
+- openaiApiKey: import.meta.env.OPENAI_API_KEY || '',
 + // OpenAI key moved to serverless functions only
 ```
 

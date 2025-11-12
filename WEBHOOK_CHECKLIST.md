@@ -5,7 +5,7 @@ Use this checklist to ensure all webhook components are properly configured.
 ## Prerequisites
 
 - [ ] Stripe account created
-- [ ] Supabase project set up (ID: `fjbwmpyfnhmndzkdsvfi`)
+- [ ] Supabase project set up (ID: `<your-project-ref>`)
 - [ ] Supabase CLI installed (`npm install -g supabase`)
 - [ ] Logged in to Supabase (`supabase login`)
 
@@ -30,7 +30,7 @@ Use this checklist to ensure all webhook components are properly configured.
 - [ ] Click **Add endpoint**
 - [ ] Enter webhook URL:
   ```
-  https://iobjmdcxhinnumxzbmnc.supabase.co/functions/v1/stripe-webhook
+  https://<your-project-ref>.supabase.co/functions/v1/stripe-webhook
   ```
 - [ ] Select events:
   - [ ] `checkout.session.completed`
@@ -54,7 +54,7 @@ Use this checklist to ensure all webhook components are properly configured.
 
 ### Supabase Secrets (Dashboard)
 - [ ] Go to [Supabase Dashboard](https://supabase.com/dashboard)
-- [ ] Select project: `fjbwmpyfnhmndzkdsvfi`
+- [ ] Select project: `<your-project-ref>`
 - [ ] Navigate to **Project Settings** → **Edge Functions** → **Secrets**
 - [ ] Add these secrets:
 
@@ -73,7 +73,7 @@ Use this checklist to ensure all webhook components are properly configured.
 #### SUPABASE_URL
 - [ ] Click **Add secret**
 - [ ] Name: `SUPABASE_URL`
-- [ ] Value: `https://fjbwmpyfnhmndzkdsvfi.supabase.co`
+- [ ] Value: `https://<your-project-ref>.supabase.co`
 - [ ] Save
 
 #### SUPABASE_SERVICE_ROLE_KEY
@@ -100,7 +100,7 @@ Use this checklist to ensure all webhook components are properly configured.
 
 **Alternative: Manual deployment**
 ```bash
-supabase link --project-ref fjbwmpyfnhmndzkdsvfi
+supabase link --project-ref <your-project-ref>
 supabase functions deploy stripe-webhook --no-verify-jwt
 ```
 
@@ -147,7 +147,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS current_period_end timestamp with tim
 
 - [ ] Forward webhooks to your endpoint:
   ```bash
-  stripe listen --forward-to https://iobjmdcxhinnumxzbmnc.supabase.co/functions/v1/stripe-webhook
+  stripe listen --forward-to https://<your-project-ref>.supabase.co/functions/v1/stripe-webhook
   ```
 
 - [ ] In another terminal, trigger a test event:

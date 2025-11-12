@@ -123,7 +123,7 @@ VITE_ENABLE_ANALYTICS=true
 ### 4. Database (2 min)
 ```bash
 # Already configured! Just run SQL:
-# 1. Go to: https://iobjmdcxhinnumxzbmnc.supabase.co
+# 1. Go to: https://<your-project-ref>.supabase.co
 # 2. SQL Editor → Run supabase-setup.sql
 # Done!
 ```

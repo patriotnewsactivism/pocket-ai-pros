@@ -31,8 +31,8 @@ echo ""
 # Check if project is linked
 if [ ! -f "supabase/.temp/project-ref" ]; then
     echo "⚠️  Project not linked yet"
-    echo "🔗 Linking to project: fjbwmpyfnhmndzkdsvfi"
-    supabase link --project-ref fjbwmpyfnhmndzkdsvfi
+    echo "🔗 Linking to project: <your-project-ref>"
+    supabase link --project-ref <your-project-ref>
 fi
 
 echo "✅ Project linked"
@@ -53,11 +53,11 @@ echo "      - SUPABASE_URL"
 echo "      - SUPABASE_SERVICE_ROLE_KEY"
 echo ""
 echo "   2. Configure Stripe webhook endpoint:"
-echo "      URL: https://iobjmdcxhinnumxzbmnc.supabase.co/functions/v1/stripe-webhook"
+echo "      URL: https://<your-project-ref>.supabase.co/functions/v1/stripe-webhook"
 echo ""
 echo "   3. Add VITE_STRIPE_PUBLIC_KEY to your .env file"
 echo ""
 echo "   4. Test the webhook with Stripe CLI:"
-echo "      stripe listen --forward-to https://iobjmdcxhinnumxzbmnc.supabase.co/functions/v1/stripe-webhook"
+echo "      stripe listen --forward-to https://<your-project-ref>.supabase.co/functions/v1/stripe-webhook"
 echo ""
 echo "✅ Deployment complete!"

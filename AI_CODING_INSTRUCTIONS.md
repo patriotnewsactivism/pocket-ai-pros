@@ -36,7 +36,7 @@ The project uses a **direct client-to-Supabase** architecture for most database 
 You **MUST** adhere to these warnings. This project has critical vulnerabilities identified in `CODE_REVIEW_REPORT.md`.
 
 * **🔴 CRITICAL VULNERABILITY #1:** **DO NOT** use any API keys found in `.env` or `.env.example`. They are **EXPOSED PRODUCTION KEYS**. Treat them as placeholders and always refer to them via environment variables (e.g., `Deno.env.get("STRIPE_SECRET_KEY")`).
-* **🔴 CRITICAL VULNERABILITY #2:** The variable `VITE_OPENAI_API_KEY` is exposed to the client (`src/config/env.ts`). **DO NOT** use this. All AI logic **MUST** be moved to a new Supabase Edge Function to keep the OpenAI key secure.
+* **🔴 CRITICAL VULNERABILITY #2:** Never expose the OpenAI key to the client. All AI logic **MUST** run through Supabase Edge Functions using the server-side `OPENAI_API_KEY` environment variable.
 * **🟡 ARCHITECTURAL FLAW:** The project has two separate files for database logic: `src/lib/api.ts` and `src/lib/supabase.ts`. Your goal is to consolidate all direct database operations into `src/lib/supabase.ts` and refactor API calls in `src/hooks/useApi.ts` to use it.
 * **🟡 NO TESTS:** The project has 0% test coverage. All new code **MUST** include unit tests using **Vitest** and **React Testing Library**.
 * **🟡 TS STRICT MODE:** Strict mode is disabled in `tsconfig.app.json`. You should write all new code as if `strict: true` is enabled and help fix existing type errors.

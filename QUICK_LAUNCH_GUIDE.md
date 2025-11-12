@@ -10,7 +10,7 @@
 
 **Database (30 minutes)**
 ```bash
-1. Go to: https://supabase.com/dashboard/project/fjbwmpyfnhmndzkdsvfi
+1. Go to: https://supabase.com/dashboard/project/<your-project-ref>
 2. SQL Editor → Paste supabase-setup.sql → Run
 3. Verify tables created
 ```
@@ -38,7 +38,7 @@
 ```bash
 1. Go to: https://platform.openai.com/api-keys
 2. Create API key
-3. Add to .env: VITE_OPENAI_API_KEY=sk-proj-...
+3. Add to .env: OPENAI_API_KEY=sk-proj-...
 4. Set spending limit: $100/month
 ```
 
@@ -161,10 +161,10 @@ Copy this to your `.env` file:
 
 ```bash
 # REQUIRED FOR LAUNCH
-VITE_SUPABASE_URL="https://fjbwmpyfnhmndzkdsvfi.supabase.co"
+VITE_SUPABASE_URL="https://<your-project-ref>.supabase.co"
 VITE_SUPABASE_ANON_KEY="your-key-already-set"
 VITE_STRIPE_PUBLIC_KEY="pk_live_XXXXXXXX" ← GET THIS
-VITE_OPENAI_API_KEY="sk-proj-XXXXXXXX" ← GET THIS
+OPENAI_API_KEY="sk-proj-XXXXXXXX" ← GET THIS
 SENDGRID_API_KEY="SG.XXXXXXXX" ← GET THIS
 FROM_EMAIL="noreply@yourdomain.com" ← SET THIS
 ADMIN_EMAIL="admin@yourdomain.com" ← SET THIS
@@ -210,7 +210,7 @@ VITE_ENABLE_CHAT_WIDGET="false" # Set true when ready
 - Cloudflare: https://cloudflare.com
 
 ### Database
-- Supabase Dashboard: https://supabase.com/dashboard/project/fjbwmpyfnhmndzkdsvfi
+- Supabase Dashboard: https://supabase.com/dashboard/project/<your-project-ref>
 
 ---
 

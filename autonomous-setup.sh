@@ -95,12 +95,12 @@ echo -e "${YELLOW}[3/10]${NC} ${BLUE}Generating environment configuration...${NC
 
 if [ ! -f ".env" ]; then
     cat > .env << 'EOF'
-# Supabase Configuration (Pre-configured)
-VITE_SUPABASE_URL=https://iobjmdcxhinnumxzbmnc.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvYmptZGN4aGlubm11eHpibW5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc2Nzk3MTQsImV4cCI6MjA1MzI1NTcxNH0.8Vh5jn0D-Dz0sUYHNEzK5PjCjqzZ0QqGqNqCfqGqGq0
+# Supabase Configuration (update with your project credentials)
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
-# OpenAI Configuration (For AI Chatbot)
-VITE_OPENAI_API_KEY=your_openai_api_key_here
+# OpenAI Configuration (Edge Functions only)
+OPENAI_API_KEY=your-openai-api-key
 
 # Stripe Configuration
 VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key_here
@@ -146,7 +146,7 @@ echo -e "${YELLOW}[4/10]${NC} ${BLUE}Setting up Supabase database...${NC}"
 if command -v curl &> /dev/null; then
     echo "Database schema ready to deploy"
     echo "Please run the SQL in supabase-setup.sql in your Supabase dashboard"
-    echo -e "${CYAN}Quick link: https://iobjmdcxhinnumxzbmnc.supabase.co/project/iobjmdcxhinnumxzbmnc/sql${NC}"
+    echo -e "${CYAN}Quick link: https://<your-project-ref>.supabase.co/project/<your-project-ref>/sql${NC}"
 else
     echo -e "${YELLOW}! curl not found, skipping automatic setup${NC}"
 fi
@@ -263,8 +263,8 @@ Your AI chatbot business for **${BUSINESS_TYPE}** is now fully configured and re
 Edit your \`.env\` file and add:
 
 \`\`\`env
-# Required for AI Chatbot
-VITE_OPENAI_API_KEY=sk-...
+# Required for AI Chatbot (server-side only)
+OPENAI_API_KEY=sk-...
 
 # Required for Payments
 VITE_STRIPE_PUBLIC_KEY=pk_live_...
@@ -280,7 +280,7 @@ VITE_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
 
 ### 2. Run Database Setup
 
-1. Go to [Supabase SQL Editor](https://iobjmdcxhinnumxzbmnc.supabase.co/project/iobjmdcxhinnumxzbmnc/sql)
+1. Go to [Supabase SQL Editor](https://<your-project-ref>.supabase.co/project/<your-project-ref>/sql)
 2. Paste contents of \`supabase-setup.sql\`
 3. Click "Run"
 

@@ -82,12 +82,12 @@ if [ ! -f ".env" ]; then
     echo -e "${YELLOW}Creating .env file...${NC}"
     cat > .env << 'EOF'
 # Supabase Configuration
-VITE_SUPABASE_URL=https://iobjmdcxhinnumxzbmnc.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvYmptZGN4aGlubm11eHpibW5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc2Nzk3MTQsImV4cCI6MjA1MzI1NTcxNH0.8Vh5jn0D-Dz0sUYHNEzK5PjCjqzZ0QqGqNqCfqGqGq0
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
 # AI Chatbot
 VITE_ENABLE_AI_CHATBOT=true
-VITE_OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY=your-openai-api-key
 
 # Payment Processing
 VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key
@@ -135,7 +135,7 @@ echo -e "${YELLOW}[4/12]${NC} ${BLUE}Setting up database...${NC}"
 
 echo "Database schema ready: supabase-setup.sql"
 echo -e "${CYAN}To complete database setup:${NC}"
-echo "1. Go to: https://iobjmdcxhinnumxzbmnc.supabase.co"
+echo "1. Go to: https://<your-project-ref>.supabase.co"
 echo "2. Open SQL Editor"
 echo "3. Paste contents of supabase-setup.sql"
 echo "4. Click 'Run'"
@@ -307,7 +307,7 @@ cat > DEPLOYMENT_REPORT.md << EOF
 
 Edit .env file:
 \`\`\`
-VITE_OPENAI_API_KEY=sk-...
+OPENAI_API_KEY=sk-...
 VITE_STRIPE_PUBLIC_KEY=pk_live_...
 SENDGRID_API_KEY=SG.xxx...
 VITE_GOOGLE_ANALYTICS_ID=G-...

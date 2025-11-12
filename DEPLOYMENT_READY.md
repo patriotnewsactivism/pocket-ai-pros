@@ -102,7 +102,7 @@ Your BuildMyBot website has been **completely upgraded** and is **100% ready for
 ## 🗄️ Database Integration Complete
 
 ### Supabase Setup ✅
-- **URL**: https://iobjmdcxhinnumxzbmnc.supabase.co
+- **URL**: https://<your-project-ref>.supabase.co
 - **Status**: Configured and ready
 - **Integration**: Direct client-side (no backend needed)
 
@@ -144,7 +144,7 @@ Your BuildMyBot website has been **completely upgraded** and is **100% ready for
 ### Step 1: Set Up Database (One-Time)
 ```bash
 # Go to Supabase SQL Editor
-# https://iobjmdcxhinnumxzbmnc.supabase.co
+# https://<your-project-ref>.supabase.co
 
 # Run this file:
 supabase-setup.sql
@@ -168,8 +168,8 @@ netlify deploy --prod --dir=dist
 ### Step 3: Set Environment Variables
 In your deployment platform, set:
 ```env
-VITE_SUPABASE_URL=https://iobjmdcxhinnumxzbmnc.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 ---
