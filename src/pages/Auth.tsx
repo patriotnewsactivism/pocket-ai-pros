@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, Bot } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -54,6 +54,16 @@ export default function Auth() {
 
   const handleSignUp = signUpForm.handleSubmit(async (values) => {
     setIsSignUpLoading(true);
+
+    if (!isSupabaseConfigured) {
+      toast({
+        title: "Authentication not configured",
+        description: "Please contact the administrator to set up Supabase authentication keys (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY).",
+        variant: "destructive",
+      });
+      setIsSignUpLoading(false);
+      return;
+    }
 
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -116,7 +126,13 @@ export default function Auth() {
         setTimeout(() => navigate("/dashboard"), 1000);
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Please try again";
+      let message = "Please try again";
+      if (error instanceof Error) {
+        // Clean up the error message to be more user-friendly
+        message = error.message
+          .replace(/Supabase is not configured.*?Attempted to access.*?on the disabled client\.?/i, "Authentication service is not configured. Please contact support.")
+          .replace(/Please provide VITE_SUPABASE_URL.*?key\.?/i, "Authentication service is not configured.");
+      }
       toast({
         title: "Sign up failed",
         description: message,
@@ -129,6 +145,16 @@ export default function Auth() {
 
   const handleSignIn = signInForm.handleSubmit(async (values) => {
     setIsSignInLoading(true);
+
+    if (!isSupabaseConfigured) {
+      toast({
+        title: "Authentication not configured",
+        description: "Please contact the administrator to set up Supabase authentication keys (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY).",
+        variant: "destructive",
+      });
+      setIsSignInLoading(false);
+      return;
+    }
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -145,7 +171,13 @@ export default function Auth() {
 
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Please try again";
+      let message = "Please try again";
+      if (error instanceof Error) {
+        // Clean up the error message to be more user-friendly
+        message = error.message
+          .replace(/Supabase is not configured.*?Attempted to access.*?on the disabled client\.?/i, "Authentication service is not configured. Please contact support.")
+          .replace(/Please provide VITE_SUPABASE_URL.*?key\.?/i, "Authentication service is not configured.");
+      }
       toast({
         title: "Sign in failed",
         description: message,
@@ -167,6 +199,14 @@ export default function Auth() {
           </div>
           <CardTitle className="text-3xl">BuildMyBot</CardTitle>
           <CardDescription>Get started with your AI chatbot platform</CardDescription>
+          {!isSupabaseConfigured && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm">
+              <p className="text-destructive font-medium">Authentication Service Not Configured</p>
+              <p className="text-muted-foreground text-xs mt-1">
+                Please set up Supabase keys to enable sign-in and account creation.
+              </p>
+            </div>
+          )}
         </CardHeader>
 
         <Tabs defaultValue="signin" className="w-full">
