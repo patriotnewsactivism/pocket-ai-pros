@@ -29,13 +29,8 @@ app.use(cors({
 
 app.use(express.json());
 
-// Database connection (example using PostgreSQL)
-// YOU MUST IMPLEMENT YOUR OWN DATABASE CONNECTION
-const { Pool } = require('pg');
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+// Database connection (PostgreSQL pool is configured in services/database.js)
+const { pool } = require('./services/database');
 
 // Email service (example using SendGrid)
 // YOU MUST CONFIGURE YOUR OWN EMAIL SERVICE

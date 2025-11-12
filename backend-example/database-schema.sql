@@ -63,6 +63,11 @@ CREATE TABLE users (
     password_hash VARCHAR(255),
     company VARCHAR(255),
     plan VARCHAR(50) DEFAULT 'starter',
+    stripe_customer_id VARCHAR(255) UNIQUE,
+    stripe_subscription_id VARCHAR(255),
+    subscription_status VARCHAR(50) DEFAULT 'inactive',
+    current_period_start TIMESTAMP,
+    current_period_end TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP,
     status VARCHAR(50) DEFAULT 'active',
@@ -74,6 +79,9 @@ CREATE TABLE users (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_status ON users(status);
 CREATE INDEX idx_users_plan ON users(plan);
+CREATE INDEX idx_users_stripe_customer ON users(stripe_customer_id);
+CREATE INDEX idx_users_stripe_subscription ON users(stripe_subscription_id);
+CREATE INDEX idx_users_subscription_status ON users(subscription_status);
 
 -- Pricing Plans
 CREATE TABLE pricing_plans (
@@ -159,16 +167,39 @@ CREATE TABLE subscriptions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     plan_id VARCHAR(50) REFERENCES pricing_plans(plan_id),
-    stripe_subscription_id VARCHAR(255),
+    stripe_subscription_id VARCHAR(255) UNIQUE,
     status VARCHAR(50) DEFAULT 'active',
     current_period_start TIMESTAMP,
     current_period_end TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    cancelled_at TIMESTAMP
+    cancelled_at TIMESTAMP,
+    cancel_at_period_end BOOLEAN DEFAULT FALSE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_subscriptions_user ON subscriptions(user_id);
 CREATE INDEX idx_subscriptions_status ON subscriptions(status);
+CREATE INDEX idx_subscriptions_stripe ON subscriptions(stripe_subscription_id);
+
+-- Payments Table (records Stripe invoices and payment attempts)
+CREATE TABLE payments (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    stripe_invoice_id VARCHAR(255) UNIQUE NOT NULL,
+    stripe_payment_intent_id VARCHAR(255),
+    stripe_subscription_id VARCHAR(255),
+    amount DECIMAL(10,2) NOT NULL,
+    currency VARCHAR(10) DEFAULT 'usd',
+    status VARCHAR(50) NOT NULL,
+    invoice_url TEXT,
+    receipt_url TEXT,
+    paid_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_payments_user ON payments(user_id);
+CREATE INDEX idx_payments_status ON payments(status);
+CREATE INDEX idx_payments_subscription ON payments(stripe_subscription_id);
 
 -- Functions for statistics
 CREATE OR REPLACE FUNCTION get_total_bots()
