@@ -15,7 +15,8 @@
     "cors": "^2.8.5",
     "pg": "^8.11.3",
     "dotenv": "^16.3.1",
-    "@sendgrid/mail": "^7.7.0"
+    "@sendgrid/mail": "^7.7.0",
+    "stripe": "^12.16.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
