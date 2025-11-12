@@ -71,6 +71,21 @@ export default function Auth() {
       if (authError) throw authError;
 
       if (authData.user) {
+        // Check if email confirmation is required
+        // If user.email_confirmed_at is null, Supabase requires email confirmation
+        const emailConfirmationRequired = !authData.user.email_confirmed_at;
+
+        if (emailConfirmationRequired) {
+          // Email confirmation is enabled - user needs to verify email
+          toast({
+            title: "Check your email",
+            description: "We've sent you a confirmation link. Please check your inbox and click the link to activate your account.",
+          });
+          setIsSignUpLoading(false);
+          return;
+        }
+
+        // If email confirmation is not required or already confirmed, proceed with setup
         // Link user to referrer if they signed up via referral link
         const storedReferralId = localStorage.getItem("referral_id");
 
