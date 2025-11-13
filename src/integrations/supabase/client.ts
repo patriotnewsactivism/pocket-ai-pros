@@ -8,6 +8,10 @@ const { supabaseUrl, supabaseAnonKey } = env;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase credentials are required to initialize the client.');
+}
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: localStorage,
