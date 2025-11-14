@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -38,32 +38,59 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkUser();
-  }, []);
+    void initializeDashboard();
+  }, [initializeDashboard]);
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      navigate('/auth');
-      return;
+  const initializeDashboard = useCallback(async () => {
+    try {
+      const {
+        data: { user: currentUser },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        throw error;
+      }
+
+      if (!currentUser) {
+        navigate('/auth');
+        return;
+      }
+
+      setUser(currentUser);
+      const [profileData, botsData, resellerStatus] = await Promise.all([
+        loadProfile(currentUser.id),
+        loadBots(currentUser.id),
+        checkResellerStatus(currentUser.id),
+      ]);
+
+      setProfile(profileData);
+      setBots(botsData);
+      setIsReseller(resellerStatus);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to load your dashboard data.';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
-
-    setUser(user);
-    await loadProfile(user.id);
-    await loadBots(user.id);
-    await checkResellerStatus(user.id);
-    setLoading(false);
-  };
+  }, [navigate, toast]);
 
   const checkResellerStatus = async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('resellers')
       .select('id')
       .eq('user_id', userId)
-      .single();
-    
-    setIsReseller(!!data);
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return Boolean(data);
   };
 
   const loadProfile = async (userId: string) => {
@@ -74,11 +101,10 @@ export default function Dashboard() {
       .single();
 
     if (error) {
-      console.error('Error loading profile:', error);
-      return;
+      throw new Error('Unable to load your profile. Please try again.');
     }
 
-    setProfile(data);
+    return data as UserProfile;
   };
 
   const loadBots = async (userId: string) => {
@@ -90,11 +116,10 @@ export default function Dashboard() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error loading bots:', error);
-      return;
+      throw new Error('Unable to load your bots. Please try again.');
     }
 
-    setBots(data || []);
+    return data ? (data as BotData[]) : [];
   };
 
   const handleSignOut = async () => {

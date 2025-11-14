@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -7,6 +7,7 @@ import { Loader2, Bot } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import {
   Card,
   CardContent,
@@ -19,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { signInSchema, signUpSchema, type SignInValues, type SignUpValues } from "@/lib/schemas/auth";
+import { evaluatePasswordStrength, PASSWORD_REQUIREMENTS } from "@/lib/security/password";
 
 export default function Auth() {
   const [isSignInLoading, setIsSignInLoading] = useState(false);
@@ -27,6 +29,19 @@ export default function Auth() {
   const referralId = searchParams.get("ref");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const passwordValue = signUpForm.watch("password") || "";
+  const passwordStrength = useMemo(() => evaluatePasswordStrength(passwordValue), [passwordValue]);
+  const passwordScorePercent = useMemo(
+    () => Math.min(100, Math.max(0, (passwordStrength.score / 4) * 100)),
+    [passwordStrength.score],
+  );
+  const passwordStrengthLabel = passwordStrength.isStrong
+    ? "Strong password"
+    : ["Very weak", "Weak", "Fair", "Good", "Excellent"][Math.min(passwordStrength.score, 4)] ?? "Very weak";
+  const passwordSuggestions = passwordStrength.suggestions.length > 0
+    ? passwordStrength.suggestions
+    : PASSWORD_REQUIREMENTS.hints;
+  const shouldShowPasswordGuidance = passwordValue.length > 0;
 
   const signInForm = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
@@ -343,6 +358,24 @@ export default function Auth() {
                           />
                         </FormControl>
                         <FormMessage />
+                        {shouldShowPasswordGuidance && (
+                          <div className="mt-3 space-y-3 rounded-lg border border-border/60 bg-muted/30 p-3 text-left">
+                            <div className="flex items-center justify-between text-xs font-semibold">
+                              <span className={passwordStrength.isStrong ? "text-emerald-600" : "text-muted-foreground"}>
+                                {passwordStrengthLabel}
+                              </span>
+                              <span className="text-muted-foreground">{Math.round(passwordScorePercent)}%</span>
+                            </div>
+                            <Progress value={passwordScorePercent} className="h-2" />
+                            {!passwordStrength.isStrong && (
+                              <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+                                {passwordSuggestions.map((suggestion) => (
+                                  <li key={suggestion}>{suggestion}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />

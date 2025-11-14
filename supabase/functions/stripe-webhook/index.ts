@@ -177,8 +177,6 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Processing webhook event: ${event.type}`);
-
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
@@ -338,7 +336,7 @@ serve(async (req) => {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.warn(`Unhandled Stripe event type: ${event.type}`);
     }
 
     return new Response(

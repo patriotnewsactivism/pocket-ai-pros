@@ -78,6 +78,7 @@ export const createEnv = (metaEnv: BuildMyBotMetaEnv = import.meta.env) => {
     // External Services
     stripePublicKey: (typeof metaEnv?.VITE_STRIPE_PUBLIC_KEY === 'string' ? metaEnv.VITE_STRIPE_PUBLIC_KEY : '') || '',
     googleAnalyticsId: (typeof metaEnv?.VITE_GOOGLE_ANALYTICS_ID === 'string' ? metaEnv.VITE_GOOGLE_ANALYTICS_ID : '') || '',
+    sentryDsn: (typeof metaEnv?.VITE_SENTRY_DSN === 'string' ? metaEnv.VITE_SENTRY_DSN : '') || '',
 
     // Environment
     appEnv: (typeof metaEnv?.VITE_APP_ENV === 'string' ? metaEnv.VITE_APP_ENV : '') || 'development',
