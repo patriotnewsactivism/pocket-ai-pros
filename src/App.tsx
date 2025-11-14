@@ -7,8 +7,12 @@ import { Analytics } from '@/components/Analytics';
 import { LiveChat } from '@/components/LiveChat';
 import { AIChatbot } from '@/components/AIChatbot';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { initSentry } from '@/lib/sentry';
 import { env } from '@/config/env';
 import './App.css';
+
+// Initialize Sentry error tracking in production
+initSentry();
 
 // Lazy load pages for better performance
 const Index = lazy(() => import('@/pages/Index'));
