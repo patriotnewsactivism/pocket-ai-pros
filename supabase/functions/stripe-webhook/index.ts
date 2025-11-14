@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import {
   FREE_PLAN,
   createSubscriptionPayload,
@@ -9,6 +8,8 @@ import {
   roundToTwoDecimals,
   type PlanConfigBase,
 } from "../_shared/planConfig.ts";
+import { getSupabaseAdminClient, type SupabaseAdminClient } from "../_shared/supabaseClient.ts";
+import type { TablesInsert, TablesUpdate } from "../_shared/database.types.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
   apiVersion: "2023-10-16",
@@ -22,24 +23,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
-type AdminClient = SupabaseClient<unknown>;
-
 type SubscriptionStatus = string;
 
-function getSupabaseClient(): AdminClient {
-  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Supabase environment variables are not configured");
-  }
-
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
-}
-
-async function getUserIdByStripeCustomerId(supabaseClient: AdminClient, customerId: string): Promise<string | null> {
+async function getUserIdByStripeCustomerId(
+  supabaseClient: SupabaseAdminClient,
+  customerId: string,
+): Promise<string | null> {
   const { data, error } = await supabaseClient
     .from("users")
     .select("id")
@@ -54,7 +43,7 @@ async function getUserIdByStripeCustomerId(supabaseClient: AdminClient, customer
 }
 
 async function upsertSubscriptionRecord(
-  supabaseClient: AdminClient,
+  supabaseClient: SupabaseAdminClient,
   userId: string,
   plan: PlanConfigBase,
   status: SubscriptionStatus,
@@ -62,7 +51,7 @@ async function upsertSubscriptionRecord(
   periodStart: string,
   periodEnd: string | null
 ) {
-  const payload = createSubscriptionPayload(plan, {
+  const payload: TablesUpdate<"subscriptions"> = createSubscriptionPayload(plan, {
     plan: plan.slug,
     status,
     stripe_subscription_id: stripeSubscriptionId,
@@ -91,9 +80,10 @@ async function upsertSubscriptionRecord(
       throw updateError;
     }
   } else {
+    const insertPayload: TablesInsert<"subscriptions"> = { ...payload, user_id: userId };
     const { error: insertError } = await supabaseClient
       .from("subscriptions")
-      .insert({ ...payload, user_id: userId });
+      .insert(insertPayload);
 
     if (insertError) {
       throw insertError;
@@ -117,9 +107,9 @@ function resolvePlanFromInvoice(invoice: Stripe.Invoice): PlanConfigBase {
 }
 
 async function updateUserById(
-  supabaseClient: AdminClient,
+  supabaseClient: SupabaseAdminClient,
   userId: string,
-  updates: Record<string, unknown>
+  updates: TablesUpdate<"users">,
 ) {
   const { error } = await supabaseClient.from("users").update(updates).eq("id", userId);
   if (error) {
@@ -128,9 +118,9 @@ async function updateUserById(
 }
 
 async function updateUserByStripeCustomerId(
-  supabaseClient: AdminClient,
+  supabaseClient: SupabaseAdminClient,
   customerId: string,
-  updates: Record<string, unknown>
+  updates: TablesUpdate<"users">,
 ) {
   const { error } = await supabaseClient.from("users").update(updates).eq("stripe_customer_id", customerId);
   if (error) {
@@ -143,7 +133,7 @@ serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  const supabaseClient = getSupabaseClient();
+  const supabaseClient = getSupabaseAdminClient();
 
   try {
     const signature = req.headers.get("stripe-signature");

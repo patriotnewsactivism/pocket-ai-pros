@@ -1,11 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import {
   createSubscriptionPayload,
   getPaidPlanBySlug,
   type PaidPlanConfig,
 } from "../_shared/planConfig.ts";
+import { getSupabaseAdminClient, type SupabaseAdminClient } from "../_shared/supabaseClient.ts";
+import type { TablesInsert, TablesUpdate } from "../_shared/database.types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,21 +17,6 @@ type CheckoutRequestBody = {
   plan?: string;
 };
 
-type SupabaseClient = ReturnType<typeof createClient<unknown>>;
-
-function getSupabaseClient(): SupabaseClient {
-  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Supabase environment variables are not configured");
-  }
-
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
-}
-
 function ensureStripeConfigured(): Stripe {
   const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
   if (!secretKey) {
@@ -40,11 +26,11 @@ function ensureStripeConfigured(): Stripe {
 }
 
 async function upsertPendingSubscription(
-  supabaseClient: SupabaseClient,
+  supabaseClient: SupabaseAdminClient,
   userId: string,
   plan: PaidPlanConfig
 ) {
-  const pendingPayload = createSubscriptionPayload(plan, {
+  const pendingPayload: TablesUpdate<"subscriptions"> = createSubscriptionPayload(plan, {
     plan: plan.slug,
     status: "pending",
     stripe_subscription_id: null,
@@ -71,9 +57,10 @@ async function upsertPendingSubscription(
       throw updateError;
     }
   } else {
+    const insertPayload: TablesInsert<"subscriptions"> = { ...pendingPayload, user_id: userId };
     const { error: insertError } = await supabaseClient
       .from("subscriptions")
-      .insert({ ...pendingPayload, user_id: userId });
+      .insert(insertPayload);
 
     if (insertError) {
       throw insertError;
@@ -112,7 +99,7 @@ serve(async (req) => {
       );
     }
 
-    const supabaseClient = getSupabaseClient();
+    const supabaseClient = getSupabaseAdminClient();
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
 
@@ -166,7 +153,7 @@ serve(async (req) => {
 
     await upsertPendingSubscription(supabaseClient, user.id, planConfig);
 
-    const userUpdates: Record<string, unknown> = { subscription_status: "pending" };
+    const userUpdates: TablesUpdate<"users"> = { subscription_status: "pending" };
     if (customerId) {
       userUpdates.stripe_customer_id = customerId;
     }
