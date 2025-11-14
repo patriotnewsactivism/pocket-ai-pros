@@ -1,4 +1,4 @@
-import { type ComponentProps } from 'react';
+import { type ComponentProps, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -6,17 +6,20 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Analytics } from '@/components/Analytics';
 import { LiveChat } from '@/components/LiveChat';
 import { AIChatbot } from '@/components/AIChatbot';
-import Index from '@/pages/Index';
-import NotFound from '@/pages/NotFound';
-import Terms from '@/pages/Terms';
-import Privacy from '@/pages/Privacy';
-import Refund from '@/pages/Refund';
-import Auth from '@/pages/Auth';
-import Dashboard from '@/pages/Dashboard';
-import ResellerDashboard from '@/pages/ResellerDashboard';
-import BotChat from '@/pages/BotChat';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { env } from '@/config/env';
 import './App.css';
+
+// Lazy load pages for better performance
+const Index = lazy(() => import('@/pages/Index'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
+const Terms = lazy(() => import('@/pages/Terms'));
+const Privacy = lazy(() => import('@/pages/Privacy'));
+const Refund = lazy(() => import('@/pages/Refund'));
+const Auth = lazy(() => import('@/pages/Auth'));
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const ResellerDashboard = lazy(() => import('@/pages/ResellerDashboard'));
+const BotChat = lazy(() => import('@/pages/BotChat'));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -58,18 +61,20 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <Router>
           <Analytics />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/reseller" element={<ResellerDashboard />} />
-            <Route path="/reseller-dashboard" element={<Navigate to="/reseller" replace />} />
-            <Route path="/bot/:botId/chat" element={<BotChat />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/refund" element={<Refund />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/reseller" element={<ResellerDashboard />} />
+              <Route path="/reseller-dashboard" element={<Navigate to="/reseller" replace />} />
+              <Route path="/bot/:botId/chat" element={<BotChat />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/refund" element={<Refund />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
           <Toaster />
           <LiveChat />
           <AIChatbot businessType={businessType} />

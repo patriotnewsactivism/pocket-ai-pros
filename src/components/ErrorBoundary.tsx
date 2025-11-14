@@ -22,7 +22,16 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    // Only log in development to avoid exposing sensitive info
+    if (import.meta.env.DEV) {
+      console.error('Error caught by boundary:', error);
+      console.error('Component stack:', errorInfo.componentStack);
+    }
+    
+    // TODO: Send to error tracking service (Sentry, etc.) in production
+    // Example: Sentry.captureException(error, { 
+    //   contexts: { react: { componentStack: errorInfo.componentStack } } 
+    // });
   }
 
   private handleReset = () => {
