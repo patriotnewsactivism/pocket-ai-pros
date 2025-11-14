@@ -1,9 +1,24 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Input validation schema
+const requestSchema = z.object({
+  botId: z.string().uuid("Invalid bot ID format"),
+  message: z.string()
+    .min(1, "Message cannot be empty")
+    .max(2000, "Message is too long (max 2000 characters)")
+    .trim(),
+  conversationId: z.string().uuid("Invalid conversation ID format").optional(),
+});
+
+const logStep = (step: string, details?: unknown) => {
+  console.log(`[BOT-CHAT] ${step}${details ? ` - ${JSON.stringify(details)}` : ''}`);
 };
 
 serve(async (req) => {
@@ -12,14 +27,27 @@ serve(async (req) => {
   }
 
   try {
-    const { botId, message, conversationId } = await req.json();
-
-    if (!botId || !message) {
+    logStep("Request received");
+    const body = await req.json();
+    
+    // Validate and sanitize input
+    const validation = requestSchema.safeParse(body);
+    if (!validation.success) {
+      logStep("Validation failed", validation.error.issues);
       return new Response(
-        JSON.stringify({ error: "Missing botId or message" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ 
+          error: "Invalid request data",
+          details: validation.error.issues 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
       );
     }
+
+    const { botId, message, conversationId } = validation.data;
+    logStep("Input validated", { botId, messageLength: message.length });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {

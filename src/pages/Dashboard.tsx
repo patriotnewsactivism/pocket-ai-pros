@@ -50,9 +50,14 @@ export default function Dashboard() {
     }
 
     setUser(user);
-    await loadProfile(user.id);
-    await loadBots(user.id);
-    await checkResellerStatus(user.id);
+    
+    // Parallelize database queries for better performance
+    await Promise.all([
+      loadProfile(user.id),
+      loadBots(user.id),
+      checkResellerStatus(user.id)
+    ]);
+    
     setLoading(false);
   };
 
