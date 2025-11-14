@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import {
   FREE_PLAN,
   createSubscriptionPayload,
@@ -8,28 +7,15 @@ import {
   roundToTwoDecimals,
   type PlanConfigBase,
 } from "../_shared/planConfig.ts";
+import { getSupabaseAdminClient, type SupabaseAdminClient } from "../_shared/supabaseClient.ts";
+import type { TablesInsert, TablesUpdate } from "../_shared/database.types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type AdminClient = SupabaseClient<unknown>;
-
 type SubscriptionStatus = "active" | "canceled" | "past_due" | "trialing" | "unpaid" | "incomplete" | string;
-
-function getSupabaseClient(): AdminClient {
-  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error("Supabase environment variables are not configured");
-  }
-
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
-  });
-}
 
 function getStripeClient(): Stripe {
   const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -40,7 +26,7 @@ function getStripeClient(): Stripe {
 }
 
 async function saveSubscription(
-  supabaseClient: AdminClient,
+  supabaseClient: SupabaseAdminClient,
   userId: string,
   plan: PlanConfigBase,
   status: SubscriptionStatus,
@@ -48,7 +34,7 @@ async function saveSubscription(
   periodStart: string,
   periodEnd: string | null
 ) {
-  const payload = createSubscriptionPayload(plan, {
+  const payload: TablesUpdate<"subscriptions"> = createSubscriptionPayload(plan, {
     plan: plan.slug,
     status,
     stripe_subscription_id: stripeSubscriptionId,
@@ -77,9 +63,10 @@ async function saveSubscription(
       throw updateError;
     }
   } else {
+    const insertPayload: TablesInsert<"subscriptions"> = { ...payload, user_id: userId };
     const { error: insertError } = await supabaseClient
       .from("subscriptions")
-      .insert({ ...payload, user_id: userId });
+      .insert(insertPayload);
 
     if (insertError) {
       throw insertError;
@@ -92,7 +79,7 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = getSupabaseClient();
+  const supabaseClient = getSupabaseAdminClient();
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -146,18 +133,17 @@ serve(async (req) => {
     const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
     const periodStart = new Date(subscription.current_period_start * 1000).toISOString();
 
-    await supabaseClient
-      .from("users")
-      .update({
-        plan,
-        bots_limit: planDetails.botsLimit,
-        conversations_limit: planDetails.conversationsLimit,
-        stripe_subscription_id: subscription.id,
-        stripe_customer_id: customerId,
-        subscription_status: subscription.status,
-        current_period_end: subscriptionEnd,
-      })
-      .eq("id", user.id);
+    const userUpdates: TablesUpdate<"users"> = {
+      plan,
+      bots_limit: planDetails.botsLimit,
+      conversations_limit: planDetails.conversationsLimit,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: customerId,
+      subscription_status: subscription.status,
+      current_period_end: subscriptionEnd,
+    };
+
+    await supabaseClient.from("users").update(userUpdates).eq("id", user.id);
 
     await saveSubscription(
       supabaseClient,
