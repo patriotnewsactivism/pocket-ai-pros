@@ -3,9 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, DollarSign, TrendingUp, LogOut, Bot } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, LogOut, Bot, Wallet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@supabase/supabase-js';
+import PayoutRequestDialog from '@/components/PayoutRequestDialog';
+import PayoutHistory from '@/components/PayoutHistory';
+import { MINIMUM_PAYOUT } from '@/lib/schemas/payout';
 
 interface ResellerData {
   commission_rate: number;
@@ -13,6 +16,8 @@ interface ResellerData {
   clients_count: number;
   status: string;
   referral_code?: string;
+  paid_earnings?: number;
+  pending_earnings?: number;
 }
 
 interface ResellerClient {
@@ -28,7 +33,8 @@ export default function ResellerDashboard() {
   const [reseller, setReseller] = useState<ResellerData | null>(null);
   const [clients, setClients] = useState<ResellerClient[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const [payoutDialogOpen, setPayoutDialogOpen] = useState(false);
+  const { toast} = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -85,6 +91,14 @@ export default function ResellerDashboard() {
     navigate('/');
   };
 
+  const refreshResellerData = () => {
+    checkReseller();
+  };
+
+  const availableEarnings = reseller
+    ? (reseller.total_earnings || 0) - (reseller.paid_earnings || 0) - (reseller.pending_earnings || 0)
+    : 0;
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -124,17 +138,39 @@ export default function ResellerDashboard() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {/* Earnings Card */}
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
+          {/* Total Earnings Card */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Total Earnings</CardTitle>
-              <CardDescription>Your commission</CardDescription>
+              <CardDescription>All-time commission</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary">
                 ${reseller?.total_earnings?.toFixed(2) || '0.00'}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Available Balance Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Available Balance</CardTitle>
+              <CardDescription>Ready for payout</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-green-600">
+                ${availableEarnings.toFixed(2)}
+              </div>
+              <Button
+                className="w-full mt-3"
+                size="sm"
+                disabled={availableEarnings < MINIMUM_PAYOUT}
+                onClick={() => setPayoutDialogOpen(true)}
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                Request Payout
+              </Button>
             </CardContent>
           </Card>
 
@@ -156,12 +192,46 @@ export default function ResellerDashboard() {
               <CardDescription>Your earning rate</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-success">
+              <div className="text-3xl font-bold text-purple-600">
                 {reseller?.commission_rate || 40}%
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Earnings Breakdown Card */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="w-5 h-5" />
+              Earnings Breakdown
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-6">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Total Earned</p>
+                <p className="text-2xl font-bold">${reseller?.total_earnings?.toFixed(2) || '0.00'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Paid Out</p>
+                <p className="text-2xl font-bold text-blue-600">${reseller?.paid_earnings?.toFixed(2) || '0.00'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Pending</p>
+                <p className="text-2xl font-bold text-yellow-600">${reseller?.pending_earnings?.toFixed(2) || '0.00'}</p>
+              </div>
+            </div>
+            {availableEarnings < MINIMUM_PAYOUT && availableEarnings > 0 && (
+              <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  Minimum payout amount is ${MINIMUM_PAYOUT}. You need $
+                  {(MINIMUM_PAYOUT - availableEarnings).toFixed(2)} more to request a payout.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Information Cards */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -255,6 +325,11 @@ export default function ResellerDashboard() {
           </CardContent>
         </Card>
 
+        {/* Payout History */}
+        <div className="mb-8">
+          <PayoutHistory />
+        </div>
+
         {/* Clients List Card */}
         <Card>
           <CardHeader>
@@ -299,6 +374,14 @@ export default function ResellerDashboard() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Payout Request Dialog */}
+      <PayoutRequestDialog
+        open={payoutDialogOpen}
+        onOpenChange={setPayoutDialogOpen}
+        availableEarnings={availableEarnings}
+        onPayoutRequested={refreshResellerData}
+      />
     </div>
   );
 }

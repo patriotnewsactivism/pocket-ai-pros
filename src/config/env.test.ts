@@ -25,7 +25,25 @@ describe('createEnv', () => {
   const originalProcessEnv = process.env;
 
   beforeEach(() => {
+    // Create a clean copy of the original env, removing ALL Supabase-related keys
     process.env = { ...originalProcessEnv };
+
+    // Remove all Supabase URL variants
+    delete process.env.VITE_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.PUBLIC_SUPABASE_URL;
+    delete process.env.SUPABASE_URL;
+
+    // Remove all Supabase key variants
+    delete process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    delete process.env.VITE_SUPABASE_ANON_KEY;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    delete process.env.NEXT_PUBLIC_SUPABASE_KEY;
+    delete process.env.PUBLIC_SUPABASE_ANON_KEY;
+    delete process.env.PUBLIC_SUPABASE_KEY;
+    delete process.env.SUPABASE_ANON_KEY;
+    delete process.env.SUPABASE_PUBLIC_ANON_KEY;
   });
 
   afterEach(() => {

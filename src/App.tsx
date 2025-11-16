@@ -23,6 +23,7 @@ const Refund = lazy(() => import('@/pages/Refund'));
 const Auth = lazy(() => import('@/pages/Auth'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const ResellerDashboard = lazy(() => import('@/pages/ResellerDashboard'));
+const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
 const BotChat = lazy(() => import('@/pages/BotChat'));
 
 // Create a client
@@ -72,6 +73,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/reseller" element={<ResellerDashboard />} />
               <Route path="/reseller-dashboard" element={<Navigate to="/reseller" replace />} />
+              <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/bot/:botId/chat" element={<BotChat />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
