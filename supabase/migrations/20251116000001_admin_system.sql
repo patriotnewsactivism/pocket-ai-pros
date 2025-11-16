@@ -83,6 +83,7 @@ SELECT
 FROM payouts p
 INNER JOIN resellers r ON p.reseller_id = r.user_id
 INNER JOIN users u ON r.user_id = u.id
+WHERE is_user_admin()
 ORDER BY
   CASE p.status
     WHEN 'pending' THEN 1
@@ -96,8 +97,5 @@ ORDER BY
 -- Grant access to the view
 GRANT SELECT ON admin_payout_dashboard TO authenticated;
 
--- RLS policy for the view (admins only)
+-- Execute view with caller privileges to honor auth context
 ALTER VIEW admin_payout_dashboard SET (security_invoker = on);
-CREATE POLICY "Admins can view payout dashboard"
-ON admin_payout_dashboard FOR SELECT
-USING (is_user_admin());

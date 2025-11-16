@@ -1,4 +1,11 @@
-project_id = "fjbwmpyfnhmndzkdsvfi"
+project_id = "mnklzzundmfwjnfaoqju"
+
+[db]
+port = 54329
+
+[analytics]
+port = 54427
+
 
 [functions.bot-chat]
 verify_jwt = false

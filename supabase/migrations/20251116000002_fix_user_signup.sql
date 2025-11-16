@@ -4,10 +4,20 @@
 -- 2. Updating handle_new_user function to generate referral_code
 -- 3. Adding company column support
 
--- Add INSERT policy for users table (needed for trigger to work properly)
-CREATE POLICY IF NOT EXISTS "Service can create user profiles"
-ON users FOR INSERT
-WITH CHECK (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'users'
+      AND policyname = 'Service can create user profiles'
+  ) THEN
+    CREATE POLICY "Service can create user profiles"
+    ON users FOR INSERT
+    WITH CHECK (true);
+  END IF;
+END;
+$$;
 
 -- Update the handle_new_user function to include referral_code and company
 CREATE OR REPLACE FUNCTION public.handle_new_user()

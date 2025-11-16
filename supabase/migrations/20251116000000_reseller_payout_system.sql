@@ -1,5 +1,19 @@
--- Reseller Payout System
 -- Tracks payout requests, approvals, and payment history
+
+-- Ensure each reseller has a single row so FK references work
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'resellers_user_id_key'
+      AND conrelid = 'public.resellers'::regclass
+  ) THEN
+    ALTER TABLE public.resellers
+      ADD CONSTRAINT resellers_user_id_key UNIQUE (user_id);
+  END IF;
+END;
+$$;
 
 -- Create payouts table
 CREATE TABLE IF NOT EXISTS payouts (
