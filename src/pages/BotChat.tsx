@@ -85,7 +85,29 @@ export default function BotChat() {
     };
 
     try {
+      console.log('[BotChat] Sending message to bot-chat function...');
       const CHAT_URL = `${env.supabaseUrl}/functions/v1/bot-chat`;
+
+      // Build request body - only include conversationId if it exists
+      const requestBody: {
+        botId: string;
+        message: string;
+        conversationId?: string;
+      } = {
+        botId: bot.id,
+        message: messageContent,
+      };
+
+      if (conversationId) {
+        requestBody.conversationId = conversationId;
+      }
+
+      console.log('[BotChat] Request:', {
+        url: CHAT_URL,
+        botId: bot.id,
+        messageLength: messageContent.length,
+        hasConversationId: !!conversationId,
+      });
 
       const response = await fetch(CHAT_URL, {
         method: 'POST',
@@ -93,15 +115,22 @@ export default function BotChat() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${env.supabaseAnonKey}`,
         },
-        body: JSON.stringify({
-          botId: bot.id,
-          message: messageContent,
-          conversationId,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('[BotChat] Response status:', response.status);
+
       if (!response.ok || !response.body) {
-        if (response.status === 429) {
+        if (response.status === 400) {
+          // Try to get error details for 400 errors
+          const errorData = await response.json().catch(() => ({ error: 'Invalid request' }));
+          console.error('[BotChat] 400 Error details:', errorData);
+          toast({
+            title: 'Invalid Request',
+            description: errorData.details?.[0]?.message || errorData.error || 'Please try again',
+            variant: 'destructive',
+          });
+        } else if (response.status === 429) {
           toast({
             title: 'Rate Limit',
             description: 'Too many requests. Please wait a moment.',
@@ -114,11 +143,15 @@ export default function BotChat() {
             variant: 'destructive',
           });
         } else {
+          const errorText = await response.text().catch(() => '');
+          console.error('[BotChat] Error response:', errorText);
           throw new Error('Failed to get response');
         }
         setIsLoading(false);
         return;
       }
+
+      console.log('[BotChat] Streaming response...');
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -177,10 +210,17 @@ export default function BotChat() {
           .eq('id', conversationId);
       }
     } catch (error) {
-      console.error('Chat error:', error);
+      console.error('[BotChat] Chat error:', error);
+      if (error instanceof Error) {
+        console.error('[BotChat] Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+        });
+      }
       toast({
         title: 'Error',
-        description: 'Failed to send message',
+        description: error instanceof Error ? error.message : 'Failed to send message',
         variant: 'destructive',
       });
       setIsLoading(false);

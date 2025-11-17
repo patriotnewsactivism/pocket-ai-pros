@@ -49,9 +49,16 @@ serve(async (req) => {
     const { botId, message, conversationId } = validation.data;
     logStep("Input validated", { botId, messageLength: message.length });
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    // Get OpenAI API key
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      logStep("ERROR: OPENAI_API_KEY not configured");
+      return new Response(
+        JSON.stringify({
+          error: "AI service not configured. Please set OPENAI_API_KEY in Supabase Edge Functions settings."
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Create Supabase client
@@ -88,47 +95,61 @@ serve(async (req) => {
     }
 
     // Build system prompt from bot configuration
-    const systemPrompt = bot.training_data || 
+    const systemPrompt = bot.training_data ||
       `You are ${bot.name}, ${bot.description || 'a helpful AI assistant'}. Be friendly, helpful, and concise in your responses.`;
 
-    // Call Lovable AI
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    logStep("Calling OpenAI API", { model: "gpt-4o-mini" });
+
+    // Call OpenAI API
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gpt-4o-mini", // Cost-effective and fast
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
           { role: "user", content: message },
         ],
         stream: true,
+        temperature: 0.7,
+        max_tokens: 1000,
       }),
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      logStep("OpenAI API error", { status: response.status, error: errorText });
+
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(
-          JSON.stringify({ error: "AI service quota exceeded. Please contact support." }),
+          JSON.stringify({ error: "Invalid OpenAI API key. Please contact support." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (response.status === 402 || response.status === 403) {
+        return new Response(
+          JSON.stringify({ error: "OpenAI quota exceeded. Please contact support." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+
       return new Response(
-        JSON.stringify({ error: "AI service error" }),
+        JSON.stringify({ error: "AI service error", details: errorText }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    logStep("Streaming response from OpenAI");
 
     // Return the stream directly
     return new Response(response.body, {
