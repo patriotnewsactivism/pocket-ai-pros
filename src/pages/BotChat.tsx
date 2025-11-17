@@ -65,6 +65,7 @@ export default function BotChat() {
     if (!input.trim() || !bot || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
+    const messageContent = input; // Save the message before clearing input
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -94,7 +95,7 @@ export default function BotChat() {
         },
         body: JSON.stringify({
           botId: bot.id,
-          message: input,
+          message: messageContent,
           conversationId,
         }),
       });
