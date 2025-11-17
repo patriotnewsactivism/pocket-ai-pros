@@ -128,10 +128,17 @@ export default function Auth() {
     } catch (error: unknown) {
       let message = "Please try again";
       if (error instanceof Error) {
-        // Clean up the error message to be more user-friendly
-        message = error.message
-          .replace(/Supabase is not configured.*?Attempted to access.*?on the disabled client\.?/i, "Authentication service is not configured. Please contact support.")
-          .replace(/Please provide VITE_SUPABASE_URL.*?key\.?/i, "Authentication service is not configured.");
+        // Handle specific error types
+        if (error.message.includes("Failed to execute 'fetch' on 'Window'") ||
+            error.message.includes("Failed to fetch") ||
+            error.name === "TypeError" && error.message.includes("fetch")) {
+          message = "Authentication service is not properly configured. Please ensure valid Supabase credentials are set up.";
+        } else {
+          // Clean up the error message to be more user-friendly
+          message = error.message
+            .replace(/Supabase is not configured.*?Attempted to access.*?on the disabled client\.?/i, "Authentication service is not configured. Please contact support.")
+            .replace(/Please provide VITE_SUPABASE_URL.*?key\.?/i, "Authentication service is not configured.");
+        }
       }
       toast({
         title: "Sign up failed",
@@ -173,10 +180,17 @@ export default function Auth() {
     } catch (error: unknown) {
       let message = "Please try again";
       if (error instanceof Error) {
-        // Clean up the error message to be more user-friendly
-        message = error.message
-          .replace(/Supabase is not configured.*?Attempted to access.*?on the disabled client\.?/i, "Authentication service is not configured. Please contact support.")
-          .replace(/Please provide VITE_SUPABASE_URL.*?key\.?/i, "Authentication service is not configured.");
+        // Handle specific error types
+        if (error.message.includes("Failed to execute 'fetch' on 'Window'") ||
+            error.message.includes("Failed to fetch") ||
+            error.name === "TypeError" && error.message.includes("fetch")) {
+          message = "Authentication service is not properly configured. Please ensure valid Supabase credentials are set up.";
+        } else {
+          // Clean up the error message to be more user-friendly
+          message = error.message
+            .replace(/Supabase is not configured.*?Attempted to access.*?on the disabled client\.?/i, "Authentication service is not configured. Please contact support.")
+            .replace(/Please provide VITE_SUPABASE_URL.*?key\.?/i, "Authentication service is not configured.");
+        }
       }
       toast({
         title: "Sign in failed",
