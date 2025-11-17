@@ -12,7 +12,9 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "install-hooks": "bash scripts/install-hooks.sh || powershell -ExecutionPolicy Bypass -File scripts/install-hooks.ps1",
+    "postinstall": "npm run install-hooks"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -18,7 +18,8 @@
       "Bash(if [ -f .env ])",
       "Bash(then echo \".env file exists\")",
       "Bash(else echo \".env file does not exist\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": [],
     "ask": []
