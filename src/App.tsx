@@ -14,18 +14,43 @@ import './App.css';
 // Initialize Sentry error tracking in production
 initSentry();
 
-// Lazy load pages for better performance
-const Index = lazy(() => import('@/pages/Index'));
-const NotFound = lazy(() => import('@/pages/NotFound'));
-const Terms = lazy(() => import('@/pages/Terms'));
-const Privacy = lazy(() => import('@/pages/Privacy'));
-const Refund = lazy(() => import('@/pages/Refund'));
-const Auth = lazy(() => import('@/pages/Auth'));
-const Dashboard = lazy(() => import('@/pages/Dashboard'));
-const ResellerDashboard = lazy(() => import('@/pages/ResellerDashboard'));
-const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
-const BotChat = lazy(() => import('@/pages/BotChat'));
-const EnvCheck = lazy(() => import('@/pages/EnvCheck'));
+/**
+ * Handles chunk load errors by reloading the page once
+ * This fixes issues when new builds are deployed and old chunks are removed
+ */
+const handleLazyLoadError = (error: Error, componentName: string) => {
+  const isChunkLoadError =
+    error.name === 'ChunkLoadError' ||
+    error.message.includes('Failed to fetch dynamically imported module') ||
+    error.message.includes('Importing a module script failed');
+
+  if (isChunkLoadError) {
+    const hasReloaded = sessionStorage.getItem('chunk_load_retry');
+
+    if (!hasReloaded) {
+      console.warn(`[App] Chunk load error detected for ${componentName}, reloading page...`);
+      sessionStorage.setItem('chunk_load_retry', 'true');
+      window.location.reload();
+    } else {
+      console.error(`[App] Chunk load error persists for ${componentName} after reload`);
+      sessionStorage.removeItem('chunk_load_retry');
+    }
+  }
+  throw error;
+};
+
+// Lazy load pages for better performance with chunk error handling
+const Index = lazy(() => import('@/pages/Index').catch(err => handleLazyLoadError(err, 'Index')));
+const NotFound = lazy(() => import('@/pages/NotFound').catch(err => handleLazyLoadError(err, 'NotFound')));
+const Terms = lazy(() => import('@/pages/Terms').catch(err => handleLazyLoadError(err, 'Terms')));
+const Privacy = lazy(() => import('@/pages/Privacy').catch(err => handleLazyLoadError(err, 'Privacy')));
+const Refund = lazy(() => import('@/pages/Refund').catch(err => handleLazyLoadError(err, 'Refund')));
+const Auth = lazy(() => import('@/pages/Auth').catch(err => handleLazyLoadError(err, 'Auth')));
+const Dashboard = lazy(() => import('@/pages/Dashboard').catch(err => handleLazyLoadError(err, 'Dashboard')));
+const ResellerDashboard = lazy(() => import('@/pages/ResellerDashboard').catch(err => handleLazyLoadError(err, 'ResellerDashboard')));
+const AdminDashboard = lazy(() => import('@/pages/AdminDashboard').catch(err => handleLazyLoadError(err, 'AdminDashboard')));
+const BotChat = lazy(() => import('@/pages/BotChat').catch(err => handleLazyLoadError(err, 'BotChat')));
+const EnvCheck = lazy(() => import('@/pages/EnvCheck').catch(err => handleLazyLoadError(err, 'EnvCheck')));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -62,6 +87,14 @@ const businessType: ChatbotBusinessType = isChatbotBusinessType(env.businessType
   : DEFAULT_BUSINESS_TYPE;
 
 function App() {
+  // Clear chunk reload flag after successful app load
+  if (sessionStorage.getItem('chunk_load_retry')) {
+    // Wait a bit to ensure the app is fully loaded before clearing
+    setTimeout(() => {
+      sessionStorage.removeItem('chunk_load_retry');
+    }, 1000);
+  }
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
