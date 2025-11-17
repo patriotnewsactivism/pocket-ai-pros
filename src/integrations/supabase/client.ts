@@ -8,7 +8,56 @@ const { supabaseUrl, supabaseAnonKey } = env;
 const DISABLED_SUPABASE_MESSAGE =
   'Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.';
 
-const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+// List of placeholder/invalid URL patterns that should be rejected
+const PLACEHOLDER_PATTERNS = [
+  'your-project-ref',
+  'your-supabase',
+  'example.com',
+  'localhost',
+  'REPLACE_ME',
+  'XXXXXXXX',
+];
+
+// Validate that the Supabase URL is not a placeholder value
+const isValidSupabaseUrl = (url: string): boolean => {
+  if (!url || url.trim() === '') return false;
+
+  // Check if URL contains any placeholder patterns
+  const lowerUrl = url.toLowerCase();
+  if (PLACEHOLDER_PATTERNS.some(pattern => lowerUrl.includes(pattern.toLowerCase()))) {
+    return false;
+  }
+
+  // Validate URL format
+  try {
+    const urlObj = new URL(url);
+    // Must be https and contain 'supabase' in the hostname
+    return urlObj.protocol === 'https:' && urlObj.hostname.includes('supabase');
+  } catch {
+    return false;
+  }
+};
+
+// Validate that the anon key is not a placeholder value
+const isValidSupabaseKey = (key: string): boolean => {
+  if (!key || key.trim() === '') return false;
+
+  // Check if key contains placeholder patterns
+  const lowerKey = key.toLowerCase();
+  if (PLACEHOLDER_PATTERNS.some(pattern => lowerKey.includes(pattern.toLowerCase()))) {
+    return false;
+  }
+
+  // Anon keys should be reasonably long (at least 100 characters for real Supabase keys)
+  return key.length > 100;
+};
+
+const isSupabaseConfigured = Boolean(
+  supabaseUrl &&
+  supabaseAnonKey &&
+  isValidSupabaseUrl(supabaseUrl) &&
+  isValidSupabaseKey(supabaseAnonKey)
+);
 
 const createDisabledSupabaseClient = (): SupabaseClient<Database> =>
   new Proxy({}, {
