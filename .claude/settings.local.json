@@ -14,7 +14,11 @@
       "Bash(cat:*)",
       "Bash(git rm:*)",
       "Bash(npm test:*)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(if [ -f .env ])",
+      "Bash(then echo \".env file exists\")",
+      "Bash(else echo \".env file does not exist\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []
