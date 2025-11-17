@@ -25,6 +25,7 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const ResellerDashboard = lazy(() => import('@/pages/ResellerDashboard'));
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
 const BotChat = lazy(() => import('@/pages/BotChat'));
+const EnvCheck = lazy(() => import('@/pages/EnvCheck'));
 
 // Create a client
 const queryClient = new QueryClient({
@@ -75,6 +76,7 @@ function App() {
               <Route path="/reseller-dashboard" element={<Navigate to="/reseller" replace />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/bot/:botId/chat" element={<BotChat />} />
+              <Route path="/env-check" element={<EnvCheck />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/refund" element={<Refund />} />

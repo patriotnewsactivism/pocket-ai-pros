@@ -56,8 +56,27 @@ const getEnvValue = (metaEnv: BuildMyBotMetaEnv, keys: readonly string[]): EnvLo
 };
 
 export const createEnv = (metaEnv: BuildMyBotMetaEnv = import.meta.env) => {
-  const { value: supabaseUrl } = getEnvValue(metaEnv, SUPABASE_URL_KEYS);
-  const { value: supabaseAnonKey, source: supabaseKeySource } = getEnvValue(metaEnv, SUPABASE_ANON_KEY_KEYS);
+  let { value: supabaseUrl } = getEnvValue(metaEnv, SUPABASE_URL_KEYS);
+  let { value: supabaseAnonKey, source: supabaseKeySource } = getEnvValue(metaEnv, SUPABASE_ANON_KEY_KEYS);
+
+  // Emergency fallback: Check window object for runtime-injected env vars
+  // This helps if Vite build doesn't properly inject env vars
+  if (typeof window !== 'undefined' && (!supabaseUrl || !supabaseAnonKey)) {
+    console.warn('[ENV] Missing env vars from import.meta.env, checking window object...');
+    const windowEnv = (window as any).__ENV__ || {};
+
+    if (!supabaseUrl && windowEnv.VITE_SUPABASE_URL) {
+      console.log('[ENV] Found VITE_SUPABASE_URL on window object');
+      supabaseUrl = windowEnv.VITE_SUPABASE_URL;
+      supabaseKeySource = 'window.__ENV__';
+    }
+
+    if (!supabaseAnonKey && windowEnv.VITE_SUPABASE_ANON_KEY) {
+      console.log('[ENV] Found VITE_SUPABASE_ANON_KEY on window object');
+      supabaseAnonKey = windowEnv.VITE_SUPABASE_ANON_KEY;
+      supabaseKeySource = 'window.__ENV__';
+    }
+  }
 
   return {
     // Supabase Configuration

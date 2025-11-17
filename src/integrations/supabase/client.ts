@@ -129,16 +129,39 @@ const createSupabaseBrowserClient = (): SupabaseClient<Database> => {
   console.log('[Supabase Client] Initializing...');
   console.log('[Supabase Client] URL present:', !!supabaseUrl);
   console.log('[Supabase Client] Key present:', !!supabaseAnonKey);
+
+  if (supabaseUrl) {
+    console.log('[Supabase Client] URL value:', supabaseUrl.substring(0, 40) + '...');
+  }
+  if (supabaseAnonKey) {
+    console.log('[Supabase Client] Key length:', supabaseAnonKey.length);
+    console.log('[Supabase Client] Key starts with:', supabaseAnonKey.substring(0, 10) + '...');
+  }
+
   console.log('[Supabase Client] Configuration valid:', isSupabaseConfigured);
 
   if (!isSupabaseConfigured) {
     console.warn('[Supabase Client] ⚠️ Supabase client is DISABLED - using proxy client');
     console.warn(DISABLED_SUPABASE_MESSAGE);
+    console.warn('[Supabase Client] To fix: Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel environment variables');
     return createDisabledSupabaseClient();
   }
 
   try {
     console.log('[Supabase Client] Creating real Supabase client...');
+
+    // Double-check values before creating client
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error('URL or Key is empty after validation passed - this should not happen');
+    }
+
+    // Test URL is actually a valid URL object
+    try {
+      new URL(supabaseUrl);
+    } catch (urlError) {
+      throw new Error(`Invalid URL format: ${supabaseUrl}`);
+    }
+
     const client = createClient<Database>(supabaseUrl, supabaseAnonKey, {
       auth: {
         storage: localStorage,
@@ -146,10 +169,19 @@ const createSupabaseBrowserClient = (): SupabaseClient<Database> => {
         autoRefreshToken: true,
       },
     });
+
     console.log('[Supabase Client] ✓ Real Supabase client created successfully');
+    console.log('[Supabase Client] Client type:', typeof client);
+    console.log('[Supabase Client] Has auth property:', !!client.auth);
+
     return client;
   } catch (error) {
     console.error('[Supabase Client] ✗ Failed to create Supabase client:', error);
+    if (error instanceof Error) {
+      console.error('[Supabase Client] Error name:', error.name);
+      console.error('[Supabase Client] Error message:', error.message);
+      console.error('[Supabase Client] Error stack:', error.stack);
+    }
     console.warn('[Supabase Client] Falling back to disabled client');
     return createDisabledSupabaseClient();
   }
