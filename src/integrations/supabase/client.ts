@@ -5,13 +5,6 @@ import { env } from '@/config/env';
 
 const { supabaseUrl, supabaseAnonKey } = env;
 
-// Debug: Log what we're getting from env (remove in production)
-if (typeof window !== 'undefined') {
-  console.log('[Supabase Client] URL:', supabaseUrl);
-  console.log('[Supabase Client] Key present:', !!supabaseAnonKey);
-  console.log('[Supabase Client] Key length:', supabaseAnonKey?.length || 0);
-}
-
 const DISABLED_SUPABASE_MESSAGE =
   'Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.';
 
@@ -39,7 +32,17 @@ const isValidSupabaseUrl = (url: string): boolean => {
   try {
     const urlObj = new URL(url);
     // Must be https and contain 'supabase' in the hostname
-    return urlObj.protocol === 'https:' && urlObj.hostname.includes('supabase');
+    if (urlObj.protocol !== 'https:' || !urlObj.hostname.includes('supabase')) {
+      return false;
+    }
+
+    // Additional check: hostname should match pattern *.supabase.co or *.supabase.com
+    const hostnamePattern = /^[a-z0-9-]+\.supabase\.(co|com)$/i;
+    if (!hostnamePattern.test(urlObj.hostname)) {
+      return false;
+    }
+
+    return true;
   } catch {
     return false;
   }
@@ -56,14 +59,29 @@ const isValidSupabaseKey = (key: string): boolean => {
   }
 
   // Anon keys should be reasonably long (at least 100 characters for real Supabase keys)
-  return key.length > 100;
+  if (key.length < 100) {
+    return false;
+  }
+
+  // Supabase anon keys are JWT tokens, so they should start with 'eyJ' (base64 for '{"')
+  // and contain two dots (header.payload.signature)
+  const jwtPattern = /^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+  if (!jwtPattern.test(key)) {
+    return false;
+  }
+
+  return true;
 };
 
 const urlValid = supabaseUrl ? isValidSupabaseUrl(supabaseUrl) : false;
 const keyValid = supabaseAnonKey ? isValidSupabaseKey(supabaseAnonKey) : false;
 
+// Log validation results
 if (typeof window !== 'undefined') {
+  console.log('[Supabase Client] URL:', supabaseUrl ? supabaseUrl.substring(0, 50) + '...' : '(empty)');
   console.log('[Supabase Client] URL valid:', urlValid);
+  console.log('[Supabase Client] Key present:', !!supabaseAnonKey);
+  console.log('[Supabase Client] Key length:', supabaseAnonKey?.length || 0);
   console.log('[Supabase Client] Key valid:', keyValid);
 }
 
@@ -74,6 +92,14 @@ const isSupabaseConfigured = Boolean(
   keyValid
 );
 
+// Log final configuration status
+if (typeof window !== 'undefined') {
+  console.log('[Supabase Client] Configuration valid:', isSupabaseConfigured);
+  if (!isSupabaseConfigured) {
+    console.warn('[Supabase Client] ⚠️ Supabase client is DISABLED - authentication will not work');
+  }
+}
+
 const createDisabledSupabaseClient = (): SupabaseClient<Database> =>
   new Proxy({}, {
     get(_target, property: string | symbol) {
@@ -82,23 +108,27 @@ const createDisabledSupabaseClient = (): SupabaseClient<Database> =>
   }) as unknown as SupabaseClient<Database>;
 
 const createSupabaseBrowserClient = (): SupabaseClient<Database> => {
+  // First check: Don't even try to create client if config is invalid
   if (!isSupabaseConfigured) {
     console.warn(DISABLED_SUPABASE_MESSAGE);
-    console.warn('Supabase URL:', supabaseUrl || '(empty)');
-    console.warn('Supabase Key length:', supabaseAnonKey?.length || 0);
     return createDisabledSupabaseClient();
   }
 
+  // Second check: Try to create client, but catch any errors
   try {
-    return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    console.log('[Supabase Client] Creating real Supabase client...');
+    const client = createClient<Database>(supabaseUrl, supabaseAnonKey, {
       auth: {
         storage: localStorage,
         persistSession: true,
         autoRefreshToken: true,
       },
     });
+    console.log('[Supabase Client] ✓ Real Supabase client created successfully');
+    return client;
   } catch (error) {
-    console.error('Failed to create Supabase client:', error);
+    console.error('[Supabase Client] ✗ Failed to create Supabase client:', error);
+    console.error('[Supabase Client] Falling back to disabled client');
     return createDisabledSupabaseClient();
   }
 };
