@@ -16,40 +16,99 @@ const PLACEHOLDER_PATTERNS = [
   'localhost',
   'REPLACE_ME',
   'XXXXXXXX',
+  'undefined',
+  'null',
 ];
 
 // Validate that the Supabase URL is not a placeholder value
 const isValidSupabaseUrl = (url: string): boolean => {
-  if (!url || url.trim() === '') return false;
+  if (!url || url.trim() === '') {
+    console.error('[Supabase Validation] URL is empty or undefined');
+    return false;
+  }
 
   // Check if URL contains any placeholder patterns
   const lowerUrl = url.toLowerCase();
   if (PLACEHOLDER_PATTERNS.some(pattern => lowerUrl.includes(pattern.toLowerCase()))) {
+    console.error('[Supabase Validation] URL contains placeholder pattern:', url.substring(0, 30) + '...');
     return false;
   }
 
   // Validate URL format
   try {
     const urlObj = new URL(url);
-    // Must be https and contain 'supabase' in the hostname
-    return urlObj.protocol === 'https:' && urlObj.hostname.includes('supabase');
-  } catch {
+
+    // Must be https
+    if (urlObj.protocol !== 'https:') {
+      console.error('[Supabase Validation] URL must use HTTPS protocol');
+      return false;
+    }
+
+    // Must match Supabase hostname pattern: *.supabase.co or *.supabase.com
+    const hostname = urlObj.hostname;
+    const isValidHostname = hostname.endsWith('.supabase.co') || hostname.endsWith('.supabase.com');
+
+    if (!isValidHostname) {
+      console.error('[Supabase Validation] URL hostname must end with .supabase.co or .supabase.com, got:', hostname);
+      return false;
+    }
+
+    console.log('[Supabase Validation] ✓ URL is valid:', hostname);
+    return true;
+  } catch (error) {
+    console.error('[Supabase Validation] URL parsing failed:', error);
     return false;
   }
 };
 
-// Validate that the anon key is not a placeholder value
+// Validate that the anon key is not a placeholder value and is a valid JWT
 const isValidSupabaseKey = (key: string): boolean => {
-  if (!key || key.trim() === '') return false;
+  if (!key || key.trim() === '') {
+    console.error('[Supabase Validation] Anon key is empty or undefined');
+    return false;
+  }
 
   // Check if key contains placeholder patterns
   const lowerKey = key.toLowerCase();
   if (PLACEHOLDER_PATTERNS.some(pattern => lowerKey.includes(pattern.toLowerCase()))) {
+    console.error('[Supabase Validation] Anon key contains placeholder pattern');
     return false;
   }
 
   // Anon keys should be reasonably long (at least 100 characters for real Supabase keys)
-  return key.length > 100;
+  if (key.length < 100) {
+    console.error('[Supabase Validation] Anon key is too short:', key.length, 'characters');
+    return false;
+  }
+
+  // Validate JWT format: should start with 'eyJ' and contain exactly 2 dots
+  const isJWT = key.startsWith('eyJ') && (key.match(/\./g) || []).length === 2;
+  if (!isJWT) {
+    console.error('[Supabase Validation] Anon key is not a valid JWT format (should start with eyJ and contain 2 dots)');
+    return false;
+  }
+
+  // Validate JWT structure by attempting to decode the header
+  try {
+    const parts = key.split('.');
+    if (parts.length !== 3) {
+      console.error('[Supabase Validation] JWT does not have 3 parts');
+      return false;
+    }
+
+    // Try to decode the header (first part)
+    const header = JSON.parse(atob(parts[0]));
+    if (!header.alg || !header.typ) {
+      console.error('[Supabase Validation] JWT header is invalid');
+      return false;
+    }
+
+    console.log('[Supabase Validation] ✓ Anon key is valid JWT format');
+    return true;
+  } catch (error) {
+    console.error('[Supabase Validation] JWT validation failed:', error);
+    return false;
+  }
 };
 
 const isSupabaseConfigured = Boolean(
@@ -67,18 +126,33 @@ const createDisabledSupabaseClient = (): SupabaseClient<Database> =>
   }) as unknown as SupabaseClient<Database>;
 
 const createSupabaseBrowserClient = (): SupabaseClient<Database> => {
+  console.log('[Supabase Client] Initializing...');
+  console.log('[Supabase Client] URL present:', !!supabaseUrl);
+  console.log('[Supabase Client] Key present:', !!supabaseAnonKey);
+  console.log('[Supabase Client] Configuration valid:', isSupabaseConfigured);
+
   if (!isSupabaseConfigured) {
+    console.warn('[Supabase Client] ⚠️ Supabase client is DISABLED - using proxy client');
     console.warn(DISABLED_SUPABASE_MESSAGE);
     return createDisabledSupabaseClient();
   }
 
-  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      storage: localStorage,
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  });
+  try {
+    console.log('[Supabase Client] Creating real Supabase client...');
+    const client = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        storage: localStorage,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    });
+    console.log('[Supabase Client] ✓ Real Supabase client created successfully');
+    return client;
+  } catch (error) {
+    console.error('[Supabase Client] ✗ Failed to create Supabase client:', error);
+    console.warn('[Supabase Client] Falling back to disabled client');
+    return createDisabledSupabaseClient();
+  }
 };
 
 // Import the supabase client like this:

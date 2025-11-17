@@ -53,9 +53,11 @@ export default function Auth() {
   }, [referralId]);
 
   const handleSignUp = signUpForm.handleSubmit(async (values) => {
+    console.log('[Auth] Sign up attempt started');
     setIsSignUpLoading(true);
 
     if (!isSupabaseConfigured) {
+      console.error('[Auth] Supabase is not configured');
       toast({
         title: "Authentication not configured",
         description: "Please contact the administrator to set up Supabase authentication keys (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY).",
@@ -66,6 +68,7 @@ export default function Auth() {
     }
 
     try {
+      console.log('[Auth] Calling supabase.auth.signUp...');
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -78,7 +81,12 @@ export default function Auth() {
         },
       });
 
-      if (authError) throw authError;
+      console.log('[Auth] Sign up response received:', { hasData: !!authData, hasError: !!authError });
+
+      if (authError) {
+        console.error('[Auth] Sign up error from Supabase:', authError);
+        throw authError;
+      }
 
       if (authData.user) {
         // Check if email confirmation is required
@@ -126,34 +134,56 @@ export default function Auth() {
         setTimeout(() => navigate("/dashboard"), 1000);
       }
     } catch (error: unknown) {
-      let message = "Please try again";
+      console.error('[Auth] Sign up failed with error:', error);
+
+      let message = "An unexpected error occurred. Please try again.";
+      let title = "Sign up failed";
+
       if (error instanceof Error) {
+        console.error('[Auth] Error name:', error.name);
+        console.error('[Auth] Error message:', error.message);
+        console.error('[Auth] Error stack:', error.stack);
+
         // Handle specific error types
         if (error.message.includes("Failed to execute 'fetch' on 'Window'") ||
             error.message.includes("Failed to fetch") ||
-            error.name === "TypeError" && error.message.includes("fetch")) {
-          message = "Authentication service is not properly configured. Please ensure valid Supabase credentials are set up.";
+            error.message.includes("NetworkError") ||
+            (error.name === "TypeError" && error.message.includes("fetch"))) {
+          title = "Connection Error";
+          message = "Unable to connect to authentication service. This may be due to:\n• Invalid Supabase credentials in environment variables\n• Network connectivity issues\n• Supabase service being unavailable\n\nPlease check browser console for detailed logs and contact support if the issue persists.";
+        } else if (error.message.includes("Invalid login credentials")) {
+          message = "Invalid email or password. Please try again.";
+        } else if (error.message.includes("User already registered")) {
+          message = "An account with this email already exists. Please sign in instead.";
+        } else if (error.message.includes("disabled client")) {
+          title = "Configuration Error";
+          message = "Authentication service is not properly configured. Please contact support.";
         } else {
-          // Clean up the error message to be more user-friendly
-          message = error.message
-            .replace(/Supabase is not configured.*?Attempted to access.*?on the disabled client\.?/i, "Authentication service is not configured. Please contact support.")
-            .replace(/Please provide VITE_SUPABASE_URL.*?key\.?/i, "Authentication service is not configured.");
+          // Use the error message directly if it's not too technical
+          const errorMessage = error.message;
+          if (errorMessage.length < 200 && !errorMessage.includes("Attempted to access")) {
+            message = errorMessage;
+          }
         }
       }
+
       toast({
-        title: "Sign up failed",
+        title,
         description: message,
         variant: "destructive",
       });
     } finally {
+      console.log('[Auth] Sign up attempt completed');
       setIsSignUpLoading(false);
     }
   });
 
   const handleSignIn = signInForm.handleSubmit(async (values) => {
+    console.log('[Auth] Sign in attempt started');
     setIsSignInLoading(true);
 
     if (!isSupabaseConfigured) {
+      console.error('[Auth] Supabase is not configured');
       toast({
         title: "Authentication not configured",
         description: "Please contact the administrator to set up Supabase authentication keys (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY).",
@@ -164,12 +194,18 @@ export default function Auth() {
     }
 
     try {
+      console.log('[Auth] Calling supabase.auth.signInWithPassword...');
       const { error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
 
-      if (error) throw error;
+      console.log('[Auth] Sign in response received:', { hasError: !!error });
+
+      if (error) {
+        console.error('[Auth] Sign in error from Supabase:', error);
+        throw error;
+      }
 
       toast({
         title: "Welcome back!",
@@ -178,26 +214,47 @@ export default function Auth() {
 
       setTimeout(() => navigate("/dashboard"), 1000);
     } catch (error: unknown) {
-      let message = "Please try again";
+      console.error('[Auth] Sign in failed with error:', error);
+
+      let message = "An unexpected error occurred. Please try again.";
+      let title = "Sign in failed";
+
       if (error instanceof Error) {
+        console.error('[Auth] Error name:', error.name);
+        console.error('[Auth] Error message:', error.message);
+        console.error('[Auth] Error stack:', error.stack);
+
         // Handle specific error types
         if (error.message.includes("Failed to execute 'fetch' on 'Window'") ||
             error.message.includes("Failed to fetch") ||
-            error.name === "TypeError" && error.message.includes("fetch")) {
-          message = "Authentication service is not properly configured. Please ensure valid Supabase credentials are set up.";
+            error.message.includes("NetworkError") ||
+            (error.name === "TypeError" && error.message.includes("fetch"))) {
+          title = "Connection Error";
+          message = "Unable to connect to authentication service. This may be due to:\n• Invalid Supabase credentials in environment variables\n• Network connectivity issues\n• Supabase service being unavailable\n\nPlease check browser console for detailed logs and contact support if the issue persists.";
+        } else if (error.message.includes("Invalid login credentials")) {
+          message = "Invalid email or password. Please check your credentials and try again.";
+        } else if (error.message.includes("Email not confirmed")) {
+          title = "Email Not Confirmed";
+          message = "Please check your email and click the confirmation link before signing in.";
+        } else if (error.message.includes("disabled client")) {
+          title = "Configuration Error";
+          message = "Authentication service is not properly configured. Please contact support.";
         } else {
-          // Clean up the error message to be more user-friendly
-          message = error.message
-            .replace(/Supabase is not configured.*?Attempted to access.*?on the disabled client\.?/i, "Authentication service is not configured. Please contact support.")
-            .replace(/Please provide VITE_SUPABASE_URL.*?key\.?/i, "Authentication service is not configured.");
+          // Use the error message directly if it's not too technical
+          const errorMessage = error.message;
+          if (errorMessage.length < 200 && !errorMessage.includes("Attempted to access")) {
+            message = errorMessage;
+          }
         }
       }
+
       toast({
-        title: "Sign in failed",
+        title,
         description: message,
         variant: "destructive",
       });
     } finally {
+      console.log('[Auth] Sign in attempt completed');
       setIsSignInLoading(false);
     }
   });
