@@ -55,7 +55,10 @@ export default function Auth() {
   const handleSignUp = signUpForm.handleSubmit(async (values) => {
     setIsSignUpLoading(true);
 
+    console.log('[Auth] isSupabaseConfigured:', isSupabaseConfigured);
+
     if (!isSupabaseConfigured) {
+      console.log('[Auth] Supabase not configured, showing error toast');
       toast({
         title: "Authentication not configured",
         description: "Please contact the administrator to set up Supabase authentication keys (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY).",
@@ -65,6 +68,7 @@ export default function Auth() {
       return;
     }
 
+    console.log('[Auth] Attempting sign up...');
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: values.email,
@@ -126,8 +130,11 @@ export default function Auth() {
         setTimeout(() => navigate("/dashboard"), 1000);
       }
     } catch (error: unknown) {
+      console.error('[Auth] Sign up error:', error);
       let message = "Please try again";
       if (error instanceof Error) {
+        console.error('[Auth] Error name:', error.name);
+        console.error('[Auth] Error message:', error.message);
         // Handle specific error types
         if (error.message.includes("Failed to execute 'fetch' on 'Window'") ||
             error.message.includes("Failed to fetch") ||

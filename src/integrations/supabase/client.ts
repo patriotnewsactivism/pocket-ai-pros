@@ -5,6 +5,13 @@ import { env } from '@/config/env';
 
 const { supabaseUrl, supabaseAnonKey } = env;
 
+// Debug: Log what we're getting from env (remove in production)
+if (typeof window !== 'undefined') {
+  console.log('[Supabase Client] URL:', supabaseUrl);
+  console.log('[Supabase Client] Key present:', !!supabaseAnonKey);
+  console.log('[Supabase Client] Key length:', supabaseAnonKey?.length || 0);
+}
+
 const DISABLED_SUPABASE_MESSAGE =
   'Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.';
 
@@ -52,11 +59,19 @@ const isValidSupabaseKey = (key: string): boolean => {
   return key.length > 100;
 };
 
+const urlValid = supabaseUrl ? isValidSupabaseUrl(supabaseUrl) : false;
+const keyValid = supabaseAnonKey ? isValidSupabaseKey(supabaseAnonKey) : false;
+
+if (typeof window !== 'undefined') {
+  console.log('[Supabase Client] URL valid:', urlValid);
+  console.log('[Supabase Client] Key valid:', keyValid);
+}
+
 const isSupabaseConfigured = Boolean(
   supabaseUrl &&
   supabaseAnonKey &&
-  isValidSupabaseUrl(supabaseUrl) &&
-  isValidSupabaseKey(supabaseAnonKey)
+  urlValid &&
+  keyValid
 );
 
 const createDisabledSupabaseClient = (): SupabaseClient<Database> =>
@@ -69,16 +84,23 @@ const createDisabledSupabaseClient = (): SupabaseClient<Database> =>
 const createSupabaseBrowserClient = (): SupabaseClient<Database> => {
   if (!isSupabaseConfigured) {
     console.warn(DISABLED_SUPABASE_MESSAGE);
+    console.warn('Supabase URL:', supabaseUrl || '(empty)');
+    console.warn('Supabase Key length:', supabaseAnonKey?.length || 0);
     return createDisabledSupabaseClient();
   }
 
-  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      storage: localStorage,
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  });
+  try {
+    return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        storage: localStorage,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return createDisabledSupabaseClient();
+  }
 };
 
 // Import the supabase client like this:
