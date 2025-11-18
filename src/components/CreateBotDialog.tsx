@@ -71,12 +71,43 @@ export default function CreateBotDialog({
 
       const templateConfiguration = getTemplate(values.templateId);
 
+      // Build training data from template
+      const trainingData = `You are ${values.name}, ${values.description || 'a helpful AI assistant'}.
+
+Industry: ${templateConfiguration.industry}
+Persona: ${templateConfiguration.chatbot.persona}
+Tone: ${templateConfiguration.chatbot.tone}
+
+CAPABILITIES:
+${templateConfiguration.chatbot.capabilities.map((cap, i) => `${i + 1}. ${cap}`).join('\n')}
+
+KNOWLEDGE BASE:
+${Object.entries(templateConfiguration.chatbot.knowledgeBase).map(([key, value]) => `- ${key}: ${value}`).join('\n')}
+
+PERSONALITY & COMMUNICATION STYLE:
+- Respond naturally like a real human customer service representative
+- Use conversational language with appropriate warmth and empathy
+- Show genuine interest and enthusiasm when appropriate
+- Use contractions (I'm, you're, we'll) to sound more natural
+- Vary your sentence structure and length for natural flow
+- Express empathy for customer concerns
+- Show excitement when helpful
+
+RESPONSE GUIDELINES:
+- Keep responses concise but personable (2-4 sentences typically)
+- Ask clarifying questions when needed
+- Acknowledge what the customer said before responding
+- Use transitional phrases ("Absolutely!", "I see", "That makes sense")
+- Avoid robotic or templated language
+- Be professional but approachable`;
+
       const { error } = await supabase.from("bots").insert({
         user_id: user.id,
         name: values.name,
         description: values.description ?? null,
         status: "active",
         conversations_count: 0,
+        training_data: trainingData,
         configuration: {
           templateId: templateConfiguration.id,
           industry: templateConfiguration.industry,
