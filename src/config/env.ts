@@ -3,115 +3,46 @@
  * All environment variables should be accessed through this file
  */
 
-type BuildMyBotMetaEnv = ImportMetaEnv & Record<string, string | boolean | undefined>;
+export const env = {
+  // Supabase Configuration
+  supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
+  supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+  
+  // API Configuration
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  apiTimeout: Number(import.meta.env.VITE_API_TIMEOUT) || 30000,
 
-const SUPABASE_URL_KEYS = [
-  'VITE_SUPABASE_URL',
-  'NEXT_PUBLIC_SUPABASE_URL',
-  'PUBLIC_SUPABASE_URL',
-  'SUPABASE_URL',
-] as const;
+  // Feature Flags
+  enableAnalytics: import.meta.env.VITE_ENABLE_ANALYTICS === 'true',
+  enableChatWidget: import.meta.env.VITE_ENABLE_CHAT_WIDGET === 'true',
+  enableAIChatbot: import.meta.env.VITE_ENABLE_AI_CHATBOT === 'true',
+  businessType: import.meta.env.VITE_BUSINESS_TYPE || 'support',
 
-const SUPABASE_ANON_KEY_KEYS = [
-  'VITE_SUPABASE_PUBLISHABLE_KEY',
-  'VITE_SUPABASE_ANON_KEY',
-  'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  'NEXT_PUBLIC_SUPABASE_KEY',
-  'PUBLIC_SUPABASE_ANON_KEY',
-  'PUBLIC_SUPABASE_KEY',
-  'SUPABASE_ANON_KEY',
-  'SUPABASE_PUBLIC_ANON_KEY',
-] as const;
+  // External Services
+  stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY || '',
+  googleAnalyticsId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID || '',
+  // Environment
+  appEnv: import.meta.env.VITE_APP_ENV || 'development',
+  isDevelopment: import.meta.env.DEV,
+  isProduction: import.meta.env.PROD,
+} as const;
 
-type EnvLookupResult = {
-  value: string;
-  source: string | null;
-};
+// Validate required environment variables
+export function validateEnv() {
+  const required = {
+    VITE_SUPABASE_URL: env.supabaseUrl,
+    VITE_SUPABASE_ANON_KEY: env.supabaseAnonKey,
+  };
 
-const readProcessEnv = (key: string): string => {
-  if (typeof process !== 'undefined' && typeof process.env === 'object') {
-    const raw = process.env[key];
-    if (typeof raw === 'string') {
-      return raw.trim();
-    }
-  }
-  return '';
-};
+  const missing = Object.entries(required)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
 
-const getEnvValue = (metaEnv: BuildMyBotMetaEnv, keys: readonly string[]): EnvLookupResult => {
-  for (const key of keys) {
-    const metaValue = metaEnv?.[key];
-    if (typeof metaValue === 'string' && metaValue.trim()) {
-      return { value: metaValue.trim(), source: key };
-    }
-
-    const processValue = readProcessEnv(key);
-    if (processValue) {
-      return { value: processValue, source: key };
-    }
-  }
-
-  return { value: '', source: null };
-};
-
-export const createEnv = (metaEnv: BuildMyBotMetaEnv = import.meta.env) => {
-  let { value: supabaseUrl } = getEnvValue(metaEnv, SUPABASE_URL_KEYS);
-  let { value: supabaseAnonKey, source: supabaseKeySource } = getEnvValue(metaEnv, SUPABASE_ANON_KEY_KEYS);
-
-  // Emergency fallback: Check window object for runtime-injected env vars
-  // This helps if Vite build doesn't properly inject env vars
-  if (typeof window !== 'undefined' && (!supabaseUrl || !supabaseAnonKey)) {
-    console.warn('[ENV] Missing env vars from import.meta.env, checking window object...');
-    const windowEnv = (window as any).__ENV__ || {};
-
-    if (!supabaseUrl && windowEnv.VITE_SUPABASE_URL) {
-      console.log('[ENV] Found VITE_SUPABASE_URL on window object');
-      supabaseUrl = windowEnv.VITE_SUPABASE_URL;
-      supabaseKeySource = 'window.__ENV__';
-    }
-
-    if (!supabaseAnonKey && windowEnv.VITE_SUPABASE_ANON_KEY) {
-      console.log('[ENV] Found VITE_SUPABASE_ANON_KEY on window object');
-      supabaseAnonKey = windowEnv.VITE_SUPABASE_ANON_KEY;
-      supabaseKeySource = 'window.__ENV__';
-    }
-  }
-
-  return {
-    // Supabase Configuration
-    supabaseUrl,
-    supabaseAnonKey,
-    supabaseKeySource: supabaseKeySource ?? 'unknown',
-
-    // API Configuration
-    apiBaseUrl: (typeof metaEnv?.VITE_API_BASE_URL === 'string' ? metaEnv.VITE_API_BASE_URL : '') || 'http://localhost:3000/api',
-    apiTimeout: 30000,
-
-    // Feature Flags
-    enableAnalytics: metaEnv?.VITE_ENABLE_ANALYTICS === 'true',
-    enableChatWidget: metaEnv?.VITE_ENABLE_CHAT_WIDGET === 'true',
-    enableAIChatbot: metaEnv?.VITE_ENABLE_AI_CHATBOT === 'true',
-    businessType: (typeof metaEnv?.VITE_BUSINESS_TYPE === 'string' ? metaEnv.VITE_BUSINESS_TYPE : '') || 'support',
-
-    // External Services
-    stripePublicKey: (typeof metaEnv?.VITE_STRIPE_PUBLIC_KEY === 'string' ? metaEnv.VITE_STRIPE_PUBLIC_KEY : '') || '',
-    googleAnalyticsId: (typeof metaEnv?.VITE_GOOGLE_ANALYTICS_ID === 'string' ? metaEnv.VITE_GOOGLE_ANALYTICS_ID : '') || '',
-
-    // Environment
-    appEnv: (typeof metaEnv?.VITE_APP_ENV === 'string' ? metaEnv.VITE_APP_ENV : '') || 'development',
-    isDevelopment: metaEnv?.DEV === true,
-    isProduction: metaEnv?.PROD === true,
-  } as const;
-};
-
-export type EnvConfig = ReturnType<typeof createEnv>;
-
-export const env: EnvConfig = createEnv();
-
-export function validateEnv(config: EnvConfig = env) {
-  // Just log warnings, don't throw to prevent blank screens
-  if (!config.supabaseUrl || !config.supabaseAnonKey) {
-    console.warn('Supabase configuration missing - some features may not work');
+  if (missing.length > 0) {
+    console.error(
+      `Missing required environment variables: ${missing.join(', ')}\n` +
+      'Please check your .env file and ensure all required variables are set.'
+    );
+    throw new Error('Missing required environment variables');
   }
 }

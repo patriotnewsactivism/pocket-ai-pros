@@ -442,43 +442,55 @@ export class Chatbot {
       }
     }
 
+    // Use Supabase Edge Function if AI chatbot is enabled
     if (env.enableAIChatbot) {
       try {
-        const { data, error } = await supabase.functions.invoke('generate-chat-response', {
-          body: {
-            message: userMessage,
-            businessType: this.businessType,
-            history: this.conversationHistory.slice(-10).map(message => ({
-              role: message.role,
-              content: message.content,
-            })),
-            template: {
-              name: this.template.name,
-              capabilities: this.template.capabilities,
-              knowledgeBase: this.template.knowledgeBase,
-              greeting: this.template.greeting,
-              persona: this.template.persona,
-              tone: this.template.tone,
-            },
-          },
-        });
-
-        if (error) {
-          throw new Error(error.message || 'Failed to generate AI response');
-        }
-
-        if (data?.response) {
-          return data.response;
-        }
+        const aiResponse = await this.requestAIResponse(userMessage);
+        return aiResponse;
       } catch (error) {
         console.error('AI response error:', error);
       }
     }
 
     // Default response
-    return humanize(
-      `I understand you're asking about "${userMessage}". While I'd love to help, I might need to connect you with our team for the most accurate information. Would you like me to have someone reach out to you?`,
+    return `I understand you're asking about "${userMessage}". While I'd love to help, I might need to connect you with our team for the most accurate information. Would you like me to have someone reach out to you?`;
+  }
+
+  /**
+   * Request AI-generated response via Supabase Edge Function
+   */
+  private async requestAIResponse(userMessage: string): Promise<string> {
+    const systemPrompt = `You are a helpful ${this.template.name} for a ${this.businessType} business.
+Your capabilities include: ${this.template.capabilities.join(', ')}.
+Be friendly, professional, and concise. If you can't answer something, offer to connect them with a human agent.`;
+
+    const conversation = this.conversationHistory.slice(-10).map((message) => ({
+      role: message.role,
+      content: message.content,
+    }));
+
+    const { data, error } = await supabase.functions.invoke<{ content?: string }>(
+      'generate-chat-response',
+      {
+        body: {
+          userMessage,
+          systemPrompt,
+          conversation,
+        },
+      },
     );
+
+    if (error) {
+      const message = typeof error === 'string' ? error : error.message ?? 'Failed to generate AI response';
+      throw new Error(message);
+    }
+
+    const content = typeof data?.content === 'string' ? data.content.trim() : '';
+    if (!content) {
+      throw new Error('AI response was empty');
+    }
+
+    return content;
   }
 
   /**

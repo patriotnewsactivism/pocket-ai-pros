@@ -1,156 +1,151 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
-const corsHeaders: Record<string, string> = {
+const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-interface ChatHistoryItem {
-  role: "user" | "assistant" | "system";
+type ConversationMessage = {
+  role: "system" | "user" | "assistant" | "tool";
   content: string;
-}
+};
 
-interface GenerateChatRequest {
-  message: string;
-  businessType?: string;
-  history?: ChatHistoryItem[];
-  template?: {
-    name: string;
-    capabilities: string[];
-    knowledgeBase?: Record<string, string>;
-    greeting?: string;
-    persona?: string;
-    tone?: string;
-  };
-}
+type GenerateChatRequest = {
+  userMessage: unknown;
+  systemPrompt?: unknown;
+  conversation?: unknown;
+};
+
+const DEFAULT_SYSTEM_PROMPT =
+  "You are a helpful AI assistant representing BuildMyBot. Provide concise, professional responses and escalate to a human agent when necessary.";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   if (req.method !== "POST") {
-    return new Response("Method Not Allowed", {
-      status: 405,
-      headers: corsHeaders,
-    });
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 405,
+      },
+    );
   }
 
+  const apiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!apiKey) {
+    return new Response(
+      JSON.stringify({ error: "OpenAI API key not configured" }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 503,
+      },
+    );
+  }
+
+  let payload: GenerateChatRequest;
   try {
-    const openAIApiKey = Deno.env.get("OPENAI_API_KEY");
+    payload = await req.json();
+  } catch (_error) {
+    return new Response(
+      JSON.stringify({ error: "Invalid JSON payload" }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      },
+    );
+  }
 
-    if (!openAIApiKey) {
-      return new Response(
-        JSON.stringify({ error: "OpenAI API key is not configured." }),
-        {
-          status: 500,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-    }
+  const userMessage = typeof payload.userMessage === "string" ? payload.userMessage.trim() : "";
+  if (!userMessage) {
+    return new Response(
+      JSON.stringify({ error: "userMessage is required" }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      },
+    );
+  }
 
-    const request = (await req.json()) as GenerateChatRequest;
-    const { message, businessType, history = [], template } = request;
+  const systemPrompt = typeof payload.systemPrompt === "string" && payload.systemPrompt.trim()
+    ? payload.systemPrompt.trim()
+    : DEFAULT_SYSTEM_PROMPT;
 
-    if (!message || typeof message !== "string") {
-      return new Response(
-        JSON.stringify({ error: "Message is required." }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-    }
+  const conversationMessages: ConversationMessage[] = Array.isArray(payload.conversation)
+    ? payload.conversation
+        .filter((item): item is ConversationMessage =>
+          item && typeof item.role === "string" && typeof item.content === "string"
+        )
+        .map((item) => ({
+          role: item.role as ConversationMessage["role"],
+          content: item.content,
+        }))
+        .slice(-10)
+    : [];
 
-    const sanitizedHistory = history.slice(-10).map((item) => ({
-      role: item.role,
-      content: item.content,
-    }));
+  const messages: ConversationMessage[] = [
+    { role: "system", content: systemPrompt },
+    ...conversationMessages,
+    { role: "user", content: userMessage },
+  ];
 
-    const knowledgeBaseSummary = template?.knowledgeBase
-      ? Object.entries(template.knowledgeBase)
-          .map(([key, value]) => `- ${key}: ${value}`)
-          .join("\n")
-      : undefined;
-
-    const personaInstruction = template?.persona
-      ? `Adopt the persona of ${template.persona} and respond like a present, live human teammate.`
-      : 'Sound like a thoughtful live human agent who is eager to help.';
-    const toneInstruction = template?.tone
-      ? `Your tone should be ${template.tone}`
-      : 'Use a warm, conversational tone with natural phrasing and contractions.';
-
-    const systemPrompt = `You are ${template?.name ?? 'an AI assistant'} for a ${
-      businessType ?? 'business'
-    } organization.
-${personaInstruction}
-${toneInstruction}
-Provide concise, friendly, and professional responses that acknowledge the user's intent.
-Focus on helping the user achieve their goals using the following capabilities:
-${(template?.capabilities ?? []).map((capability) => `- ${capability}`).join('\n')}
-${knowledgeBaseSummary ? `\nRelevant knowledge base entries:\n${knowledgeBaseSummary}` : ''}
-If you are unsure about an answer, recommend connecting with a human agent and explain the next best step.`;
-
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${openAIApiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...sanitizedHistory.map((item) => ({ role: item.role, content: item.content })),
-          { role: "user", content: message },
-        ],
+        messages,
         max_tokens: 300,
         temperature: 0.7,
       }),
     });
 
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      throw new Error(`OpenAI API error: ${errorText}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("OpenAI API error:", errorText);
+      return new Response(
+        JSON.stringify({ error: "Failed to generate AI response" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: response.status,
+        },
+      );
     }
 
-    const completion = await openaiResponse.json();
-    const content = completion?.choices?.[0]?.message?.content?.trim();
+    const data = await response.json();
+    const content = data?.choices?.[0]?.message?.content?.trim();
+
+    if (!content) {
+      return new Response(
+        JSON.stringify({ error: "OpenAI did not return a response" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 502,
+        },
+      );
+    }
 
     return new Response(
-      JSON.stringify({
-        response:
-          content ??
-          "I'm sorry, but I couldn't generate a response right now. Please try again in a moment.",
-      }),
+      JSON.stringify({ content }),
       {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
       },
     );
   } catch (error) {
-    console.error("generate-chat-response error", error);
-
+    console.error("generate-chat-response error:", error);
     return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "Unexpected error occurred.",
-      }),
+      JSON.stringify({ error: "Unexpected error generating response" }),
       {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
       },
     );
   }

@@ -54,5 +54,11 @@ export default defineConfig(async ({ mode }) => {
         include: ["src/**/*.{ts,tsx}"],
       },
     },
-  };
-});
+  },
+  test: {
+    globals: true,
+    environment: "node",
+    include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    setupFiles: [],
+  },
+}));
