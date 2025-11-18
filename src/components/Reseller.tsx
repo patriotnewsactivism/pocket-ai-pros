@@ -111,7 +111,7 @@ const Reseller = () => {
             Join Our
             <span className="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent"> Reseller Program</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
             Partner with BuildMyBot and earn recurring revenue while helping businesses transform with AI.
           </p>
         </div>
@@ -120,8 +120,8 @@ const Reseller = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h3 className="text-3xl font-bold">Why Become a Reseller?</h3>
-              <p className="text-lg text-muted-foreground">
-                Our reseller program is designed to help you build a profitable business by offering 
+              <p className="text-lg text-foreground/80">
+                Our reseller program is designed to help you build a profitable business by offering
                 cutting-edge AI bot solutions to your clients. We handle the technology, you focus on growth.
               </p>
             </div>
@@ -130,20 +130,20 @@ const Reseller = () => {
               <div className="space-y-4">
                 <h4 className="text-2xl font-bold">Earning Potential</h4>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">50 Clients × $99/month</span>
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-left">
+                    <span className="text-foreground/80 font-semibold">50 Clients × $99/month</span>
                     <span className="text-xl font-bold text-primary">$1,485/month</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">150 Clients × $99/month</span>
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-left">
+                    <span className="text-foreground/80 font-semibold">150 Clients × $99/month</span>
                     <span className="text-xl font-bold text-secondary">$5,940/month</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">250 Clients × $99/month</span>
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-left">
+                    <span className="text-foreground/80 font-semibold">250 Clients × $99/month</span>
                     <span className="text-2xl font-bold text-accent">$12,375/month</span>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground pt-4">
+                <p className="text-sm text-foreground/80 pt-4">
                   * Based on tiered commissions up to 50% on the Professional plan
                 </p>
               </div>
@@ -174,7 +174,7 @@ const Reseller = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold mb-2">{benefit.title}</h4>
-                      <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                      <p className="text-sm text-foreground/80">{benefit.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -187,7 +187,7 @@ const Reseller = () => {
         <div className="mb-16">
           <div className="text-center mb-12">
             <h3 className="text-3xl font-bold mb-4">Commission Tiers</h3>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-foreground/80">
               The more you sell, the more you earn. Advance through tiers automatically.
             </p>
           </div>
@@ -207,7 +207,7 @@ const Reseller = () => {
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="text-2xl font-bold mb-2">{tier.tier}</h4>
-                    <div className="text-sm text-muted-foreground mb-4">{tier.clients}</div>
+                    <div className="text-sm text-foreground/70 mb-4">{tier.clients}</div>
                     <div className="text-4xl font-bold text-primary mb-6">{tier.commission}</div>
                     <div className="space-y-2">
                       {tier.perks.map((perk, idx) => (

@@ -20,6 +20,8 @@ interface GenerateChatRequest {
     capabilities: string[];
     knowledgeBase?: Record<string, string>;
     greeting?: string;
+    persona?: string;
+    tone?: string;
   };
 }
 
@@ -78,14 +80,23 @@ serve(async (req) => {
           .join("\n")
       : undefined;
 
-    const systemPrompt = `You are ${template?.name ?? "an AI assistant"} for a ${
-      businessType ?? "business"
+    const personaInstruction = template?.persona
+      ? `Adopt the persona of ${template.persona} and respond like a present, live human teammate.`
+      : 'Sound like a thoughtful live human agent who is eager to help.';
+    const toneInstruction = template?.tone
+      ? `Your tone should be ${template.tone}`
+      : 'Use a warm, conversational tone with natural phrasing and contractions.';
+
+    const systemPrompt = `You are ${template?.name ?? 'an AI assistant'} for a ${
+      businessType ?? 'business'
     } organization.
-Provide concise, friendly, and professional responses.
+${personaInstruction}
+${toneInstruction}
+Provide concise, friendly, and professional responses that acknowledge the user's intent.
 Focus on helping the user achieve their goals using the following capabilities:
-${(template?.capabilities ?? []).map((capability) => `- ${capability}`).join("\n")}
-${knowledgeBaseSummary ? `\nRelevant knowledge base entries:\n${knowledgeBaseSummary}` : ""}
-If you are unsure about an answer, recommend connecting with a human agent.`;
+${(template?.capabilities ?? []).map((capability) => `- ${capability}`).join('\n')}
+${knowledgeBaseSummary ? `\nRelevant knowledge base entries:\n${knowledgeBaseSummary}` : ''}
+If you are unsure about an answer, recommend connecting with a human agent and explain the next best step.`;
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
