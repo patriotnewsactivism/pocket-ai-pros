@@ -130,17 +130,17 @@ const Reseller = () => {
               <div className="space-y-4">
                 <h4 className="text-2xl font-bold">Earning Potential</h4>
                 <div className="space-y-3">
-                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-left">
-                    <span className="text-foreground/80 font-semibold">50 Clients × $99/month</span>
-                    <span className="text-xl font-bold text-primary">$1,485/month</span>
+                  <div className="flex flex-col gap-1 text-left sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-muted-foreground font-medium">50 Clients × $99/month</span>
+                    <span className="text-xl font-bold text-primary leading-tight">$1,485/month</span>
                   </div>
-                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-left">
-                    <span className="text-foreground/80 font-semibold">150 Clients × $99/month</span>
-                    <span className="text-xl font-bold text-secondary">$5,940/month</span>
+                  <div className="flex flex-col gap-1 text-left sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-muted-foreground font-medium">150 Clients × $99/month</span>
+                    <span className="text-xl font-bold text-secondary-foreground leading-tight">$5,940/month</span>
                   </div>
-                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-left">
-                    <span className="text-foreground/80 font-semibold">250 Clients × $99/month</span>
-                    <span className="text-2xl font-bold text-accent">$12,375/month</span>
+                  <div className="flex flex-col gap-1 text-left sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-muted-foreground font-medium">250 Clients × $99/month</span>
+                    <span className="text-2xl font-bold text-accent leading-tight">$12,375/month</span>
                   </div>
                 </div>
                 <p className="text-sm text-foreground/80 pt-4">

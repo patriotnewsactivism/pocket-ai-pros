@@ -14,9 +14,21 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { createBotSchema, type CreateBotFormValues } from "@/lib/schemas/create-bot";
 import { supabase } from "@/integrations/supabase/client";
+import { getAllTemplates, getTemplate } from "@/templates/business-templates";
+
+const templateLibrary = getAllTemplates();
+const DEFAULT_TEMPLATE_ID = templateLibrary[0]?.id ?? "support";
 
 interface CreateBotDialogProps {
   open: boolean;
@@ -30,6 +42,7 @@ export default function CreateBotDialog({
   onBotCreated,
 }: CreateBotDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [activeTemplate, setActiveTemplate] = useState(() => getTemplate(DEFAULT_TEMPLATE_ID));
   const { toast } = useToast();
 
   const form = useForm<CreateBotFormValues>({
@@ -37,6 +50,7 @@ export default function CreateBotDialog({
     defaultValues: {
       name: "",
       description: "",
+      templateId: DEFAULT_TEMPLATE_ID,
     },
   });
 
@@ -55,13 +69,22 @@ export default function CreateBotDialog({
         throw new Error("Not authenticated");
       }
 
+      const templateConfiguration = getTemplate(values.templateId);
+
       const { error } = await supabase.from("bots").insert({
         user_id: user.id,
         name: values.name,
         description: values.description ?? null,
         status: "active",
         conversations_count: 0,
-        configuration: {},
+        configuration: {
+          templateId: templateConfiguration.id,
+          industry: templateConfiguration.industry,
+          brandColors: templateConfiguration.brandColors,
+          hero: templateConfiguration.hero,
+          features: templateConfiguration.features,
+          chatbot: templateConfiguration.chatbot,
+        },
       });
 
       if (error) throw error;
@@ -71,7 +94,8 @@ export default function CreateBotDialog({
         description: "Your bot has been created successfully.",
       });
 
-      form.reset({ name: "", description: "" });
+      setActiveTemplate(getTemplate(DEFAULT_TEMPLATE_ID));
+      form.reset({ name: "", description: "", templateId: DEFAULT_TEMPLATE_ID });
       onOpenChange(false);
       onBotCreated();
     } catch (error: unknown) {
@@ -95,7 +119,7 @@ export default function CreateBotDialog({
             Create New Bot
           </DialogTitle>
           <DialogDescription>
-            Create a new AI chatbot for your business. Give it a name and description.
+            Create a new AI chatbot for your business. Pick a template to auto-load the right tone and flows.
           </DialogDescription>
         </DialogHeader>
 
@@ -120,6 +144,77 @@ export default function CreateBotDialog({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="templateId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="templateId">Starting Template *</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      const template = getTemplate(value);
+                      setActiveTemplate(template);
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                    disabled={loading}
+                  >
+                    <FormControl>
+                      <SelectTrigger id="templateId">
+                        <SelectValue placeholder="Choose a template" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {templateLibrary.map((template) => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {activeTemplate && (
+              <div className="rounded-xl border border-primary/10 bg-muted/30 p-4 text-sm">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-foreground">{activeTemplate.name}</p>
+                    <p className="text-muted-foreground text-sm">{activeTemplate.description}</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {activeTemplate.industry}
+                  </Badge>
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Focus areas</p>
+                    <p className="text-sm text-foreground">
+                      {activeTemplate.features
+                        .slice(0, 2)
+                        .map((feature) => feature.title)
+                        .join(" • ")}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Quick replies</p>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      {activeTemplate.chatbot.quickReplies.slice(0, 3).map((reply) => (
+                        <Badge key={reply} variant="secondary" className="text-xs">
+                          {reply}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs text-muted-foreground">
+                  Greeting: <span className="italic text-foreground">{activeTemplate.chatbot.greeting}</span>
+                </p>
+              </div>
+            )}
 
             <FormField
               control={form.control}
