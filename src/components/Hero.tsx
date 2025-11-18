@@ -36,8 +36,8 @@ const Hero = () => {
               In Minutes
             </h1>
             
-            <p className="text-xl text-muted-foreground max-w-2xl">
-              Transform your business with custom AI chatbots. No coding required. 
+            <p className="text-xl text-foreground/80 max-w-2xl font-medium">
+              Transform your business with custom AI chatbots. No coding required.
               Powered by GPT-4o-mini for optimal performance at minimal cost.
             </p>
 
@@ -58,17 +58,17 @@ const Hero = () => {
                 <div className="text-3xl font-bold text-primary" aria-label="Number of active bots">
                   {isLoading ? "..." : `${stats?.totalBots || 500}+`}
                 </div>
-                <div className="text-sm text-muted-foreground">Active Bots</div>
+                <div className="text-sm text-foreground/75 font-semibold">Active Bots</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-secondary">24/7</div>
-                <div className="text-sm text-muted-foreground">Support</div>
+                <div className="text-sm text-foreground/75 font-semibold">Support</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-accent" aria-label="Uptime percentage">
                   {isLoading ? "..." : `${stats?.uptime || 99.9}%`}
                 </div>
-                <div className="text-sm text-muted-foreground">Uptime</div>
+                <div className="text-sm text-foreground/75 font-semibold">Uptime</div>
               </div>
             </div>
           </div>

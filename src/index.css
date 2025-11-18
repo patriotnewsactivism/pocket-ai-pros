@@ -26,7 +26,7 @@
     --secondary-foreground: 0 0% 10%;
 
     --muted: 210 15% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 35%; /* Darker for better visibility */
 
     --accent: 195 75% 45%; /* Teal accent */
     --accent-foreground: 0 0% 100%;
@@ -60,7 +60,7 @@
     --secondary-foreground: 0 0% 98%;
 
     --muted: 210 15% 22%;
-    --muted-foreground: 0 0% 65%;
+    --muted-foreground: 0 0% 75%; /* Lighter for better visibility in dark mode */
 
     --accent: 195 75% 45%;
     --accent-foreground: 0 0% 100%;

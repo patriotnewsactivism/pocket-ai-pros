@@ -114,7 +114,7 @@ export function AIChatbot({ businessType = 'support' }: AIChatbotProps) {
               </div>
               <div>
                 <h3 className="font-semibold">{template.name}</h3>
-                <p className="text-xs text-white/80">Online • Instant replies</p>
+                <p className="text-xs text-white/95">Online • Instant replies</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -150,11 +150,11 @@ export function AIChatbot({ businessType = 'support' }: AIChatbotProps) {
                       className={`max-w-[80%] rounded-lg p-3 ${
                         message.role === 'user'
                           ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                          : 'bg-white shadow-sm'
+                          : 'bg-white shadow-sm text-gray-900'
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      <p className={`text-xs mt-1 ${message.role === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
+                      <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                      <p className={`text-xs mt-1 ${message.role === 'user' ? 'text-white/90' : 'text-gray-600'}`}>
                         {new Date(message.timestamp || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
@@ -211,7 +211,7 @@ export function AIChatbot({ businessType = 'support' }: AIChatbotProps) {
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-xs text-gray-700 mt-2 text-center font-medium">
                   Powered by AI • Instant responses 24/7
                 </p>
               </div>

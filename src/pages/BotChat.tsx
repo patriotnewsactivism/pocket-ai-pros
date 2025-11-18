@@ -249,7 +249,7 @@ export default function BotChat() {
             </div>
             <div>
               <h1 className="text-lg font-bold">{bot.name}</h1>
-              <p className="text-sm text-muted-foreground">{bot.description}</p>
+              <p className="text-sm text-foreground/80 font-medium">{bot.description}</p>
             </div>
           </div>
         </div>
@@ -278,11 +278,11 @@ export default function BotChat() {
                     className={`max-w-[80%] ${
                       msg.role === 'user'
                         ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
+                        : 'bg-card border-2'
                     }`}
                   >
                     <CardContent className="p-3">
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                      <p className="whitespace-pre-wrap break-words text-foreground">{msg.content}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -322,7 +322,7 @@ export default function BotChat() {
               )}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2 text-center">
+          <p className="text-xs text-foreground/70 mt-2 text-center font-medium">
             Powered by AI • Press Enter to send
           </p>
         </div>
