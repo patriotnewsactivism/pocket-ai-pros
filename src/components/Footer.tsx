@@ -67,14 +67,14 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Company</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="/about" className="hover:text-primary transition-colors">
+                <Link to="/about" className="hover:text-primary transition-colors">
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/blog" className="hover:text-primary transition-colors">
+                <Link to="/blog" className="hover:text-primary transition-colors">
                   Blog
-                </a>
+                </Link>
               </li>
               <li>
                 <button onClick={() => scrollToSection("reseller")} className="hover:text-primary transition-colors">
@@ -87,9 +87,9 @@ const Footer = () => {
                 } />
               </li>
               <li>
-                <a href="/careers" className="hover:text-primary transition-colors">
+                <Link to="/careers" className="hover:text-primary transition-colors">
                   Careers
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

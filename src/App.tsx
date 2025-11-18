@@ -45,6 +45,9 @@ const NotFound = lazy(() => import('@/pages/NotFound').catch(err => handleLazyLo
 const Terms = lazy(() => import('@/pages/Terms').catch(err => handleLazyLoadError(err, 'Terms')));
 const Privacy = lazy(() => import('@/pages/Privacy').catch(err => handleLazyLoadError(err, 'Privacy')));
 const Refund = lazy(() => import('@/pages/Refund').catch(err => handleLazyLoadError(err, 'Refund')));
+const About = lazy(() => import('@/pages/About').catch(err => handleLazyLoadError(err, 'About')));
+const Blog = lazy(() => import('@/pages/Blog').catch(err => handleLazyLoadError(err, 'Blog')));
+const Careers = lazy(() => import('@/pages/Careers').catch(err => handleLazyLoadError(err, 'Careers')));
 const Auth = lazy(() => import('@/pages/Auth').catch(err => handleLazyLoadError(err, 'Auth')));
 const Dashboard = lazy(() => import('@/pages/Dashboard').catch(err => handleLazyLoadError(err, 'Dashboard')));
 const ResellerDashboard = lazy(() => import('@/pages/ResellerDashboard').catch(err => handleLazyLoadError(err, 'ResellerDashboard')));
@@ -113,6 +116,9 @@ function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/refund" element={<Refund />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/careers" element={<Careers />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
