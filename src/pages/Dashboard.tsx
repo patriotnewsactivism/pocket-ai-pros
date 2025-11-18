@@ -109,12 +109,17 @@ export default function Dashboard() {
 
   const handleCreateBot = () => {
     if (!profile) return;
-    
+
     if (bots.length >= profile.bots_limit) {
       toast({
         title: 'Bot limit reached',
         description: 'Upgrade your plan to create more bots.',
         variant: 'destructive',
+        action: (
+          <Button variant="outline" size="sm" onClick={() => navigate('/#pricing')}>
+            View Plans
+          </Button>
+        ),
       });
       return;
     }

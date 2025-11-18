@@ -53,7 +53,7 @@ const Hero = () => {
               </Button>
             </div>
 
-            <div className="flex items-center gap-8 pt-4" role="region" aria-label="Statistics">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 pt-4" role="region" aria-label="Statistics">
               <div className="text-center">
                 <div className="text-3xl font-bold text-primary" aria-label="Number of active bots">
                   {isLoading ? "..." : `${stats?.totalBots || 500}+`}

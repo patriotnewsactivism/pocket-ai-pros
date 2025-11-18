@@ -6,12 +6,7 @@ import path from "path";
 export default defineConfig(async ({ mode }) => {
   const base = mode === "production" ? process.env.VITE_BASE_PATH ?? "./" : "/";
 
-  // Only import lovable-tagger in development mode
   const plugins = [react()];
-  if (mode === 'development') {
-    const { componentTagger } = await import("lovable-tagger");
-    plugins.push(componentTagger());
-  }
 
   return {
     base,

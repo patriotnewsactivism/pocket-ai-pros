@@ -1,4 +1,4 @@
-import { Bot, Mail, Github, Linkedin, Twitter } from "lucide-react";
+import { Bot, Mail } from "lucide-react";
 import { ContactDialog } from "./ContactDialog";
 import { Link } from "react-router-dom";
 
@@ -46,19 +46,14 @@ const Footer = () => {
                 </button>
               </li>
               <li>
-                <a href="https://docs.buildmybot.ai" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                  Documentation
-                </a>
+                <button onClick={() => scrollToSection("templates")} className="hover:text-primary transition-colors">
+                  Templates
+                </button>
               </li>
               <li>
-                <a href="https://api.buildmybot.ai" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                  API Reference
-                </a>
-              </li>
-              <li>
-                <a href="https://status.buildmybot.ai" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                  Status Page
-                </a>
+                <button onClick={() => scrollToSection("integrations")} className="hover:text-primary transition-colors">
+                  Integrations
+                </button>
               </li>
             </ul>
           </div>
@@ -112,53 +107,14 @@ const Footer = () => {
                   Refund Policy
                 </Link>
               </li>
-              <li>
-                <a href="https://buildmybot.ai/security" className="hover:text-primary transition-colors">
-                  Security
-                </a>
-              </li>
-              <li>
-                <a href="https://buildmybot.ai/compliance" className="hover:text-primary transition-colors">
-                  GDPR Compliance
-                </a>
-              </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-t border-border pt-8">
+          <p className="text-sm text-muted-foreground text-center">
             © 2025 BuildMyBot. All rights reserved.
           </p>
-          <div className="flex gap-4">
-            <a 
-              href="https://twitter.com/buildmybot" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-              aria-label="Follow us on Twitter"
-            >
-              <Twitter className="w-5 h-5" />
-            </a>
-            <a 
-              href="https://linkedin.com/company/buildmybot" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-              aria-label="Connect on LinkedIn"
-            >
-              <Linkedin className="w-5 h-5" />
-            </a>
-            <a 
-              href="https://github.com/buildmybot" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-              aria-label="View on GitHub"
-            >
-              <Github className="w-5 h-5" />
-            </a>
-          </div>
         </div>
       </div>
     </footer>

@@ -69,7 +69,7 @@ const Features = () => {
               We use GPT-4o-mini to deliver exceptional AI performance at a fraction of the cost.
               Get enterprise-grade intelligence without enterprise-grade prices.
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
               <div className="bg-card p-4 rounded-lg border">
                 <div className="text-2xl font-bold text-success">90%</div>
                 <div className="text-sm text-foreground/75 font-semibold">Cost Savings</div>

@@ -121,16 +121,38 @@ const Pricing = () => {
         body: { plan: planName.toLowerCase() },
       });
 
-      if (error) throw error;
-
-      if (data.url) {
-        window.open(data.url, "_blank");
+      if (error) {
+        console.error("Checkout session error:", error);
+        throw new Error(error.message || "Failed to create checkout session");
       }
+
+      if (!data?.url) {
+        throw new Error("No checkout URL received. Please contact support.");
+      }
+
+      const checkoutWindow = window.open(data.url, "_blank", "noopener,noreferrer");
+
+      if (!checkoutWindow) {
+        toast({
+          title: "Pop-up Blocked",
+          description: "Please allow pop-ups for this site to complete checkout.",
+          variant: "destructive",
+        });
+        // Fallback: navigate in the same window
+        window.location.href = data.url;
+        return;
+      }
+
+      toast({
+        title: "Checkout Opened",
+        description: "Complete your purchase in the new window to activate your plan.",
+      });
     } catch (error) {
       console.error("Subscription error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to start checkout. Please try again.";
       toast({
         title: "Error",
-        description: "Failed to start checkout. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -151,15 +173,15 @@ const Pricing = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
           {pricingPlans.map((plan, index) => {
             const Icon = plan.icon;
             return (
-              <Card 
+              <Card
                 key={index}
                 className={`relative flex flex-col transition-all duration-300 hover:shadow-2xl ${
-                  plan.popular 
-                    ? "border-2 border-primary shadow-xl scale-105" 
+                  plan.popular
+                    ? "border-2 border-primary shadow-xl lg:scale-105"
                     : "hover:scale-105"
                 }`}
               >
@@ -176,7 +198,7 @@ const Pricing = () => {
                   <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
                   <CardDescription className="text-base">{plan.description}</CardDescription>
                   <div className="mt-6">
-                    <span className="text-5xl font-bold text-foreground">{plan.price}</span>
+                    <span className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">{plan.price}</span>
                     <span className="text-foreground/70 font-medium">/month</span>
                   </div>
                 </CardHeader>
