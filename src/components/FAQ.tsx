@@ -37,7 +37,7 @@ const faqs = [
   },
   {
     question: "How does the reseller program work?",
-    answer: "Our reseller program offers up to 30% recurring commission on all sales. You'll get access to white-label options, co-marketing materials, and a dedicated partner dashboard to track your earnings and performance. Apply through the Reseller Program section to get started.",
+    answer: "Our reseller program offers up to 50% recurring commission on all sales. You'll get access to white-label options, co-marketing materials, and a dedicated partner dashboard to track your earnings and performance. Apply through the Reseller Program section to get started.",
   },
   {
     question: "Can the bot handle multiple languages?",
@@ -46,6 +46,10 @@ const faqs = [
   {
     question: "What happens if I exceed my message limit?",
     answer: "We'll notify you when you reach 80% of your limit. You can upgrade your plan at any time, or purchase additional message packs. We never shut off your bot mid-conversation - customer experience comes first.",
+  },
+  {
+    question: "What qualifies as a conversation?",
+    answer: "A conversation is counted when a chat session closes, not for each individual message sent back and forth. This means you and your customer can exchange multiple messages within a single conversation. The conversation ends when the chat window is closed or the session times out, giving you great value and flexibility in customer interactions.",
   },
 ];
 

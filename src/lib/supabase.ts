@@ -3,16 +3,53 @@
  * Direct database connection for BuildMyBot
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { env } from '@/config/env';
 
+const DISABLED_SUPABASE_MESSAGE =
+  'Supabase client is not configured. Please provide VITE_SUPABASE_URL and a Supabase anon or publishable key.';
+
+const createDisabledSupabaseClient = (): SupabaseClient => {
+  const handler: ProxyHandler<Record<string, unknown>> = {
+    get(_target, property) {
+      throw new Error(
+        `${DISABLED_SUPABASE_MESSAGE} Attempted to access property "${String(property)}" on the disabled client.`,
+      );
+    },
+  };
+
+  return new Proxy({}, handler) as unknown as SupabaseClient;
+};
+
+export const isSupabaseConfigured = Boolean(env.supabaseUrl && env.supabaseAnonKey);
+
+export const createSupabaseClient = (): SupabaseClient => {
+  if (!isSupabaseConfigured) {
+    const message = '[supabase] Supabase credentials are missing. Database features are disabled.';
+    if (env.isDevelopment) {
+      console.warn(message);
+    } else {
+      console.error(message);
+    }
+    return createDisabledSupabaseClient();
+  }
+
+  return createClient(env.supabaseUrl, env.supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
+};
+
 // Initialize Supabase client
-export const supabase = createClient(env.supabaseUrl, env.supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+export const supabase = createSupabaseClient();
+
+const assertSupabaseConfigured = (): void => {
+  if (!isSupabaseConfigured) {
+    throw new Error(DISABLED_SUPABASE_MESSAGE);
+  }
+};
 
 // Database types
 export interface Contact {
@@ -65,6 +102,7 @@ export interface Stats {
 export const db = {
   // Contacts
   async createContact(contact: Contact) {
+    assertSupabaseConfigured();
     const { data, error } = await supabase
       .from('contacts')
       .insert([contact])
@@ -77,6 +115,7 @@ export const db = {
 
   // Subscribers
   async createSubscriber(email: string) {
+    assertSupabaseConfigured();
     const { data, error } = await supabase
       .from('subscribers')
       .insert([{ email, status: 'active' }])
@@ -93,6 +132,7 @@ export const db = {
   },
 
   async checkSubscriber(email: string) {
+    assertSupabaseConfigured();
     const { data } = await supabase
       .from('subscribers')
       .select('id')
@@ -104,6 +144,7 @@ export const db = {
 
   // Reseller Applications
   async createResellerApplication(application: ResellerApplication) {
+    assertSupabaseConfigured();
     const { data, error } = await supabase
       .from('reseller_applications')
       .insert([{ ...application, status: 'pending' }])
@@ -116,6 +157,7 @@ export const db = {
 
   // Users
   async createUser(user: User) {
+    assertSupabaseConfigured();
     const { data, error } = await supabase
       .from('users')
       .insert([{ ...user, status: 'active' }])
@@ -132,6 +174,7 @@ export const db = {
   },
 
   async checkUserExists(email: string) {
+    assertSupabaseConfigured();
     const { data } = await supabase
       .from('users')
       .select('id')
@@ -143,6 +186,15 @@ export const db = {
 
   // Statistics
   async getStats(): Promise<Stats> {
+    if (!isSupabaseConfigured) {
+      return {
+        totalBots: 500,
+        activeUsers: 250,
+        messagesProcessed: 150000,
+        uptime: 99.9,
+      };
+    }
+
     try {
       const [botsResult, usersResult, messagesResult] = await Promise.all([
         supabase.from('bots').select('id', { count: 'exact', head: true }),

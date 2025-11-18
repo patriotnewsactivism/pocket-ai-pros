@@ -10,7 +10,7 @@ npm install
 ### Step 2: Set Up Database (2 minutes)
 
 1. **Open Supabase SQL Editor**
-   - Go to: https://iobjmdcxhinnumxzbmnc.supabase.co
+   - Go to: https://<your-project-ref>.supabase.co
    - Click "SQL Editor" in the left sidebar
 
 2. **Create Tables**
@@ -96,7 +96,7 @@ All tables are created automatically when you run `supabase-setup.sql`:
 
 Your `.env` file is already configured with Supabase credentials:
 ```env
-VITE_SUPABASE_URL=https://iobjmdcxhinnumxzbmnc.supabase.co
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGci...
 ```
 
@@ -105,7 +105,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 ## 📊 Viewing Data
 
 ### Option 1: Supabase Dashboard
-1. Go to https://iobjmdcxhinnumxzbmnc.supabase.co
+1. Go to https://<your-project-ref>.supabase.co
 2. Click "Table Editor"
 3. Select any table to view data
 

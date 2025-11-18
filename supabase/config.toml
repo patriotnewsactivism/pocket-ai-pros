@@ -1,13 +1,26 @@
-project_id = "fjbwmpyfnhmndzkdsvfi"
+project_id = "mnklzzundmfwjnfaoqju"
 
-[functions.create-checkout]
+[db]
+port = 54329
+
+[analytics]
+port = 54427
+
+
+[functions.bot-chat]
+verify_jwt = false
+
+[functions.check-subscription]
 verify_jwt = true
 
 [functions.create-checkout-session]
 verify_jwt = true
 
-[functions.check-subscription]
-verify_jwt = true
+[functions.generate-chat-response]
+verify_jwt = false
 
 [functions.process-reseller-application]
+verify_jwt = false
+
+[functions.stripe-webhook]
 verify_jwt = false

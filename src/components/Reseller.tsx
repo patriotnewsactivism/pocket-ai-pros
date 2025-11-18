@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, DollarSign, TrendingUp, Handshake, Award, HeadphonesIcon, Target, Rocket, Shield } from "lucide-react";
+import { Users, DollarSign, TrendingUp, Handshake, Award, HeadphonesIcon, Target, Rocket, Shield, Gem } from "lucide-react";
 import resellerPartner from "@/assets/reseller-partner.jpg";
 import { ResellerDialog } from "./ResellerDialog";
 
@@ -7,7 +7,7 @@ const benefits = [
   {
     icon: DollarSign,
     title: "Generous Commission",
-    description: "Earn up to 30% recurring commission on every sale",
+    description: "Earn up to 50% recurring commission on every sale",
   },
   {
     icon: TrendingUp,
@@ -40,7 +40,7 @@ const commissionTiers = [
   {
     tier: "Bronze Partner",
     icon: Target,
-    clients: "1-10 clients",
+    clients: "0-49 clients",
     commission: "20%",
     perks: ["Partner dashboard", "Email support", "Marketing materials"],
     color: "from-orange-500 to-orange-600",
@@ -48,18 +48,32 @@ const commissionTiers = [
   {
     tier: "Silver Partner",
     icon: Award,
-    clients: "11-50 clients",
-    commission: "25%",
+    clients: "50-149 clients",
+    commission: "30%",
     perks: ["All Bronze perks", "Priority support", "Co-marketing opportunities", "Custom training"],
     color: "from-slate-400 to-slate-500",
   },
   {
     tier: "Gold Partner",
     icon: Rocket,
-    clients: "51+ clients",
-    commission: "30%",
+    clients: "150-249 clients",
+    commission: "40%",
     perks: ["All Silver perks", "Dedicated account manager", "White-label options", "Revenue share bonuses", "Exclusive features"],
     color: "from-yellow-400 to-yellow-600",
+  },
+  {
+    tier: "Platinum Partner",
+    icon: Gem,
+    clients: "250+ clients",
+    commission: "50%",
+    perks: [
+      "All Gold perks",
+      "Priority revenue payouts",
+      "Joint enterprise deals",
+      "Invites to roadmap previews",
+      "Exclusive feature access",
+    ],
+    color: "from-purple-500 to-purple-700",
   },
 ];
 
@@ -97,7 +111,7 @@ const Reseller = () => {
             Join Our
             <span className="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent"> Reseller Program</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
             Partner with BuildMyBot and earn recurring revenue while helping businesses transform with AI.
           </p>
         </div>
@@ -106,8 +120,8 @@ const Reseller = () => {
           <div className="space-y-8">
             <div className="space-y-4">
               <h3 className="text-3xl font-bold">Why Become a Reseller?</h3>
-              <p className="text-lg text-muted-foreground">
-                Our reseller program is designed to help you build a profitable business by offering 
+              <p className="text-lg text-foreground/80">
+                Our reseller program is designed to help you build a profitable business by offering
                 cutting-edge AI bot solutions to your clients. We handle the technology, you focus on growth.
               </p>
             </div>
@@ -116,21 +130,21 @@ const Reseller = () => {
               <div className="space-y-4">
                 <h4 className="text-2xl font-bold">Earning Potential</h4>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">10 Clients × $99/month</span>
-                    <span className="text-xl font-bold text-primary">$297/month</span>
+                  <div className="flex flex-col gap-1 text-left sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-muted-foreground font-medium">50 Clients × $99/month</span>
+                    <span className="text-xl font-bold text-primary leading-tight">$1,485/month</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">50 Clients × $99/month</span>
-                    <span className="text-xl font-bold text-secondary">$1,485/month</span>
+                  <div className="flex flex-col gap-1 text-left sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-muted-foreground font-medium">150 Clients × $99/month</span>
+                    <span className="text-xl font-bold text-secondary-foreground leading-tight">$5,940/month</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">100 Clients × $99/month</span>
-                    <span className="text-2xl font-bold text-accent">$2,970/month</span>
+                  <div className="flex flex-col gap-1 text-left sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-muted-foreground font-medium">250 Clients × $99/month</span>
+                    <span className="text-2xl font-bold text-accent leading-tight">$12,375/month</span>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground pt-4">
-                  * Based on 30% commission on Professional plan
+                <p className="text-sm text-foreground/80 pt-4">
+                  * Based on tiered commissions up to 50% on the Professional plan
                 </p>
               </div>
             </div>
@@ -160,7 +174,7 @@ const Reseller = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold mb-2">{benefit.title}</h4>
-                      <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                      <p className="text-sm text-foreground/80">{benefit.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -173,7 +187,7 @@ const Reseller = () => {
         <div className="mb-16">
           <div className="text-center mb-12">
             <h3 className="text-3xl font-bold mb-4">Commission Tiers</h3>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-foreground/80">
               The more you sell, the more you earn. Advance through tiers automatically.
             </p>
           </div>
@@ -182,10 +196,10 @@ const Reseller = () => {
             {commissionTiers.map((tier, index) => {
               const Icon = tier.icon;
               return (
-                <Card 
-                  key={index} 
+                <Card
+                  key={index}
                   className={`transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-card/80 backdrop-blur border-2 ${
-                    index === 2 ? "border-primary/50" : "border-muted"
+                    index === commissionTiers.length - 1 ? "border-primary/50" : "border-muted"
                   }`}
                 >
                   <CardContent className="p-6">
@@ -193,7 +207,7 @@ const Reseller = () => {
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="text-2xl font-bold mb-2">{tier.tier}</h4>
-                    <div className="text-sm text-muted-foreground mb-4">{tier.clients}</div>
+                    <div className="text-sm text-foreground/70 mb-4">{tier.clients}</div>
                     <div className="text-4xl font-bold text-primary mb-6">{tier.commission}</div>
                     <div className="space-y-2">
                       {tier.perks.map((perk, idx) => (

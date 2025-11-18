@@ -6,7 +6,7 @@ Your application is configured to use Supabase as the backend database. Follow t
 
 ### 1. Database Setup
 
-1. Go to your Supabase project: https://iobjmdcxhinnumxzbmnc.supabase.co
+1. Go to your Supabase project: https://<your-project-ref>.supabase.co
 2. Navigate to the **SQL Editor** in the left sidebar
 3. Create a new query and paste the contents of `supabase-setup.sql`
 4. Run the query to create all necessary tables and indexes
@@ -16,8 +16,8 @@ Your application is configured to use Supabase as the backend database. Follow t
 The following environment variables are already configured in your `.env` file:
 
 ```env
-VITE_SUPABASE_URL=https://iobjmdcxhinnumxzbmnc.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 ### 3. Install Dependencies
