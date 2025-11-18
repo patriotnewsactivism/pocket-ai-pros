@@ -44,7 +44,7 @@ const Features = () => {
             Powerful Features for
             <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent"> Modern Businesses</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-foreground/80 max-w-2xl mx-auto font-medium">
             Everything you need to create intelligent, engaging AI bots that delight your customers.
           </p>
         </div>
@@ -65,18 +65,18 @@ const Features = () => {
               <span>Optimized with GPT-4o-mini</span>
             </div>
             <h3 className="text-3xl font-bold">Cost-Effective AI That Performs</h3>
-            <p className="text-lg text-muted-foreground">
-              We use GPT-4o-mini to deliver exceptional AI performance at a fraction of the cost. 
+            <p className="text-lg text-foreground/80 font-medium">
+              We use GPT-4o-mini to deliver exceptional AI performance at a fraction of the cost.
               Get enterprise-grade intelligence without enterprise-grade prices.
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-card p-4 rounded-lg border">
                 <div className="text-2xl font-bold text-success">90%</div>
-                <div className="text-sm text-muted-foreground">Cost Savings</div>
+                <div className="text-sm text-foreground/75 font-semibold">Cost Savings</div>
               </div>
               <div className="bg-card p-4 rounded-lg border">
                 <div className="text-2xl font-bold text-primary">10x</div>
-                <div className="text-sm text-muted-foreground">Faster Response</div>
+                <div className="text-sm text-foreground/75 font-semibold">Faster Response</div>
               </div>
             </div>
           </div>
