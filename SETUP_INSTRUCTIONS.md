@@ -11,7 +11,7 @@ Follow these steps to have your business fully operational and accepting payment
 Your Supabase database is already set up! Just run the SQL script:
 
 1. **Go to Supabase SQL Editor:**
-   https://iobjmdcxhinnumxzbmnc.supabase.co
+   https://<your-project-ref>.supabase.co
 
 2. **Open SQL Editor** (left sidebar)
 

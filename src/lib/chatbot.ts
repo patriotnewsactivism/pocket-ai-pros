@@ -5,6 +5,44 @@
 
 import { supabase } from './supabase';
 import { env } from '@/config/env';
+import { BUSINESS_TEMPLATES, type BusinessTemplate } from '@/templates/business-templates';
+
+type ChatbotBusinessType = keyof typeof BUSINESS_TEMPLATES;
+
+interface ChatbotTemplate {
+  name: string;
+  greeting: string;
+  quickReplies: string[];
+  capabilities: string[];
+  knowledgeBase: Record<string, string>;
+  persona: string;
+  tone: string;
+}
+
+const DEFAULT_BUSINESS_TYPE: ChatbotBusinessType = 'support';
+
+const chatbotTemplates = Object.fromEntries(
+  Object.entries(BUSINESS_TEMPLATES).map(([key, template]) => [
+    key,
+    createChatbotTemplate(template),
+  ]),
+) as Record<ChatbotBusinessType, ChatbotTemplate>;
+
+function createChatbotTemplate(template: BusinessTemplate): ChatbotTemplate {
+  return {
+    name: template.name,
+    greeting: template.chatbot.greeting,
+    quickReplies: template.chatbot.quickReplies,
+    capabilities: template.chatbot.capabilities,
+    knowledgeBase: template.chatbot.knowledgeBase,
+    persona: template.chatbot.persona,
+    tone: template.chatbot.tone,
+  };
+}
+
+const getTemplateForBusiness = (businessType: ChatbotBusinessType): ChatbotTemplate => {
+  return chatbotTemplates[businessType] ?? chatbotTemplates[DEFAULT_BUSINESS_TYPE];
+};
 
 // Chatbot message types
 export interface ChatMessage {
@@ -214,19 +252,57 @@ const BUSINESS_TEMPLATES = {
   },
 };
 
+export interface HumanizedResponseOptions {
+  baseAnswer: string;
+  userMessage: string;
+  businessName: string;
+  capabilities: string[];
+}
+
+export const createHumanizedResponse = ({
+  baseAnswer,
+  userMessage,
+  businessName,
+  capabilities,
+}: HumanizedResponseOptions): string => {
+  const trimmedAnswer = baseAnswer.trim();
+  const ensuredAnswer = trimmedAnswer
+    ? /[.!?]$/.test(trimmedAnswer)
+      ? trimmedAnswer
+      : `${trimmedAnswer}.`
+    : "Let me double-check that for you.";
+  const hasDetails = Boolean(userMessage.trim());
+  const prefix = hasDetails
+    ? "Thanks for sharing those details—I've got you!"
+    : `Thanks for reaching out to the ${businessName} team!`;
+  const context = hasDetails ? "Here's what I can do:" : "Here's how we can help:";
+  const selectedCapabilities = capabilities.filter(Boolean).slice(0, 3);
+  let capabilitySnippet = "Let me know if there's anything else you need.";
+
+  if (selectedCapabilities.length === 1) {
+    capabilitySnippet = `I can also help with ${selectedCapabilities[0]}, so feel free to ask.`;
+  } else if (selectedCapabilities.length === 2) {
+    capabilitySnippet = `I can also help with ${selectedCapabilities[0]} and ${selectedCapabilities[1]}, so feel free to ask.`;
+  } else if (selectedCapabilities.length === 3) {
+    capabilitySnippet = `I can also help with ${selectedCapabilities[0]}, ${selectedCapabilities[1]}, and ${selectedCapabilities[2]}, so feel free to ask.`;
+  }
+
+  return `${prefix} ${context} ${ensuredAnswer} ${capabilitySnippet}`.replace(/\s+/g, " ").trim();
+};
+
 /**
  * Chatbot class for handling conversations
  */
 export class Chatbot {
   private sessionId: string;
-  private businessType: string;
-  private template: typeof BUSINESS_TEMPLATES[keyof typeof BUSINESS_TEMPLATES];
+  private businessType: ChatbotBusinessType;
+  private template: ChatbotTemplate;
   private conversationHistory: ChatMessage[] = [];
 
-  constructor(businessType: keyof typeof BUSINESS_TEMPLATES = 'support') {
+  constructor(businessType: ChatbotBusinessType = DEFAULT_BUSINESS_TYPE) {
     this.sessionId = this.generateSessionId();
     this.businessType = businessType;
-    this.template = BUSINESS_TEMPLATES[businessType] || BUSINESS_TEMPLATES.support;
+    this.template = getTemplateForBusiness(businessType);
   }
 
   /**
@@ -241,12 +317,14 @@ export class Chatbot {
    */
   async startSession(): Promise<void> {
     try {
-      await supabase.from('chat_sessions').insert([{
-        session_id: this.sessionId,
-        business_type: this.businessType,
-        started_at: new Date().toISOString(),
-        status: 'active',
-      }]);
+      await supabase.from('chat_sessions').insert([
+        {
+          session_id: this.sessionId,
+          business_type: this.businessType,
+          started_at: new Date().toISOString(),
+          status: 'active',
+        },
+      ]);
 
       // Add greeting message
       this.conversationHistory.push({
@@ -283,27 +361,25 @@ export class Chatbot {
    * Process user message and generate response
    */
   async sendMessage(userMessage: string): Promise<ChatMessage> {
-    // Save user message
     const userMsg: ChatMessage = {
       session_id: this.sessionId,
       role: 'user',
       content: userMessage,
       timestamp: new Date().toISOString(),
     };
-    
+
     this.conversationHistory.push(userMsg);
     await this.saveMessage(userMsg);
 
-    // Generate response
     const response = await this.generateResponse(userMessage);
-    
+
     const assistantMsg: ChatMessage = {
       session_id: this.sessionId,
       role: 'assistant',
       content: response,
       timestamp: new Date().toISOString(),
     };
-    
+
     this.conversationHistory.push(assistantMsg);
     await this.saveMessage(assistantMsg);
 
@@ -315,33 +391,54 @@ export class Chatbot {
    */
   private async generateResponse(userMessage: string): Promise<string> {
     const messageLower = userMessage.toLowerCase();
+    const humanize = (answer: string) =>
+      createHumanizedResponse({
+        baseAnswer: answer,
+        userMessage,
+        businessName: this.template.name,
+        capabilities: this.template.capabilities,
+      });
 
-    // Check knowledge base for relevant answers
+    // Handle pricing questions first with dynamic pricing
+    if (messageLower.includes('price') || messageLower.includes('cost') || messageLower.includes('pricing')) {
+      // Use actual template pricing instead of hardcoded knowledge base values
+      const businessTemplate = BUSINESS_TEMPLATES[this.businessType];
+      if (businessTemplate) {
+        const pricingInfo = `We offer ${Object.entries(businessTemplate.pricing)
+          .map(([tier, info]) => `${tier.charAt(0).toUpperCase() + tier.slice(1)} ($${info.price}/mo)`)
+          .join(', ')} plans.`;
+        return pricingInfo;
+      }
+      return (
+        this.template.knowledgeBase['pricing'] ||
+          "I'd be happy to discuss our pricing with you. Would you like me to provide details or connect you with our sales team?",
+      );
+    }
+
+    // Check knowledge base for relevant answers (excluding pricing which is handled above)
     for (const [key, answer] of Object.entries(this.template.knowledgeBase)) {
-      if (messageLower.includes(key)) {
+      if (key !== 'pricing' && messageLower.includes(key)) {
         return answer;
       }
     }
 
-    // Check for common patterns
-    if (messageLower.includes('price') || messageLower.includes('cost') || messageLower.includes('pricing')) {
-      return this.template.knowledgeBase['pricing'] || "I'd be happy to discuss our pricing with you. Would you like me to provide details or connect you with our sales team?";
-    }
-
     if (messageLower.includes('help') || messageLower.includes('support') || messageLower.includes('assist')) {
-      return `I can help you with: ${this.template.capabilities.join(', ')}. What would you like to know more about?`;
+      return humanize(`I can help you with: ${this.template.capabilities.join(', ')}. What would you like to know more about?`);
     }
 
     if (messageLower.includes('contact') || messageLower.includes('speak') || messageLower.includes('talk')) {
-      return "I'd be happy to connect you with our team! Please provide your email address, and someone will reach out to you shortly.";
+      return humanize(
+        "I'd be happy to connect you with our team! Please provide your email address, and someone will reach out to you shortly.",
+      );
     }
 
     if (messageLower.includes('email') && messageLower.includes('@')) {
-      // Extract email and save lead
       const emailMatch = userMessage.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
       if (emailMatch) {
         await this.captureLeadEmail(emailMatch[0]);
-        return "Thank you! I've saved your email. Our team will contact you within 24 hours. Is there anything else I can help you with?";
+        return humanize(
+          "Thank you! I've saved your email. Our team will contact you within 24 hours. Is there anything else I can help you with?",
+        );
       }
     }
 
@@ -401,13 +498,15 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
    */
   private async saveMessage(message: ChatMessage): Promise<void> {
     try {
-      await supabase.from('chat_messages').insert([{
-        session_id: message.session_id,
-        role: message.role,
-        content: message.content,
-        timestamp: message.timestamp,
-        metadata: message.metadata,
-      }]);
+      await supabase.from('chat_messages').insert([
+        {
+          session_id: message.session_id,
+          role: message.role,
+          content: message.content,
+          timestamp: message.timestamp,
+          metadata: message.metadata,
+        },
+      ]);
     } catch (error) {
       console.error('Error saving message:', error);
     }
@@ -418,12 +517,14 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
    */
   private async captureLeadEmail(email: string): Promise<void> {
     try {
-      await supabase.from('chat_leads').insert([{
-        session_id: this.sessionId,
-        email,
-        business_type: this.businessType,
-        captured_at: new Date().toISOString(),
-      }]);
+      await supabase.from('chat_leads').insert([
+        {
+          session_id: this.sessionId,
+          email,
+          business_type: this.businessType,
+          captured_at: new Date().toISOString(),
+        },
+      ]);
     } catch (error) {
       console.error('Error capturing lead:', error);
     }
@@ -434,7 +535,8 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
    */
   async updateVisitorInfo(name: string, email: string): Promise<void> {
     try {
-      await supabase.from('chat_sessions')
+      await supabase
+        .from('chat_sessions')
         .update({
           visitor_name: name,
           visitor_email: email,
@@ -452,7 +554,8 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
    */
   async closeSession(): Promise<void> {
     try {
-      await supabase.from('chat_sessions')
+      await supabase
+        .from('chat_sessions')
         .update({
           status: 'closed',
           last_message_at: new Date().toISOString(),
@@ -471,18 +574,38 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
   }
 
   /**
+   * Get conversation history (alias for getHistory)
+   */
+  getConversationHistory(): ChatMessage[] {
+    return this.conversationHistory;
+  }
+
+  /**
    * Get session ID
    */
   getSessionId(): string {
     return this.sessionId;
   }
+
+  /**
+   * Get current template
+   */
+  getTemplate() {
+    return this.template;
+  }
+
+  /**
+   * Get quick replies from template
+   */
+  getQuickReplies(): string[] {
+    return this.template.quickReplies;
+  }
 }
 
-// Export business templates for reference
-export const getBusinessTemplate = (businessType: keyof typeof BUSINESS_TEMPLATES) => {
-  return BUSINESS_TEMPLATES[businessType] || BUSINESS_TEMPLATES.support;
+export const getBusinessTemplate = (businessType: ChatbotBusinessType): ChatbotTemplate => {
+  return getTemplateForBusiness(businessType);
 };
 
-export const getAvailableBusinessTypes = () => {
-  return Object.keys(BUSINESS_TEMPLATES);
+export const getAvailableBusinessTypes = (): ChatbotBusinessType[] => {
+  return Object.keys(chatbotTemplates) as ChatbotBusinessType[];
 };

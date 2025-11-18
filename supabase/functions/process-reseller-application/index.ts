@@ -43,7 +43,7 @@ serve(async (req) => {
       .eq('email', email)
       .limit(1);
 
-    let userId = users && users.length > 0 ? users[0].id : null;
+    const userId = users && users.length > 0 ? users[0].id : null;
 
     // If user exists, create reseller record immediately
     if (userId) {

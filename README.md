@@ -113,6 +113,13 @@ This will automatically:
    npm run build
    ```
 
+4. **Configure Environment Variables (once):**
+   ```bash
+   cp .env.example .env
+   ```
+   - Populate Supabase URL and anon key when you're ready to connect to Supabase.
+   - Local development without Supabase is supported; you'll see a console warning until the keys are added.
+
 The app will be available at `http://localhost:8080`
 
 ## 📚 Documentation
@@ -267,6 +274,52 @@ npm run build && npm run preview
 - ✅ CORS configuration ready
 
 ## 🐛 Troubleshooting
+
+### Common Console Errors
+
+**Browser Extension Errors (Can Be Ignored)**
+
+If you see errors like:
+- `utils.js:1 Failed to load resource: net::ERR_FILE_NOT_FOUND`
+- `extensionState.js:1 Failed to load resource: net::ERR_FILE_NOT_FOUND`
+- `heuristicsRedefinitions.js:1 Failed to load resource`
+- `background.js:1 FrameDoesNotExistError`
+
+**These are from browser extensions (not your app)** and can be safely ignored. They're caused by password managers, ad blockers, Grammarly, or similar extensions trying to inject scripts into web pages.
+
+**To reduce these errors:**
+1. Disable browser extensions temporarily
+2. Use incognito/private browsing mode
+3. Or simply ignore them - they don't affect your application
+
+**Tawk.to 400 Error**
+
+Error: `embed.tawk.to/YOUR_TAWK_PROPERTY_ID/YOUR_TAWK_WIDGET_ID:1 Failed to load resource: 400`
+
+**Fix:** The app now validates Tawk.to credentials and won't attempt to load with placeholder values. To enable live chat:
+1. Sign up at https://tawk.to
+2. Get your Property ID and Widget ID
+3. Update `src/components/LiveChat.tsx` with your real IDs
+4. Set `VITE_ENABLE_CHAT_WIDGET=true` in your `.env` file
+
+**Supabase Fetch Errors**
+
+Error: `TypeError: Failed to execute 'fetch' on 'Window': Invalid value`
+
+**Cause:** Supabase credentials are not configured or are invalid placeholders.
+
+**Fix:**
+1. Create a `.env` file from `.env.example`:
+   ```bash
+   cp .env.example .env
+   ```
+2. Add valid Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-actual-anon-key-here
+   ```
+3. Get credentials from https://supabase.com/dashboard
+4. Restart your dev server
 
 **Port Already in Use?**
 - Change port in `vite.config.ts`

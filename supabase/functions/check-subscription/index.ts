@@ -1,30 +1,85 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import {
+  FREE_PLAN,
+  createSubscriptionPayload,
+  getPaidPlanByProductId,
+  roundToTwoDecimals,
+  type PlanConfigBase,
+} from "../_shared/planConfig.ts";
+import { getSupabaseAdminClient, type SupabaseAdminClient } from "../_shared/supabaseClient.ts";
+import type { TablesInsert, TablesUpdate } from "../_shared/database.types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Product IDs mapping
-const PLAN_PRODUCTS: Record<string, string> = {
-  "prod_TNwYO6OpOO87gJ": "starter",
-  "prod_TNwYGAd8TXQ6JS": "professional",
-  "prod_TNwYeZyWmkfzaJ": "executive",
-  "prod_TNwYDv1DDDmiMf": "enterprise",
-};
+type SubscriptionStatus = "active" | "canceled" | "past_due" | "trialing" | "unpaid" | "incomplete" | string;
+
+function getStripeClient(): Stripe {
+  const secretKey = Deno.env.get("STRIPE_SECRET_KEY");
+  if (!secretKey) {
+    throw new Error("Stripe secret key is not configured");
+  }
+  return new Stripe(secretKey, { apiVersion: "2025-08-27.basil" });
+}
+
+async function saveSubscription(
+  supabaseClient: SupabaseAdminClient,
+  userId: string,
+  plan: PlanConfigBase,
+  status: SubscriptionStatus,
+  stripeSubscriptionId: string | null,
+  periodStart: string,
+  periodEnd: string | null
+) {
+  const payload: TablesUpdate<"subscriptions"> = createSubscriptionPayload(plan, {
+    plan: plan.slug,
+    status,
+    stripe_subscription_id: stripeSubscriptionId,
+    started_at: periodStart,
+    expires_at: periodEnd,
+    price: roundToTwoDecimals(plan.priceCents / 100),
+  });
+
+  const { data: existing, error: fetchError } = await supabaseClient
+    .from("subscriptions")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw fetchError;
+  }
+
+  if (existing?.id) {
+    const { error: updateError } = await supabaseClient
+      .from("subscriptions")
+      .update(payload)
+      .eq("id", existing.id);
+
+    if (updateError) {
+      throw updateError;
+    }
+  } else {
+    const insertPayload: TablesInsert<"subscriptions"> = { ...payload, user_id: userId };
+    const { error: insertError } = await supabaseClient
+      .from("subscriptions")
+      .insert(insertPayload);
+
+    if (insertError) {
+      throw insertError;
+    }
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    { auth: { persistSession: false } }
-  );
+  const supabaseClient = getSupabaseAdminClient();
 
   try {
     const authHeader = req.headers.get("Authorization");
@@ -34,25 +89,23 @@ serve(async (req) => {
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    
+
     if (userError || !userData.user?.email) {
       throw new Error("User not authenticated");
     }
 
     const user = userData.user;
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
-    });
+    const stripe = getStripeClient();
 
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    
+
     if (customers.data.length === 0) {
       return new Response(
-        JSON.stringify({ subscribed: false, plan: "free" }),
+        JSON.stringify({ subscribed: false, plan: FREE_PLAN.slug }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
-        }
+        },
       );
     }
 
@@ -65,53 +118,42 @@ serve(async (req) => {
 
     if (subscriptions.data.length === 0) {
       return new Response(
-        JSON.stringify({ subscribed: false, plan: "free" }),
+        JSON.stringify({ subscribed: false, plan: FREE_PLAN.slug }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,
-        }
+        },
       );
     }
 
     const subscription = subscriptions.data[0];
-    const productId = subscription.items.data[0].price.product as string;
-    const plan = PLAN_PRODUCTS[productId] || "unknown";
+    const productId = subscription.items.data[0].price.product as string | null;
+    const planDetails = getPaidPlanByProductId(productId ?? undefined) ?? FREE_PLAN;
+    const plan = planDetails.slug;
     const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+    const periodStart = new Date(subscription.current_period_start * 1000).toISOString();
 
-    // Update user's subscription in database
-    const planConfig: Record<string, { bots_limit: number; conversations_limit: number }> = {
-      starter: { bots_limit: 3, conversations_limit: 750 },
-      professional: { bots_limit: 5, conversations_limit: 5000 },
-      executive: { bots_limit: 10, conversations_limit: 15000 },
-      enterprise: { bots_limit: 999, conversations_limit: 50000 },
+    const userUpdates: TablesUpdate<"users"> = {
+      plan,
+      bots_limit: planDetails.botsLimit,
+      conversations_limit: planDetails.conversationsLimit,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: customerId,
+      subscription_status: subscription.status,
+      current_period_end: subscriptionEnd,
     };
 
-    const config = planConfig[plan] || { bots_limit: 1, conversations_limit: 60 };
+    await supabaseClient.from("users").update(userUpdates).eq("id", user.id);
 
-    await supabaseClient
-      .from("users")
-      .update({
-        plan,
-        bots_limit: config.bots_limit,
-        conversations_limit: config.conversations_limit,
-      })
-      .eq("id", user.id);
-
-    await supabaseClient
-      .from("subscriptions")
-      .upsert({
-        user_id: user.id,
-        plan,
-        price: subscription.items.data[0].price.unit_amount! / 100,
-        bots_limit: config.bots_limit,
-        conversations_limit: config.conversations_limit,
-        status: "active",
-        stripe_subscription_id: subscription.id,
-        started_at: new Date(subscription.created * 1000).toISOString(),
-        expires_at: subscriptionEnd,
-      }, {
-        onConflict: "user_id",
-      });
+    await saveSubscription(
+      supabaseClient,
+      user.id,
+      planDetails,
+      subscription.status,
+      subscription.id,
+      periodStart,
+      subscriptionEnd,
+    );
 
     return new Response(
       JSON.stringify({
@@ -122,7 +164,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
-      }
+      },
     );
   } catch (error) {
     console.error("Check subscription error:", error);
@@ -131,7 +173,7 @@ serve(async (req) => {
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
-      }
+      },
     );
   }
 });

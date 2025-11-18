@@ -102,7 +102,7 @@ npm install
 ```
 
 ### 2. Set Up Database
-1. Go to Supabase SQL Editor: https://iobjmdcxhinnumxzbmnc.supabase.co
+1. Go to Supabase SQL Editor: https://<your-project-ref>.supabase.co
 2. Run the SQL script from `supabase-setup.sql`
 3. Verify tables are created in Table Editor
 

@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import TrustBadges from "@/components/TrustBadges";
 import Features from "@/components/Features";
 import UseCases from "@/components/UseCases";
+import BusinessTemplates from "@/components/BusinessTemplates";
 import Testimonials from "@/components/Testimonials";
 import Integrations from "@/components/Integrations";
 import Pricing from "@/components/Pricing";
@@ -24,6 +25,7 @@ const Index = () => {
           <TrustBadges />
           <Features />
           <UseCases />
+          <BusinessTemplates />
           <Testimonials />
           <Integrations />
           <Pricing />

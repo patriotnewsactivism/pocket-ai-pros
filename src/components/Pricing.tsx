@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const pricingPlans = [
   {
@@ -94,24 +95,25 @@ const pricingPlans = [
 
 const Pricing = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleSubscribe = async (planName: string) => {
     if (planName === "Free") {
-      window.location.href = "/auth";
+      navigate("/auth");
       return;
     }
 
     setLoading(planName);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         toast({
           title: "Authentication Required",
           description: "Please sign in to subscribe to a plan.",
         });
-        window.location.href = "/auth";
+        navigate("/auth");
         return;
       }
 
@@ -144,7 +146,7 @@ const Pricing = () => {
             Simple, Transparent
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Pricing</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-foreground/80 max-w-2xl mx-auto font-medium">
             Choose the perfect plan for your needs. All plans include GPT-4o-mini for cost-effective AI power.
           </p>
         </div>
@@ -175,7 +177,7 @@ const Pricing = () => {
                   <CardDescription className="text-base">{plan.description}</CardDescription>
                   <div className="mt-6">
                     <span className="text-5xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-muted-foreground">/month</span>
+                    <span className="text-foreground/70 font-medium">/month</span>
                   </div>
                 </CardHeader>
 
@@ -209,7 +211,7 @@ const Pricing = () => {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-muted-foreground">
+          <p className="text-foreground/75 font-medium">
             All plans include a 14-day free trial. No credit card required.
           </p>
         </div>
