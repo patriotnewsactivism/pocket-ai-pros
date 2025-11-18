@@ -70,7 +70,11 @@ const TemplateShowcase = () => {
                   </ul>
                 </div>
 
-                <Button className="w-full" variant="secondary">
+                <Button
+                  className="w-full"
+                  variant="secondary"
+                  onClick={() => window.location.href = `/get-started?template=${template.id}`}
+                >
                   Deploy {template.name} Template
                 </Button>
               </CardContent>

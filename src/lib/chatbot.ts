@@ -166,17 +166,27 @@ export class Chatbot {
   private async generateResponse(userMessage: string): Promise<string> {
     const messageLower = userMessage.toLowerCase();
 
-    for (const [key, answer] of Object.entries(this.template.knowledgeBase)) {
-      if (messageLower.includes(key)) {
-        return answer;
-      }
-    }
-
+    // Handle pricing questions first with dynamic pricing
     if (messageLower.includes('price') || messageLower.includes('cost') || messageLower.includes('pricing')) {
+      // Use actual template pricing instead of hardcoded knowledge base values
+      const businessTemplate = BUSINESS_TEMPLATES[this.businessType];
+      if (businessTemplate) {
+        const pricingInfo = `We offer ${Object.entries(businessTemplate.pricing)
+          .map(([tier, info]) => `${tier.charAt(0).toUpperCase() + tier.slice(1)} ($${info.price}/mo)`)
+          .join(', ')} plans.`;
+        return pricingInfo;
+      }
       return (
         this.template.knowledgeBase['pricing'] ||
         "I'd be happy to discuss our pricing with you. Would you like me to provide details or connect you with our sales team?"
       );
+    }
+
+    // Check knowledge base for relevant answers (excluding pricing which is handled above)
+    for (const [key, answer] of Object.entries(this.template.knowledgeBase)) {
+      if (key !== 'pricing' && messageLower.includes(key)) {
+        return answer;
+      }
     }
 
     if (messageLower.includes('help') || messageLower.includes('support') || messageLower.includes('assist')) {
@@ -312,10 +322,31 @@ export class Chatbot {
   }
 
   /**
+   * Get conversation history (alias for getHistory)
+   */
+  getConversationHistory(): ChatMessage[] {
+    return this.conversationHistory;
+  }
+
+  /**
    * Get session ID
    */
   getSessionId(): string {
     return this.sessionId;
+  }
+
+  /**
+   * Get current template
+   */
+  getTemplate() {
+    return this.template;
+  }
+
+  /**
+   * Get quick replies from template
+   */
+  getQuickReplies(): string[] {
+    return this.template.quickReplies;
   }
 }
 
