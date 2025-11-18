@@ -214,6 +214,44 @@ const BUSINESS_TEMPLATES = {
   },
 };
 
+export interface HumanizedResponseOptions {
+  baseAnswer: string;
+  userMessage: string;
+  businessName: string;
+  capabilities: string[];
+}
+
+export const createHumanizedResponse = ({
+  baseAnswer,
+  userMessage,
+  businessName,
+  capabilities,
+}: HumanizedResponseOptions): string => {
+  const trimmedAnswer = baseAnswer.trim();
+  const ensuredAnswer = trimmedAnswer
+    ? /[.!?]$/.test(trimmedAnswer)
+      ? trimmedAnswer
+      : `${trimmedAnswer}.`
+    : "Let me double-check that for you.";
+  const hasDetails = Boolean(userMessage.trim());
+  const prefix = hasDetails
+    ? "Thanks for sharing those details—I've got you!"
+    : `Thanks for reaching out to the ${businessName} team!`;
+  const context = hasDetails ? "Here's what I can do:" : "Here's how we can help:";
+  const selectedCapabilities = capabilities.filter(Boolean).slice(0, 3);
+  let capabilitySnippet = "Let me know if there's anything else you need.";
+
+  if (selectedCapabilities.length === 1) {
+    capabilitySnippet = `I can also help with ${selectedCapabilities[0]}, so feel free to ask.`;
+  } else if (selectedCapabilities.length === 2) {
+    capabilitySnippet = `I can also help with ${selectedCapabilities[0]} and ${selectedCapabilities[1]}, so feel free to ask.`;
+  } else if (selectedCapabilities.length === 3) {
+    capabilitySnippet = `I can also help with ${selectedCapabilities[0]}, ${selectedCapabilities[1]}, and ${selectedCapabilities[2]}, so feel free to ask.`;
+  }
+
+  return `${prefix} ${context} ${ensuredAnswer} ${capabilitySnippet}`.replace(/\s+/g, " ").trim();
+};
+
 /**
  * Chatbot class for handling conversations
  */
@@ -315,25 +353,37 @@ export class Chatbot {
    */
   private async generateResponse(userMessage: string): Promise<string> {
     const messageLower = userMessage.toLowerCase();
+    const humanize = (answer: string) =>
+      createHumanizedResponse({
+        baseAnswer: answer,
+        userMessage,
+        businessName: this.template.name,
+        capabilities: this.template.capabilities,
+      });
 
     // Check knowledge base for relevant answers
     for (const [key, answer] of Object.entries(this.template.knowledgeBase)) {
       if (messageLower.includes(key)) {
-        return answer;
+        return humanize(answer);
       }
     }
 
     // Check for common patterns
     if (messageLower.includes('price') || messageLower.includes('cost') || messageLower.includes('pricing')) {
-      return this.template.knowledgeBase['pricing'] || "I'd be happy to discuss our pricing with you. Would you like me to provide details or connect you with our sales team?";
+      return humanize(
+        this.template.knowledgeBase['pricing'] ||
+          "I'd be happy to discuss our pricing with you. Would you like me to provide details or connect you with our sales team?",
+      );
     }
 
     if (messageLower.includes('help') || messageLower.includes('support') || messageLower.includes('assist')) {
-      return `I can help you with: ${this.template.capabilities.join(', ')}. What would you like to know more about?`;
+      return humanize(`I can help you with: ${this.template.capabilities.join(', ')}. What would you like to know more about?`);
     }
 
     if (messageLower.includes('contact') || messageLower.includes('speak') || messageLower.includes('talk')) {
-      return "I'd be happy to connect you with our team! Please provide your email address, and someone will reach out to you shortly.";
+      return humanize(
+        "I'd be happy to connect you with our team! Please provide your email address, and someone will reach out to you shortly.",
+      );
     }
 
     if (messageLower.includes('email') && messageLower.includes('@')) {
@@ -341,7 +391,9 @@ export class Chatbot {
       const emailMatch = userMessage.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
       if (emailMatch) {
         await this.captureLeadEmail(emailMatch[0]);
-        return "Thank you! I've saved your email. Our team will contact you within 24 hours. Is there anything else I can help you with?";
+        return humanize(
+          "Thank you! I've saved your email. Our team will contact you within 24 hours. Is there anything else I can help you with?",
+        );
       }
     }
 
@@ -377,7 +429,9 @@ export class Chatbot {
     }
 
     // Default response
-    return `I understand you're asking about "${userMessage}". While I'd love to help, I might need to connect you with our team for the most accurate information. Would you like me to have someone reach out to you?`;
+    return humanize(
+      `I understand you're asking about "${userMessage}". While I'd love to help, I might need to connect you with our team for the most accurate information. Would you like me to have someone reach out to you?`,
+    );
   }
 
   /**

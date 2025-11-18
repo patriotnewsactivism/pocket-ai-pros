@@ -12,6 +12,10 @@ const createBotSchema = z.object({
     .max(500, "Description must be 500 characters or less.")
     .transform((value) => (value === "" ? undefined : value))
     .optional(),
+  templateId: z
+    .string()
+    .trim()
+    .min(1, "Please choose a starting template for your bot."),
 });
 
 export type CreateBotFormValues = z.infer<typeof createBotSchema>;
