@@ -22,7 +22,8 @@
       "Bash(git check-ignore:*)",
       "WebFetch(domain:buildmybot.app)",
       "Bash(dir:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(gh pr diff:*)"
     ],
     "deny": [],
     "ask": []
