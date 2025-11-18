@@ -54,11 +54,11 @@ const Integrations = () => {
     <section className="py-24 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl lg:text-5xl font-bold">
+          <h2 className="text-4xl lg:text-5xl font-bold text-balance">
             Seamless
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> Integrations</span>
           </h2>
-          <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
             Connect with your favorite tools and platforms in minutes
           </p>
         </div>
@@ -120,21 +120,21 @@ const Integrations = () => {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-card/80 backdrop-blur p-6 rounded-xl border border-border">
-                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">100+</div>
-                <div className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Native Integrations</div>
+              <div className="bg-card/80 backdrop-blur p-6 rounded-xl border border-border min-w-0">
+                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2 leading-tight">100+</div>
+                <div className="text-sm text-muted-foreground">Native Integrations</div>
               </div>
-              <div className="bg-card/80 backdrop-blur p-6 rounded-xl border border-border">
-                <div className="text-3xl sm:text-4xl font-bold text-secondary mb-2">5 min</div>
-                <div className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Average Setup Time</div>
+              <div className="bg-card/80 backdrop-blur p-6 rounded-xl border border-border min-w-0">
+                <div className="text-3xl sm:text-4xl font-bold text-secondary-foreground mb-2 leading-tight">5 min</div>
+                <div className="text-sm text-muted-foreground">Average Setup Time</div>
               </div>
-              <div className="bg-card/80 backdrop-blur p-6 rounded-xl border border-border">
-                <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">∞</div>
-                <div className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">Custom Integrations</div>
+              <div className="bg-card/80 backdrop-blur p-6 rounded-xl border border-border min-w-0">
+                <div className="text-3xl sm:text-4xl font-bold text-accent mb-2 leading-tight">∞</div>
+                <div className="text-sm text-muted-foreground">Custom Integrations</div>
               </div>
-              <div className="bg-card/80 backdrop-blur p-6 rounded-xl border border-border">
-                <div className="text-3xl sm:text-4xl font-bold text-success mb-2">24/7</div>
-                <div className="text-sm font-semibold text-foreground/80 uppercase tracking-wide">API Support</div>
+              <div className="bg-card/80 backdrop-blur p-6 rounded-xl border border-border min-w-0">
+                <div className="text-3xl sm:text-4xl font-bold text-success mb-2 leading-tight">24/7</div>
+                <div className="text-sm text-muted-foreground">API Support</div>
               </div>
             </div>
           </div>
