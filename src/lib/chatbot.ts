@@ -5,6 +5,44 @@
 
 import { supabase } from './supabase';
 import { env } from '@/config/env';
+import { BUSINESS_TEMPLATES, type BusinessTemplate } from '@/templates/business-templates';
+
+type ChatbotBusinessType = keyof typeof BUSINESS_TEMPLATES;
+
+interface ChatbotTemplate {
+  name: string;
+  greeting: string;
+  quickReplies: string[];
+  capabilities: string[];
+  knowledgeBase: Record<string, string>;
+  persona: string;
+  tone: string;
+}
+
+const DEFAULT_BUSINESS_TYPE: ChatbotBusinessType = 'support';
+
+const chatbotTemplates = Object.fromEntries(
+  Object.entries(BUSINESS_TEMPLATES).map(([key, template]) => [
+    key,
+    createChatbotTemplate(template),
+  ]),
+) as Record<ChatbotBusinessType, ChatbotTemplate>;
+
+function createChatbotTemplate(template: BusinessTemplate): ChatbotTemplate {
+  return {
+    name: template.name,
+    greeting: template.chatbot.greeting,
+    quickReplies: template.chatbot.quickReplies,
+    capabilities: template.chatbot.capabilities,
+    knowledgeBase: template.chatbot.knowledgeBase,
+    persona: template.chatbot.persona,
+    tone: template.chatbot.tone,
+  };
+}
+
+const getTemplateForBusiness = (businessType: ChatbotBusinessType): ChatbotTemplate => {
+  return chatbotTemplates[businessType] ?? chatbotTemplates[DEFAULT_BUSINESS_TYPE];
+};
 
 // Chatbot message types
 export interface ChatMessage {
@@ -257,14 +295,14 @@ export const createHumanizedResponse = ({
  */
 export class Chatbot {
   private sessionId: string;
-  private businessType: string;
-  private template: typeof BUSINESS_TEMPLATES[keyof typeof BUSINESS_TEMPLATES];
+  private businessType: ChatbotBusinessType;
+  private template: ChatbotTemplate;
   private conversationHistory: ChatMessage[] = [];
 
-  constructor(businessType: keyof typeof BUSINESS_TEMPLATES = 'support') {
+  constructor(businessType: ChatbotBusinessType = DEFAULT_BUSINESS_TYPE) {
     this.sessionId = this.generateSessionId();
     this.businessType = businessType;
-    this.template = BUSINESS_TEMPLATES[businessType] || BUSINESS_TEMPLATES.support;
+    this.template = getTemplateForBusiness(businessType);
   }
 
   /**
@@ -279,12 +317,14 @@ export class Chatbot {
    */
   async startSession(): Promise<void> {
     try {
-      await supabase.from('chat_sessions').insert([{
-        session_id: this.sessionId,
-        business_type: this.businessType,
-        started_at: new Date().toISOString(),
-        status: 'active',
-      }]);
+      await supabase.from('chat_sessions').insert([
+        {
+          session_id: this.sessionId,
+          business_type: this.businessType,
+          started_at: new Date().toISOString(),
+          status: 'active',
+        },
+      ]);
 
       // Add greeting message
       this.conversationHistory.push({
@@ -321,27 +361,25 @@ export class Chatbot {
    * Process user message and generate response
    */
   async sendMessage(userMessage: string): Promise<ChatMessage> {
-    // Save user message
     const userMsg: ChatMessage = {
       session_id: this.sessionId,
       role: 'user',
       content: userMessage,
       timestamp: new Date().toISOString(),
     };
-    
+
     this.conversationHistory.push(userMsg);
     await this.saveMessage(userMsg);
 
-    // Generate response
     const response = await this.generateResponse(userMessage);
-    
+
     const assistantMsg: ChatMessage = {
       session_id: this.sessionId,
       role: 'assistant',
       content: response,
       timestamp: new Date().toISOString(),
     };
-    
+
     this.conversationHistory.push(assistantMsg);
     await this.saveMessage(assistantMsg);
 
@@ -361,14 +399,12 @@ export class Chatbot {
         capabilities: this.template.capabilities,
       });
 
-    // Check knowledge base for relevant answers
     for (const [key, answer] of Object.entries(this.template.knowledgeBase)) {
       if (messageLower.includes(key)) {
         return humanize(answer);
       }
     }
 
-    // Check for common patterns
     if (messageLower.includes('price') || messageLower.includes('cost') || messageLower.includes('pricing')) {
       return humanize(
         this.template.knowledgeBase['pricing'] ||
@@ -387,7 +423,6 @@ export class Chatbot {
     }
 
     if (messageLower.includes('email') && messageLower.includes('@')) {
-      // Extract email and save lead
       const emailMatch = userMessage.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
       if (emailMatch) {
         await this.captureLeadEmail(emailMatch[0]);
@@ -412,6 +447,8 @@ export class Chatbot {
               capabilities: this.template.capabilities,
               knowledgeBase: this.template.knowledgeBase,
               greeting: this.template.greeting,
+              persona: this.template.persona,
+              tone: this.template.tone,
             },
           },
         });
@@ -439,13 +476,15 @@ export class Chatbot {
    */
   private async saveMessage(message: ChatMessage): Promise<void> {
     try {
-      await supabase.from('chat_messages').insert([{
-        session_id: message.session_id,
-        role: message.role,
-        content: message.content,
-        timestamp: message.timestamp,
-        metadata: message.metadata,
-      }]);
+      await supabase.from('chat_messages').insert([
+        {
+          session_id: message.session_id,
+          role: message.role,
+          content: message.content,
+          timestamp: message.timestamp,
+          metadata: message.metadata,
+        },
+      ]);
     } catch (error) {
       console.error('Error saving message:', error);
     }
@@ -456,12 +495,14 @@ export class Chatbot {
    */
   private async captureLeadEmail(email: string): Promise<void> {
     try {
-      await supabase.from('chat_leads').insert([{
-        session_id: this.sessionId,
-        email,
-        business_type: this.businessType,
-        captured_at: new Date().toISOString(),
-      }]);
+      await supabase.from('chat_leads').insert([
+        {
+          session_id: this.sessionId,
+          email,
+          business_type: this.businessType,
+          captured_at: new Date().toISOString(),
+        },
+      ]);
     } catch (error) {
       console.error('Error capturing lead:', error);
     }
@@ -472,7 +513,8 @@ export class Chatbot {
    */
   async updateVisitorInfo(name: string, email: string): Promise<void> {
     try {
-      await supabase.from('chat_sessions')
+      await supabase
+        .from('chat_sessions')
         .update({
           visitor_name: name,
           visitor_email: email,
@@ -490,7 +532,8 @@ export class Chatbot {
    */
   async closeSession(): Promise<void> {
     try {
-      await supabase.from('chat_sessions')
+      await supabase
+        .from('chat_sessions')
         .update({
           status: 'closed',
           last_message_at: new Date().toISOString(),
@@ -516,11 +559,10 @@ export class Chatbot {
   }
 }
 
-// Export business templates for reference
-export const getBusinessTemplate = (businessType: keyof typeof BUSINESS_TEMPLATES) => {
-  return BUSINESS_TEMPLATES[businessType] || BUSINESS_TEMPLATES.support;
+export const getBusinessTemplate = (businessType: ChatbotBusinessType): ChatbotTemplate => {
+  return getTemplateForBusiness(businessType);
 };
 
-export const getAvailableBusinessTypes = () => {
-  return Object.keys(BUSINESS_TEMPLATES);
+export const getAvailableBusinessTypes = (): ChatbotBusinessType[] => {
+  return Object.keys(chatbotTemplates) as ChatbotBusinessType[];
 };
