@@ -55,10 +55,14 @@ export interface BusinessTemplate {
     enabled: boolean;
     greeting: string;
     quickReplies: string[];
+    persona: string;
+    tone: string;
+    capabilities: string[];
+    knowledgeBase: Record<string, string>;
   };
 }
 
-export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
+export const BUSINESS_TEMPLATES = {
   ecommerce: {
     id: 'ecommerce',
     name: 'E-Commerce Store',
@@ -169,6 +173,21 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       enabled: true,
       greeting: "👋 Hi! I'm here to help you find the perfect products. How can I assist you today?",
       quickReplies: ['Track my order', 'Return policy', 'Product recommendations', 'Shipping info'],
+      persona: 'Friendly retail specialist',
+      tone: 'Warm, upbeat, and conversational with a focus on solving problems quickly.',
+      capabilities: [
+        'Product recommendations',
+        'Order tracking',
+        'Shipping information',
+        'Returns and refunds',
+        'Payment assistance',
+      ],
+      knowledgeBase: {
+        shipping: 'We offer free shipping on orders over $50. Standard shipping takes 3-5 business days.',
+        returns: 'We accept returns within 30 days of purchase. Items must be unused and in original packaging.',
+        payment: 'We accept all major credit cards, PayPal, and Apple Pay.',
+        tracking: 'You can track your order using the tracking number sent to your email.',
+      },
     },
   },
 
@@ -282,6 +301,21 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       enabled: true,
       greeting: "👋 Welcome! I'm your product assistant. How can I help you get the most out of our platform?",
       quickReplies: ['Getting started', 'Pricing & billing', 'API docs', 'Feature request'],
+      persona: 'Calm and knowledgeable SaaS success manager',
+      tone: 'Professional, encouraging, and proactive about helping users win.',
+      capabilities: [
+        'Account setup',
+        'Feature explanations',
+        'Billing questions',
+        'Integration help',
+        'Technical support',
+      ],
+      knowledgeBase: {
+        pricing: 'We offer Starter ($29/mo), Professional ($99/mo), and Enterprise ($299/mo) plans.',
+        trial: 'Yes! We offer a 14-day free trial with full access to all features.',
+        cancel: 'You can cancel anytime from your account settings. No cancellation fees.',
+        support: '24/7 support via chat, email support@company.com, or phone +1-555-0123.',
+      },
     },
   },
 
@@ -395,6 +429,21 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       enabled: true,
       greeting: "👋 Hi! Looking for your dream property? I'm here to help you find it!",
       quickReplies: ['Search properties', 'Schedule viewing', 'Mortgage info', 'Contact agent'],
+      persona: 'Trusted local real estate advisor',
+      tone: 'Enthusiastic, detail-oriented, and focused on moving deals forward.',
+      capabilities: [
+        'Property search',
+        'Scheduling viewings',
+        'Mortgage information',
+        'Neighborhood details',
+        'Agent contact',
+      ],
+      knowledgeBase: {
+        viewing: 'I can schedule a property viewing for you. What property are you interested in?',
+        mortgage: 'We work with trusted mortgage brokers who can help you get pre-approved.',
+        commission: 'Our standard commission is 3% for sellers and we offer buyer rebates.',
+        areas: 'We cover downtown, suburbs, and surrounding areas. Which area interests you?',
+      },
     },
   },
 
@@ -508,6 +557,21 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       enabled: true,
       greeting: "👋 Hello! I'm here to help you with appointments and general inquiries. How can I assist you?",
       quickReplies: ['Book appointment', 'Insurance info', 'Office hours', 'Test results'],
+      persona: 'Compassionate patient care coordinator',
+      tone: 'Empathetic, calm, and precise with next steps.',
+      capabilities: [
+        'Appointment scheduling',
+        'Insurance questions',
+        'Service information',
+        'Location and hours',
+        'Emergency guidance',
+      ],
+      knowledgeBase: {
+        appointment: 'I can help you book an appointment. Which service do you need?',
+        insurance: 'We accept most major insurance plans. Please call to verify your specific plan.',
+        hours: 'We are open Monday-Friday 8am-6pm, Saturday 9am-2pm.',
+        emergency: 'For medical emergencies, please call 911 or visit the nearest ER immediately.',
+      },
     },
   },
 
@@ -621,6 +685,21 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       enabled: true,
       greeting: "👋 Welcome! Ready to start your learning journey? I'm here to help!",
       quickReplies: ['Browse courses', 'Enrollment help', 'Technical support', 'Study tips'],
+      persona: 'Encouraging student success coach',
+      tone: 'Motivating, friendly, and focused on clarity.',
+      capabilities: [
+        'Course information',
+        'Enrollment assistance',
+        'Pricing and scholarships',
+        'Schedule information',
+        'Technical support',
+      ],
+      knowledgeBase: {
+        courses: 'We offer courses in business, technology, design, and more. What interests you?',
+        pricing: 'Course prices range from $99-$999. We also offer payment plans.',
+        enrollment: 'You can enroll online instantly. Courses start every month.',
+        certificate: 'Yes, you receive a certificate of completion for all finished courses.',
+      },
     },
   },
 
@@ -734,6 +813,21 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       enabled: true,
       greeting: "👋 Welcome! Planning your stay? I'm here to make your experience perfect!",
       quickReplies: ['Make reservation', 'Room service', 'Local recommendations', 'Amenities'],
+      persona: 'Attentive concierge with impeccable manners',
+      tone: 'Polished, service-oriented, and proactive about delighting guests.',
+      capabilities: [
+        'Booking assistance',
+        'Room information',
+        'Amenities details',
+        'Local recommendations',
+        'Special requests',
+      ],
+      knowledgeBase: {
+        booking: 'I can help you book a room. What dates are you looking for?',
+        rooms: 'We offer Standard, Deluxe, and Suite rooms with various amenities.',
+        amenities: 'Free WiFi, pool, gym, restaurant, room service, and parking included.',
+        cancellation: 'Free cancellation up to 24 hours before check-in.',
+      },
     },
   },
 
@@ -847,6 +941,21 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       enabled: true,
       greeting: "👋 Hello! I'm here to help with your financial questions and services.",
       quickReplies: ['Check balance', 'Transfer funds', 'Apply for loan', 'Speak to advisor'],
+      persona: 'Trusted financial concierge',
+      tone: 'Reassuring, precise, and compliant with regulations.',
+      capabilities: [
+        'Account information',
+        'Service details',
+        'Application process guidance',
+        'Rates and fees',
+        'Appointment scheduling',
+      ],
+      knowledgeBase: {
+        accounts: 'We offer checking, savings, and investment accounts tailored to your needs.',
+        rates: 'Current rates: Savings 2.5% APY, CDs up to 4.5% APY. Rates subject to change.',
+        fees: 'Many accounts have no monthly fees. See our fee schedule for details.',
+        secure: 'FDIC insured up to $250,000. We use bank-level encryption.',
+      },
     },
   },
 
@@ -960,9 +1069,24 @@ export const BUSINESS_TEMPLATES: Record<string, BusinessTemplate> = {
       enabled: true,
       greeting: "👋 Hi! I'm your support assistant. How can I help you today?",
       quickReplies: ['Get help', 'Contact support', 'View docs', 'Report issue'],
+      persona: 'Always-on customer champion',
+      tone: 'Empathetic, energetic, and confident in finding solutions.',
+      capabilities: [
+        'General questions',
+        'Technical support',
+        'Account help',
+        'Product information',
+        'Contact routing',
+      ],
+      knowledgeBase: {
+        help: 'I can assist with general questions. What do you need help with?',
+        technical: 'For technical issues, please describe the problem you are experiencing.',
+        account: 'For account assistance, I can help or connect you with our team.',
+        hours: 'Our support team is available 24/7 via chat, or Monday-Friday 9am-5pm by phone.',
+      },
     },
   },
-};
+} as const satisfies Record<string, BusinessTemplate>;
 
 export const getTemplate = (templateId: string): BusinessTemplate => {
   return BUSINESS_TEMPLATES[templateId] || BUSINESS_TEMPLATES.support;
