@@ -244,7 +244,7 @@ export default function Refund() {
         <div className="mt-12 pt-8 border-t bg-blue-50 p-6 rounded-lg">
           <h3 className="text-xl font-semibold mb-3">📞 Need Help?</h3>
           <p className="text-gray-700 mb-4">
-            Before requesting a refund, let us help you! Our support team is here to resolve any issues you 
+            Before requesting a refund, let us help you! Our support team is here to resolve any issues you
             may be experiencing. Contact us at{' '}
             <a href="mailto:support@buildmybot.app" className="text-primary hover:underline font-semibold">
               support@buildmybot.app

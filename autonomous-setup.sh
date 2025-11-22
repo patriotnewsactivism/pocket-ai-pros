@@ -123,7 +123,7 @@ VITE_APP_ENV=production
 # Business Configuration
 VITE_BUSINESS_TYPE=support
 VITE_BUSINESS_NAME=BuildMyBot
-VITE_BUSINESS_DOMAIN=buildmybot.ai
+VITE_BUSINESS_DOMAIN=buildmybot.app
 EOF
     echo -e "${GREEN}✓ Created .env file${NC}"
 else
@@ -357,7 +357,7 @@ Your chatbot is configured for **${BUSINESS_TYPE}** with:
 
 ## 📞 Support
 
-- Email: support@buildmybot.ai
+- Email: support@buildmybot.app
 - Documentation: README.md
 - Business Ready Guide: BUSINESS_READY.md
 - Database Setup: DATABASE_SETUP.md

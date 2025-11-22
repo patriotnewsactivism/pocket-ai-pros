@@ -46,7 +46,7 @@
 
 **Domain (30 minutes)**
 ```bash
-1. Buy domain: buildmybot.ai (or your choice)
+1. Buy domain: buildmybot.app (or your choice)
 2. Enable privacy protection
 ```
 

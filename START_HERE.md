@@ -267,8 +267,8 @@ vercel deploy --prod
 - **How to deploy?** Run `./deploy.sh production`
 
 ### Support:
-- **Email:** support@buildmybot.ai
-- **Docs:** https://docs.buildmybot.ai
+- **Email:** support@buildmybot.app
+- **Docs:** https://docs.buildmybot.app
 
 ---
 

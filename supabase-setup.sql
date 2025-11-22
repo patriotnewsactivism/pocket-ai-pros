@@ -220,19 +220,19 @@ CREATE POLICY "Anyone can view business templates" ON business_templates
 
 -- Insert sample data for testing (optional - remove in production)
 INSERT INTO users (name, email, company, plan, status) VALUES
-('Demo User', 'demo@buildmybot.ai', 'Demo Company', 'professional', 'active')
+('Demo User', 'demo@buildmybot.app', 'Demo Company', 'professional', 'active')
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO bots (user_id, name, description, status, total_messages) VALUES
-((SELECT id FROM users WHERE email = 'demo@buildmybot.ai'), 'Customer Support Bot', 'Handles customer inquiries', 'active', 1250),
-((SELECT id FROM users WHERE email = 'demo@buildmybot.ai'), 'Sales Bot', 'Helps with sales questions', 'active', 850),
-((SELECT id FROM users WHERE email = 'demo@buildmybot.ai'), 'FAQ Bot', 'Answers frequently asked questions', 'active', 670)
+((SELECT id FROM users WHERE email = 'demo@buildmybot.app'), 'Customer Support Bot', 'Handles customer inquiries', 'active', 1250),
+((SELECT id FROM users WHERE email = 'demo@buildmybot.app'), 'Sales Bot', 'Helps with sales questions', 'active', 850),
+((SELECT id FROM users WHERE email = 'demo@buildmybot.app'), 'FAQ Bot', 'Answers frequently asked questions', 'active', 670)
 ON CONFLICT DO NOTHING;
 
 -- Add some sample messages for stats
 INSERT INTO messages (bot_id, user_id, message, response, tokens_used) VALUES
-((SELECT id FROM bots WHERE name = 'Customer Support Bot' LIMIT 1), 
- (SELECT id FROM users WHERE email = 'demo@buildmybot.ai'), 
+((SELECT id FROM bots WHERE name = 'Customer Support Bot' LIMIT 1),
+ (SELECT id FROM users WHERE email = 'demo@buildmybot.app'), 
  'How do I reset my password?', 
  'You can reset your password by clicking on the "Forgot Password" link on the login page.', 
  150)

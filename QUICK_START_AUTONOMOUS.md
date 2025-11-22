@@ -224,7 +224,7 @@ npm run build
 ```
 
 ### Get Support
-- Email: support@buildmybot.ai
+- Email: support@buildmybot.app
 - Full Guide: `AUTONOMOUS_SETUP_GUIDE.md`
 - Business Guide: `BUSINESS_READY.md`
 
