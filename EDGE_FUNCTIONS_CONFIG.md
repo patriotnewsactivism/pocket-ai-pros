@@ -26,7 +26,7 @@ The following Edge Functions need database connectivity:
 | Function Name | Required Variables | Purpose |
 |---------------|-------------------|---------|
 | `process-reseller-application` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Process reseller signups |
-| `bot-chat` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `LOVABLE_API_KEY` | AI chatbot backend |
+| `bot-chat` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY` | AI chatbot backend |
 | `_shared/supabaseClient` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Shared database client |
 
 ### Payment-Related Edge Functions
@@ -42,7 +42,7 @@ The following Edge Functions need database connectivity:
 | Function Name | Required Variables | Purpose |
 |---------------|-------------------|---------|
 | `generate-chat-response` | `OPENAI_API_KEY` | Generate AI chat responses |
-| `bot-chat` | `LOVABLE_API_KEY` (optional) | Enhanced chatbot features |
+| `bot-chat` | `OPENAI_API_KEY` | AI conversation streaming |
 
 ---
 
@@ -73,8 +73,6 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # OpenAI API Key
 OPENAI_API_KEY=sk-proj-...
 
-# Lovable API Key (optional)
-LOVABLE_API_KEY=your-lovable-key
 ```
 
 #### Site Configuration
@@ -108,8 +106,7 @@ PUBLIC_SITE_URL=https://yourdomain.com
    | `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGciOiJIUzI1...` | Settings → API → service_role key |
    | `STRIPE_SECRET_KEY` | `sk_live_...` | https://dashboard.stripe.com/apikeys |
    | `STRIPE_WEBHOOK_SECRET` | `whsec_...` | https://dashboard.stripe.com/webhooks |
-   | `OPENAI_API_KEY` | `sk-proj-...` | https://platform.openai.com/api-keys |
-   | `LOVABLE_API_KEY` | (optional) | Your Lovable account |
+  | `OPENAI_API_KEY` | `sk-proj-...` | https://platform.openai.com/api-keys |
    | `PUBLIC_SITE_URL` | `https://yourdomain.com` | Your production domain |
 
 4. **Click "Save"** after adding each secret
@@ -334,9 +331,7 @@ const REQUIRED_VARS = [
   'PUBLIC_SITE_URL',
 ];
 
-const OPTIONAL_VARS = [
-  'LOVABLE_API_KEY',
-];
+const OPTIONAL_VARS: string[] = [];
 
 console.log('🔍 Validating Edge Function Environment Variables\n');
 
@@ -354,16 +349,18 @@ REQUIRED_VARS.forEach(varName => {
   }
 });
 
-console.log('\nOptional Variables:');
-OPTIONAL_VARS.forEach(varName => {
-  const value = Deno.env.get(varName);
-  if (value) {
-    console.log(`✅ ${varName}: Set`);
-  } else {
-    console.log(`⚠️  ${varName}: Not set (optional)`);
-    missingOptional++;
-  }
-});
+if (OPTIONAL_VARS.length > 0) {
+  console.log('\nOptional Variables:');
+  OPTIONAL_VARS.forEach(varName => {
+    const value = Deno.env.get(varName);
+    if (value) {
+      console.log(`✅ ${varName}: Set`);
+    } else {
+      console.log(`⚠️  ${varName}: Not set (optional)`);
+      missingOptional++;
+    }
+  });
+}
 
 console.log('\n' + '='.repeat(50));
 if (missingRequired > 0) {
@@ -422,7 +419,7 @@ curl -X POST http://localhost:54321/functions/v1/process-reseller-application \
 **Required Variables**:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
-- `LOVABLE_API_KEY` (optional)
+- `OPENAI_API_KEY`
 
 **Test**:
 ```bash

@@ -2,7 +2,7 @@
 
 ## What Changed
 
-The bot-chat Edge Function has been updated to use **OpenAI (gpt-4o-mini)** instead of Lovable AI. This provides:
+The bot-chat Edge Function now runs on **OpenAI (gpt-4o-mini)**. This provides:
 - ✅ More reliable service
 - ✅ Better performance
 - ✅ Cost-effective pricing

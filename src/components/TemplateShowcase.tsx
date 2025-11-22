@@ -2,13 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles, CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { BUSINESS_TEMPLATES } from "@/templates/business-templates";
 
 const templates = Object.values(BUSINESS_TEMPLATES);
 
 const TemplateShowcase = () => {
   return (
-    <section className="py-24 bg-gradient-to-b from-muted/40 to-background" id="templates">
+    <section className="py-24 bg-gradient-to-b from-muted/40 to-background" id="template-showcase">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
@@ -70,12 +71,10 @@ const TemplateShowcase = () => {
                   </ul>
                 </div>
 
-                <Button
-                  className="w-full"
-                  variant="secondary"
-                  onClick={() => window.location.href = `/get-started?template=${template.id}`}
-                >
-                  Deploy {template.name} Template
+                <Button className="w-full" variant="secondary" asChild>
+                  <Link to={`/auth?template=${template.id}`}>
+                    Deploy {template.name} Template
+                  </Link>
                 </Button>
               </CardContent>
             </Card>

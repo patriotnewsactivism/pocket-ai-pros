@@ -4,6 +4,7 @@ import TrustBadges from "@/components/TrustBadges";
 import Features from "@/components/Features";
 import UseCases from "@/components/UseCases";
 import BusinessTemplates from "@/components/BusinessTemplates";
+import TemplateShowcase from "@/components/TemplateShowcase";
 import Testimonials from "@/components/Testimonials";
 import Integrations from "@/components/Integrations";
 import Pricing from "@/components/Pricing";
@@ -12,7 +13,6 @@ import FAQ from "@/components/FAQ";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import { SEO } from "@/components/SEO";
-import { AIChatbot } from "@/components/AIChatbot";
 
 const Index = () => {
   return (
@@ -26,6 +26,7 @@ const Index = () => {
           <Features />
           <UseCases />
           <BusinessTemplates />
+          <TemplateShowcase />
           <Testimonials />
           <Integrations />
           <Pricing />
@@ -34,7 +35,6 @@ const Index = () => {
           <Newsletter />
         </main>
         <Footer />
-        <AIChatbot businessType="support" />
       </div>
     </>
   );

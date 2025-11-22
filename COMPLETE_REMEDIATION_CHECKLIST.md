@@ -197,7 +197,7 @@ git reset HEAD .env
    | `STRIPE_WEBHOOK_SECRET` | `whsec_...` | https://dashboard.stripe.com/webhooks |
    | `OPENAI_API_KEY` | `sk-proj-...` | https://platform.openai.com/api-keys |
    | `PUBLIC_SITE_URL` | `http://localhost:5173` (dev) or `https://yourdomain.com` (prod) | Your site URL |
-   | `LOVABLE_API_KEY` | (optional) | Your Lovable account (if using) |
+   | `OPENAI_API_KEY` | (optional) | Your OpenAI account (if using) |
 
 4. **Click "Save"** after adding all secrets
 

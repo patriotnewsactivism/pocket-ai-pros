@@ -107,8 +107,8 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 # Public Site URL for Stripe redirects
 PUBLIC_SITE_URL=http://localhost:5173
 
-# Lovable API Key (optional)
-LOVABLE_API_KEY=your-lovable-api-key-here
+# OpenAI API Key (optional)
+OPENAI_API_KEY=your-openai-api-key-here
 ```
 
 **Impact**: Clear documentation for deploying Edge Functions

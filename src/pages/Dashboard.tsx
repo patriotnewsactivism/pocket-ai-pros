@@ -169,10 +169,20 @@ export default function Dashboard() {
 
     try {
       const normalizedPlan = plan.toLowerCase();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
+      if (!accessToken) {
+        throw new Error('Unable to confirm your session. Please sign in again.');
+      }
+
       const { data, error } = await supabase.functions.invoke<{ url?: string }>(
         'create-checkout-session',
         {
           body: { plan: normalizedPlan },
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
       );
 

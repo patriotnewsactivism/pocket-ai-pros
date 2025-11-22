@@ -15,7 +15,7 @@ Scanned all Edge Functions to identify required environment variables:
 | Edge Function | Environment Variables Used |
 |---------------|---------------------------|
 | `process-reseller-application` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
-| `bot-chat` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `LOVABLE_API_KEY` |
+| `bot-chat` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY` |
 | `_shared/supabaseClient` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
 | `create-checkout-session` | `STRIPE_SECRET_KEY`, `PUBLIC_SITE_URL` |
 | `check-subscription` | `STRIPE_SECRET_KEY` |
@@ -25,19 +25,19 @@ Scanned all Edge Functions to identify required environment variables:
 **Previously Missing from `.env.example`**:
 - ❌ `SUPABASE_URL` (server-side, non-VITE)
 - ❌ `SUPABASE_SERVICE_ROLE_KEY`
-- ❌ `LOVABLE_API_KEY`
+- ❌ `OPENAI_API_KEY`
 - ❌ `PUBLIC_SITE_URL`
 
 ---
 
 ## 📝 Changes Made to `.env.example`
 
-### Addition 1: Lovable API Key (Line 68-70)
+### Addition 1: OpenAI API Key (Line 68-70)
 
 ```env
-# Lovable API Key (for bot-chat Edge Function)
-# Optional: Only needed if using Lovable API integration in chatbot
-LOVABLE_API_KEY=your-lovable-api-key-here
+# OpenAI API Key (for bot-chat Edge Function)
+# Optional: Only needed if using OpenAI integration in chatbot
+OPENAI_API_KEY=your-openai-api-key-here
 ```
 
 **Purpose**: Used by `bot-chat` Edge Function for enhanced AI features
@@ -174,7 +174,7 @@ Comprehensive guide covering:
       - SUPABASE_URL: https://mnklzzundmfwjnfaoqju.supabase.co
       - SUPABASE_SERVICE_ROLE_KEY: <get from Settings → API>
       - PUBLIC_SITE_URL: http://localhost:5173 (or production URL)
-      - LOVABLE_API_KEY: <your key if using>
+      - OPENAI_API_KEY: <your key if using>
    4. Click "Save"
    ```
 
@@ -184,7 +184,7 @@ Comprehensive guide covering:
    SUPABASE_URL=https://mnklzzundmfwjnfaoqju.supabase.co
    SUPABASE_SERVICE_ROLE_KEY=<your-actual-service-role-key>
    PUBLIC_SITE_URL=http://localhost:5173
-   LOVABLE_API_KEY=<optional>
+   OPENAI_API_KEY=<optional>
    ```
 
 3. **Test Edge Function Locally** (10 minutes):
@@ -216,7 +216,7 @@ Confirm all items before proceeding:
 
 - [ ] `.env.example` now includes `SUPABASE_URL` (server-side)
 - [ ] `.env.example` now includes `SUPABASE_SERVICE_ROLE_KEY` with security warnings
-- [ ] `.env.example` now includes `LOVABLE_API_KEY` (optional)
+- [ ] `.env.example` now includes `OPENAI_API_KEY` (optional)
 - [ ] `.env.example` now includes `PUBLIC_SITE_URL`
 - [ ] Security warnings are clear and prominent
 - [ ] Configuration steps are documented

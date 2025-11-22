@@ -6,10 +6,10 @@ Complete checklist for deploying BuildMyBot to production with enterprise-grade 
 
 ### 1. Database Setup (REQUIRED)
 
-Execute these SQL migrations in order via Lovable Cloud Dashboard:
+Execute these SQL migrations in order via BuildMyBot Control Center:
 
 ```bash
-# Open the Lovable Cloud Dashboard
+# Open the BuildMyBot Control Center
 # Navigate to: Database → SQL Editor
 ```
 
@@ -32,16 +32,16 @@ WHERE table_schema = 'public';
 
 #### A. Configure Email Confirmation
 
-1. Open Lovable Cloud Dashboard
+1. Open BuildMyBot Control Center
 2. Navigate to: Authentication → Email Templates
 3. Enable "Confirm Email" for new signups
 4. Customize email templates with your branding
 
 #### B. Set Redirect URLs
 
-The Site URL and Redirect URLs are auto-configured by Lovable Cloud. To update:
+The Site URL and Redirect URLs are auto-configured by BuildMyBot Control Center. To update:
 
-1. Open Lovable Cloud Dashboard
+1. Open BuildMyBot Control Center
 2. Go to: Authentication → URL Configuration
 3. Set Site URL to your deployed domain (e.g., `https://buildmybot.ai`)
 4. Add redirect URLs:
@@ -146,7 +146,7 @@ Sentry is already integrated and will automatically:
 
 **Frontend (.env for production):**
 ```bash
-# Supabase (Auto-configured by Lovable Cloud)
+# Supabase (Auto-configured by BuildMyBot Control Center)
 VITE_SUPABASE_URL=https://fjbwmpyfnhmndzkdsvfi.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJI...
 
@@ -160,7 +160,7 @@ VITE_SENTRY_DSN=https://xxxxx@xxxxx.ingest.sentry.io/xxxxx
 VITE_BUSINESS_TYPE=support
 ```
 
-**Backend (Supabase Secrets - via Lovable Cloud Dashboard):**
+**Backend (Supabase Secrets - via BuildMyBot Control Center):**
 ```bash
 STRIPE_SECRET_KEY=sk_live_xxxxxxxxxxxxx
 STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx
@@ -169,7 +169,7 @@ STRIPE_PRICE_PROFESSIONAL=price_xxxxxxxxxxxxx
 STRIPE_PRICE_EXECUTIVE=price_xxxxxxxxxxxxx
 STRIPE_PRICE_ENTERPRISE=price_xxxxxxxxxxxxx
 RESEND_API_KEY=re_xxxxxxxxxxxxx
-LOVABLE_API_KEY=(Already configured)
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
 ```
 
 ## Testing Before Launch
@@ -227,9 +227,9 @@ Use tools like Artillery or k6 to test:
 
 ## Deployment
 
-### Option 1: Deploy via Lovable (Recommended)
+### Option 1: Deploy via BuildMyBot Control Center (Recommended)
 
-1. Click "Publish" button in Lovable
+1. Click "Publish" button in the BuildMyBot Control Center
 2. Review changes
 3. Click "Update" to deploy
 4. Test production URL
@@ -359,7 +359,7 @@ Set up monitoring for:
 ### Common Issues
 
 **Authentication redirect errors:**
-- Verify Site URL and Redirect URLs in Lovable Cloud Dashboard
+- Verify Site URL and Redirect URLs in BuildMyBot Control Center
 - Check email confirmation is enabled
 - Ensure CORS headers are configured
 
@@ -410,7 +410,7 @@ Your application is production-ready when:
 
 ## Need Help?
 
-- Lovable Docs: https://docs.lovable.dev
+- BuildMyBot Docs: https://docs.buildmybot.ai
 - Supabase Docs: https://supabase.com/docs
 - Stripe Docs: https://stripe.com/docs
 - Sentry Docs: https://docs.sentry.io

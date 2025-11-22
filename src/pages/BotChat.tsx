@@ -64,6 +64,15 @@ export default function BotChat() {
   const sendMessage = async () => {
     if (!input.trim() || !bot || isLoading) return;
 
+    if (!env.supabaseUrl || !env.supabaseAnonKey) {
+      toast({
+        title: 'Configuration error',
+        description: 'Supabase credentials are missing. Please update your environment variables.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const userMessage: Message = { role: 'user', content: input };
     const messageContent = input; // Save the message before clearing input
     setMessages(prev => [...prev, userMessage]);
@@ -86,7 +95,8 @@ export default function BotChat() {
 
     try {
       console.log('[BotChat] Sending message to bot-chat function...');
-      const CHAT_URL = `${env.supabaseUrl}/functions/v1/bot-chat`;
+      const sanitizedBase = env.supabaseUrl.replace(/\/+$/, '');
+      const CHAT_URL = `${sanitizedBase}/functions/v1/bot-chat`;
 
       // Build request body - only include conversationId if it exists
       const requestBody: {
@@ -114,6 +124,7 @@ export default function BotChat() {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${env.supabaseAnonKey}`,
+          apikey: env.supabaseAnonKey,
         },
         body: JSON.stringify(requestBody),
       });
@@ -278,11 +289,17 @@ export default function BotChat() {
                     className={`max-w-[80%] ${
                       msg.role === 'user'
                         ? 'bg-primary text-primary-foreground'
-                        : 'bg-card border-2'
+                        : 'bg-card border-2 text-foreground'
                     }`}
                   >
                     <CardContent className="p-3">
-                      <p className="whitespace-pre-wrap break-words text-foreground">{msg.content}</p>
+                      <p
+                        className={`whitespace-pre-wrap break-words ${
+                          msg.role === 'user' ? 'text-primary-foreground' : 'text-foreground'
+                        }`}
+                      >
+                        {msg.content}
+                      </p>
                     </CardContent>
                   </Card>
                 </div>

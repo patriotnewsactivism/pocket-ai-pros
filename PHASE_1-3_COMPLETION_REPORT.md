@@ -11,7 +11,7 @@ Your BuildMyBot SaaS platform is now **95% production-ready** with fully functio
 - ✅ **Business Users** - Create and manage AI chatbots
 - ✅ **Resellers/Affiliates** - Earn commissions and request payouts
 - ✅ **Payment Processing** - Stripe subscriptions with webhooks
-- ✅ **AI Integration** - Lovable AI with Gemini 2.5 Flash
+- ✅ **AI Integration** - OpenAI GPT-4o-mini with Gemini 2.5 Flash
 
 **Estimated Time to Production:** 4-6 hours (remaining tasks in Phase 4)
 
@@ -21,15 +21,15 @@ Your BuildMyBot SaaS platform is now **95% production-ready** with fully functio
 
 ### 1.1 Build System Fixed
 **File:** `vite.config.ts`
-- **Issue:** `lovable-tagger` package import causing production build failures
+- **Issue:** `component-tagger` package import causing production build failures
 - **Solution:** Dynamic import only in development mode
 - **Result:** Production builds now succeed (10.64s build time)
 
 ```typescript
-// Only import lovable-tagger in development mode
+// Only import component-tagger in development mode
 const plugins = [react()];
 if (mode === 'development') {
-  const { componentTagger } = await import("lovable-tagger");
+  const { componentTagger } = await import("component-tagger");
   plugins.push(componentTagger());
 }
 ```
@@ -60,7 +60,7 @@ if (mode === 'development') {
 ## ✅ Phase 2: Business User Experience - COMPLETE
 
 ### 2.1 AI Integration - Production Ready
-**Technology:** Lovable AI Gateway with Gemini 2.5 Flash
+**Technology:** OpenAI GPT-4o-mini Gateway with Gemini 2.5 Flash
 
 **Features:**
 - ✅ 8 industry-specific bot templates (e-commerce, SaaS, healthcare, etc.)
@@ -79,7 +79,7 @@ if (mode === 'development') {
 
 **Configuration Required:**
 ```env
-LOVABLE_API_KEY=your_lovable_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ### 2.2 Bot Management - Production Ready
@@ -293,7 +293,7 @@ STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
 # AI Integration (Critical)
-LOVABLE_API_KEY=your_lovable_api_key
+OPENAI_API_KEY=your_openai_api_key
 
 # Email (Important)
 SENDGRID_API_KEY=SG...
@@ -449,7 +449,7 @@ src/components/PayoutHistory.tsx (180 lines)
 
 ### Modified Files
 ```
-vite.config.ts - Fixed lovable-tagger import
+vite.config.ts - Fixed component-tagger import
 src/config/env.test.ts - Fixed test isolation
 src/pages/__tests__/Auth.test.tsx - Fixed test selectors
 src/pages/ResellerDashboard.tsx - Added payout UI (+88 lines)
