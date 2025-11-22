@@ -64,6 +64,18 @@ export interface ChatSession {
   status: 'active' | 'closed' | 'transferred';
 }
 
+type ChatSessionAction =
+  | 'start_session'
+  | 'log_message'
+  | 'capture_lead'
+  | 'update_visitor'
+  | 'close_session';
+
+interface ChatSessionFunctionResponse {
+  success: boolean;
+  error?: string;
+}
+
 // Business-specific chatbot configurations
 const BUSINESS_TEMPLATES = {
   ecommerce: {
@@ -312,19 +324,38 @@ export class Chatbot {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
+  private async dispatchSessionAction(action: ChatSessionAction, payload: Record<string, unknown>): Promise<void> {
+    try {
+      const { data, error } = await supabase.functions.invoke<ChatSessionFunctionResponse>('chat-session', {
+        body: {
+          action,
+          payload,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Chat session request failed');
+      }
+    } catch (error) {
+      console.error(`[chatbot] Failed to dispatch ${action}:`, error);
+      throw error;
+    }
+  }
+
   /**
    * Initialize new chat session
    */
   async startSession(): Promise<void> {
     try {
-      await supabase.from('chat_sessions').insert([
-        {
-          session_id: this.sessionId,
-          business_type: this.businessType,
-          started_at: new Date().toISOString(),
-          status: 'active',
-        },
-      ]);
+      await this.dispatchSessionAction('start_session', {
+        sessionId: this.sessionId,
+        businessType: this.businessType,
+        startedAt: new Date().toISOString(),
+      });
 
       // Add greeting message
       this.conversationHistory.push({
@@ -498,15 +529,13 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
    */
   private async saveMessage(message: ChatMessage): Promise<void> {
     try {
-      await supabase.from('chat_messages').insert([
-        {
-          session_id: message.session_id,
-          role: message.role,
-          content: message.content,
-          timestamp: message.timestamp,
-          metadata: message.metadata,
-        },
-      ]);
+      await this.dispatchSessionAction('log_message', {
+        sessionId: message.session_id,
+        role: message.role,
+        content: message.content,
+        timestamp: message.timestamp,
+        metadata: message.metadata,
+      });
     } catch (error) {
       console.error('Error saving message:', error);
     }
@@ -517,14 +546,12 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
    */
   private async captureLeadEmail(email: string): Promise<void> {
     try {
-      await supabase.from('chat_leads').insert([
-        {
-          session_id: this.sessionId,
-          email,
-          business_type: this.businessType,
-          captured_at: new Date().toISOString(),
-        },
-      ]);
+      await this.dispatchSessionAction('capture_lead', {
+        sessionId: this.sessionId,
+        email,
+        businessType: this.businessType,
+        capturedAt: new Date().toISOString(),
+      });
     } catch (error) {
       console.error('Error capturing lead:', error);
     }
@@ -535,13 +562,12 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
    */
   async updateVisitorInfo(name: string, email: string): Promise<void> {
     try {
-      await supabase
-        .from('chat_sessions')
-        .update({
-          visitor_name: name,
-          visitor_email: email,
-        })
-        .eq('session_id', this.sessionId);
+      await this.dispatchSessionAction('update_visitor', {
+        sessionId: this.sessionId,
+        visitorName: name,
+        visitorEmail: email,
+        lastMessageAt: new Date().toISOString(),
+      });
 
       await this.captureLeadEmail(email);
     } catch (error) {
@@ -554,13 +580,10 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
    */
   async closeSession(): Promise<void> {
     try {
-      await supabase
-        .from('chat_sessions')
-        .update({
-          status: 'closed',
-          last_message_at: new Date().toISOString(),
-        })
-        .eq('session_id', this.sessionId);
+      await this.dispatchSessionAction('close_session', {
+        sessionId: this.sessionId,
+        lastMessageAt: new Date().toISOString(),
+      });
     } catch (error) {
       console.error('Error closing session:', error);
     }
