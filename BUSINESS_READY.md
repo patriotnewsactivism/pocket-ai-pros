@@ -427,8 +427,8 @@ VITE_APP_ENV=production
 - **Google Analytics:** https://analytics.google.com
 
 ### Need Help?
-- Email: support@buildmybot.ai
-- Documentation: https://docs.buildmybot.ai
+- Email: support@buildmybot.app
+- Documentation: https://docs.buildmybot.app
 
 ---
 

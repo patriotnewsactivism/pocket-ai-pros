@@ -259,7 +259,7 @@ See `DEPLOYMENT.md` for detailed instructions.
 1. **Add Custom Domain:**
    - In Vercel/Netlify dashboard
    - Domains → Add custom domain
-   - Enter your domain (e.g., `buildmybot.ai`)
+   - Enter your domain (e.g., `buildmybot.app`)
 
 2. **Update DNS:**
    - Go to your domain registrar
@@ -407,7 +407,7 @@ See `DEPLOYMENT.md` for detailed instructions.
 **Need Help?**
 
 - **Documentation:** See `BUSINESS_READY.md` for detailed guide
-- **Email:** support@buildmybot.ai
+- **Email:** support@buildmybot.app
 - **Deployment Issues:** See `DEPLOYMENT.md`
 - **Database Issues:** See `DATABASE_SETUP.md`
 

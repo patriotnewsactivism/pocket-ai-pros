@@ -335,7 +335,7 @@ Visit your site and test:
 - Setup Guide: SETUP_COMPLETE.md
 - Business Guide: BUSINESS_READY.md
 - Database Setup: DATABASE_SETUP.md
-- Email: support@buildmybot.ai
+- Email: support@buildmybot.app
 
 ---
 
@@ -425,7 +425,7 @@ echo -e "${BLUE}📞 Support:${NC}"
 echo ""
 echo -e "  • Documentation: ${CYAN}README.md${NC}"
 echo -e "  • Business Guide: ${CYAN}BUSINESS_READY.md${NC}"
-echo -e "  • Email: ${CYAN}support@buildmybot.ai${NC}"
+echo -e "  • Email: ${CYAN}support@buildmybot.app${NC}"
 echo ""
 
 echo -e "${PURPLE}╔═══════════════════════════════════════════════════════════════╗${NC}"

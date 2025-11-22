@@ -129,6 +129,6 @@ If data isn't being saved:
 ## Support
 
 For help with setup:
-- Email: support@buildmybot.ai
-- Documentation: https://docs.buildmybot.ai
+- Email: support@buildmybot.app
+- Documentation: https://docs.buildmybot.app
 - Supabase Docs: https://supabase.com/docs

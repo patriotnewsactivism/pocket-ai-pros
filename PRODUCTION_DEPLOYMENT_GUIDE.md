@@ -43,9 +43,9 @@ The Site URL and Redirect URLs are auto-configured by Lovable Cloud. To update:
 
 1. Open Lovable Cloud Dashboard
 2. Go to: Authentication → URL Configuration
-3. Set Site URL to your deployed domain (e.g., `https://buildmybot.ai`)
+3. Set Site URL to your deployed domain (e.g., `https://buildmybot.app`)
 4. Add redirect URLs:
-   - Your production domain: `https://buildmybot.ai/**`
+   - Your production domain: `https://buildmybot.app/**`
    - Your preview URL (for testing)
    - Custom domains if applicable
 
