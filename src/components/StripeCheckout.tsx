@@ -59,7 +59,7 @@ export function StripeCheckout({ planId, planName, price, onSuccess }: StripeChe
         window.location.href = url;
       } else if (sessionId) {
         // Fallback: use Stripe.js to redirect
-        const stripe = (window as any).Stripe?.(env.stripePublicKey);
+        const stripe = window.Stripe?.(env.stripePublicKey);
         if (stripe) {
           const { error } = await stripe.redirectToCheckout({ sessionId });
           if (error) {

@@ -71,8 +71,7 @@ export function LiveChat() {
         return;
       }
 
-      const w = window as any;
-      w.intercomSettings = {
+      window.intercomSettings = {
         app_id: CHAT_CONFIG.intercom.appId,
         alignment: 'right',
         horizontal_padding: 20,
@@ -102,9 +101,8 @@ export function LiveChat() {
         return;
       }
 
-      const w = window as any;
-      w.$crisp = [];
-      w.CRISP_WEBSITE_ID = CHAT_CONFIG.crisp.websiteId;
+      window.$crisp = [];
+      window.CRISP_WEBSITE_ID = CHAT_CONFIG.crisp.websiteId;
 
       const script = document.createElement('script');
       script.type = 'text/javascript';
@@ -126,68 +124,68 @@ export const chat = {
   // Show/hide chat widget
   show: () => {
     if (CHAT_CONFIG.tawkTo.enabled) {
-      (window as any).Tawk_API?.showWidget();
+      window.Tawk_API?.showWidget();
     }
     if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('show');
+      window.Intercom?.('show');
     }
     if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['do', 'chat:show']);
+      window.$crisp?.push(['do', 'chat:show']);
     }
   },
 
   hide: () => {
     if (CHAT_CONFIG.tawkTo.enabled) {
-      (window as any).Tawk_API?.hideWidget();
+      window.Tawk_API?.hideWidget();
     }
     if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('hide');
+      window.Intercom?.('hide');
     }
     if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['do', 'chat:hide']);
+      window.$crisp?.push(['do', 'chat:hide']);
     }
   },
 
   // Open chat window
   open: () => {
     if (CHAT_CONFIG.tawkTo.enabled) {
-      (window as any).Tawk_API?.maximize();
+      window.Tawk_API?.maximize();
     }
     if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('show');
+      window.Intercom?.('show');
     }
     if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['do', 'chat:open']);
+      window.$crisp?.push(['do', 'chat:open']);
     }
   },
 
   // Set user information
   setUser: (name: string, email: string) => {
     if (CHAT_CONFIG.tawkTo.enabled) {
-      (window as any).Tawk_API?.setAttributes({
+      window.Tawk_API?.setAttributes({
         name,
         email,
       });
     }
     if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('update', {
+      window.Intercom?.('update', {
         name,
         email,
       });
     }
     if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['set', 'user:email', [email]]);
-      (window as any).$crisp?.push(['set', 'user:nickname', [name]]);
+      window.$crisp?.push(['set', 'user:email', [email]]);
+      window.$crisp?.push(['set', 'user:nickname', [name]]);
     }
   },
 
   // Send a message programmatically
   sendMessage: (message: string) => {
     if (CHAT_CONFIG.intercom.enabled) {
-      (window as any).Intercom?.('showNewMessage', message);
+      window.Intercom?.('showNewMessage', message);
     }
     if (CHAT_CONFIG.crisp.enabled) {
-      (window as any).$crisp?.push(['do', 'message:send', ['text', message]]);
+      window.$crisp?.push(['do', 'message:send', ['text', message]]);
     }
   },
 };

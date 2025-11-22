@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+import * as Sentry from '@sentry/react';
 
 interface Props {
   children: ReactNode;
@@ -38,10 +39,20 @@ export class ErrorBoundary extends Component<Props, State> {
       console.warn('[ErrorBoundary] Chunk load error detected, app may need reload');
     }
 
-    // TODO: Send to error tracking service (Sentry, etc.) in production
-    // Example: Sentry.captureException(error, {
-    //   contexts: { react: { componentStack: errorInfo.componentStack } }
-    // });
+    // Send to Sentry in production (if configured)
+    if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.captureException(error, {
+        contexts: {
+          react: {
+            componentStack: errorInfo.componentStack,
+          },
+        },
+        tags: {
+          errorBoundary: true,
+          isChunkLoadError: isChunkLoadError,
+        },
+      });
+    }
   }
 
   private handleReset = () => {

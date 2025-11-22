@@ -61,29 +61,36 @@ export default function EnvCheck() {
       }
 
       // Test network connectivity to Supabase
-      try {
-        console.log('[EnvCheck] Testing network connectivity...');
-        const testUrl = env.supabaseUrl || 'https://mnklzzundmfwjnfaoqju.supabase.co';
-        const response = await fetch(`${testUrl}/rest/v1/`, {
-          method: 'GET',
-          headers: {
-            'apikey': env.supabaseAnonKey || '',
-          },
-        });
-        results.networkTest = {
-          success: true,
-          status: response.status,
-          statusText: response.statusText,
-          url: testUrl,
-        };
-      } catch (error: any) {
-        console.error('[EnvCheck] Network test failed:', error);
+      if (env.supabaseUrl && env.supabaseAnonKey) {
+        try {
+          console.log('[EnvCheck] Testing network connectivity...');
+          const response = await fetch(`${env.supabaseUrl}/rest/v1/`, {
+            method: 'GET',
+            headers: {
+              'apikey': env.supabaseAnonKey,
+            },
+          });
+          results.networkTest = {
+            success: true,
+            status: response.status,
+            statusText: response.statusText,
+            url: env.supabaseUrl,
+          };
+        } catch (error: any) {
+          console.error('[EnvCheck] Network test failed:', error);
+          results.networkTest = {
+            success: false,
+            error: {
+              name: error.name,
+              message: error.message,
+            },
+          };
+        }
+      } else {
         results.networkTest = {
           success: false,
-          error: {
-            name: error.name,
-            message: error.message,
-          },
+          skipped: true,
+          message: 'Skipped: Supabase URL or Key not configured',
         };
       }
 
