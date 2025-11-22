@@ -18,9 +18,10 @@ vi.mock('stripe', () => ({
   default: mockStripeFactory,
 }));
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { handlers } = require('../stripe-webhook.js');
 
-const createMockClient = (impl: (text: string, params?: unknown[]) => Promise<any>) => {
+const createMockClient = (impl: (text: string, params?: unknown[]) => Promise<unknown>) => {
   return {
     query: vi.fn(async (text: string, params?: unknown[]) => impl(text, params)),
     release: vi.fn(),
