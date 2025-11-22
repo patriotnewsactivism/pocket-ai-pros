@@ -13,16 +13,6 @@ import FAQ from "@/components/FAQ";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import { SEO } from "@/components/SEO";
-import { env } from "@/config/env";
-
-export const isChatbotFeatureEnabled = (config = env) =>
-  config.enableChatWidget && config.enableAIChatbot;
-
-const chatbotPlaceholder = (
-  <div className="sr-only" aria-live="polite">
-    Chat assistant is currently unavailable.
-  </div>
-);
 
 const Index = () => {
   const isChatbotEnabled = isChatbotFeatureEnabled();
@@ -58,13 +48,6 @@ const Index = () => {
           <Newsletter />
         </main>
         <Footer />
-        {isChatbotEnabled && LazyAIChatbot ? (
-          <Suspense fallback={<div className="sr-only">Loading chat assistant...</div>}>
-            <LazyAIChatbot businessType="support" />
-          </Suspense>
-        ) : (
-          chatbotPlaceholder
-        )}
       </div>
     </>
   );
