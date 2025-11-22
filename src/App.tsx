@@ -1,4 +1,4 @@
-import { type ComponentProps, lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -8,7 +8,7 @@ import { LiveChat } from '@/components/LiveChat';
 import { AIChatbot } from '@/components/AIChatbot';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { initSentry } from '@/lib/sentry';
-import { env } from '@/config/env';
+import { resolveChatbotBusinessType } from '@/lib/chatbot-config';
 import './App.css';
 
 // Initialize Sentry error tracking in production
@@ -67,27 +67,7 @@ const queryClient = new QueryClient({
   },
 });
 
-type ChatbotBusinessType = NonNullable<ComponentProps<typeof AIChatbot>['businessType']>;
-
-const SUPPORTED_BUSINESS_TYPES: ReadonlyArray<ChatbotBusinessType> = [
-  'ecommerce',
-  'saas',
-  'realestate',
-  'healthcare',
-  'education',
-  'hospitality',
-  'finance',
-  'support',
-];
-
-const DEFAULT_BUSINESS_TYPE: ChatbotBusinessType = 'support';
-
-const isChatbotBusinessType = (value: string): value is ChatbotBusinessType =>
-  SUPPORTED_BUSINESS_TYPES.includes(value as ChatbotBusinessType);
-
-const businessType: ChatbotBusinessType = isChatbotBusinessType(env.businessType)
-  ? env.businessType
-  : DEFAULT_BUSINESS_TYPE;
+const businessType = resolveChatbotBusinessType();
 
 function App() {
   // Clear chunk reload flag after successful app load
