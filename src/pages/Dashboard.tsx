@@ -42,64 +42,158 @@ export default function Dashboard() {
   }, []);
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
+    setLoading(true);
 
-    setUser(user);
-    
-    // Parallelize database queries for better performance
-    await Promise.all([
-      loadProfile(user.id),
-      loadBots(user.id),
-      checkResellerStatus(user.id)
-    ]);
-    
-    setLoading(false);
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      if (error || !user) {
+        toast({
+          title: 'Session expired',
+          description: 'Please sign in again to access your dashboard.',
+          variant: 'destructive',
+          action: (
+            <Button variant="outline" size="sm" onClick={() => navigate('/auth')}>
+              Re-authenticate
+            </Button>
+          ),
+        });
+        setUser(null);
+        setProfile(null);
+        setBots([]);
+        setIsReseller(false);
+        return;
+      }
+
+      setUser(user);
+
+      // Parallelize database queries for better performance
+      await Promise.all([
+        loadProfile(user.id),
+        loadBots(user.id),
+        checkResellerStatus(user.id)
+      ]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to load dashboard';
+      toast({
+        title: 'Error loading dashboard',
+        description: message,
+        variant: 'destructive',
+        action: (
+          <Button variant="outline" size="sm" onClick={() => void checkUser()}>
+            Retry
+          </Button>
+        ),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const checkResellerStatus = async (userId: string) => {
-    const { data } = await supabase
-      .from('resellers')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
-    
-    setIsReseller(!!data);
+    try {
+      const { data, error } = await supabase
+        .from('resellers')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setIsReseller(!!data);
+    } catch (error) {
+      const status = typeof error === 'object' && error !== null ? (error as { status?: number }).status : undefined;
+      const unauthorized = status === 401 || status === 403;
+      toast({
+        title: unauthorized ? 'Session expired' : 'Error checking reseller status',
+        description: unauthorized
+          ? 'Please sign in again to continue.'
+          : (error instanceof Error ? error.message : 'Failed to verify reseller status.'),
+        variant: 'destructive',
+        action: (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => (unauthorized ? navigate('/auth') : void checkResellerStatus(userId))}
+          >
+            {unauthorized ? 'Re-authenticate' : 'Retry'}
+          </Button>
+        ),
+      });
+    }
   };
 
   const loadProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    if (error) {
-      console.error('Error loading profile:', error);
-      return;
+      if (error) {
+        throw error;
+      }
+
+      setProfile(data);
+    } catch (error) {
+      const status = typeof error === 'object' && error !== null ? (error as { status?: number }).status : undefined;
+      const unauthorized = status === 401 || status === 403;
+      toast({
+        title: unauthorized ? 'Session expired' : 'Error loading profile',
+        description: unauthorized
+          ? 'Please sign in again to continue.'
+          : (error instanceof Error ? error.message : 'Failed to load profile.'),
+        variant: 'destructive',
+        action: (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => (unauthorized ? navigate('/auth') : void loadProfile(userId))}
+          >
+            {unauthorized ? 'Re-authenticate' : 'Retry'}
+          </Button>
+        ),
+      });
     }
-
-    setProfile(data);
   };
 
   const loadBots = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('bots')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('bots')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error loading bots:', error);
-      return;
+      if (error) {
+        throw error;
+      }
+
+      setBots(data || []);
+    } catch (error) {
+      const status = typeof error === 'object' && error !== null ? (error as { status?: number }).status : undefined;
+      const unauthorized = status === 401 || status === 403;
+      toast({
+        title: unauthorized ? 'Session expired' : 'Error loading bots',
+        description: unauthorized
+          ? 'Please sign in again to continue.'
+          : (error instanceof Error ? error.message : 'Failed to load bots.'),
+        variant: 'destructive',
+        action: (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => (unauthorized ? navigate('/auth') : void loadBots(userId))}
+          >
+            {unauthorized ? 'Re-authenticate' : 'Retry'}
+          </Button>
+        ),
+      });
     }
-
-    setBots(data || []);
   };
 
   const handleSignOut = async () => {
