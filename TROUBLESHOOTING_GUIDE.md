@@ -283,6 +283,80 @@ Error deploying function: Function not found
 
 ---
 
+### Issue: `supabase start` fails with Docker error
+
+**Symptoms:**
+```
+failed to inspect service: request returned 500 Internal Server Error for API route
+check if the server supports the requested API version
+```
+
+**Root Cause:**
+This error typically occurs when:
+1. Docker Desktop is not running
+2. Docker Desktop needs to be restarted
+3. Docker API version mismatch
+4. Docker Desktop is experiencing internal issues
+
+**Solution:**
+
+1. **Ensure Docker Desktop is running:**
+   - Windows: Check system tray for Docker icon
+   - Mac: Check menu bar for Docker icon
+   - Should show "Docker Desktop is running"
+
+2. **Restart Docker Desktop:**
+   - Quit Docker Desktop completely
+   - Wait 10-15 seconds
+   - Start Docker Desktop again
+   - Wait for it to fully start (icon shows green/running)
+
+3. **If restart doesn't help, reset Docker:**
+   ```powershell
+   # Windows PowerShell
+   # Quit Docker Desktop first, then:
+   wsl --shutdown
+   # Start Docker Desktop again
+   ```
+
+4. **Verify Docker is working:**
+   ```bash
+   docker ps
+   # Should show running containers or empty list (not an error)
+   ```
+
+5. **Update Supabase CLI:**
+   ```bash
+   npm install supabase@latest
+   # Or update package.json to "supabase": "^2.58.5"
+   ```
+
+6. **Try starting Supabase again:**
+   ```bash
+   npx supabase start
+   ```
+
+**Alternative: Use Remote Supabase Instead**
+
+If local development with Docker continues to fail, you can work directly with your remote Supabase project:
+
+1. **Link to remote project:**
+   ```bash
+   npx supabase link --project-ref your-project-ref
+   ```
+
+2. **Use remote database:**
+   - Update `.env` with production Supabase credentials
+   - All database operations will use remote instance
+   - No need for `supabase start`
+
+**Prevention:**
+- Keep Docker Desktop updated
+- Ensure Docker Desktop starts automatically with system
+- Use Docker Desktop settings → General → "Start Docker Desktop when you log in"
+
+---
+
 ## Payment & Stripe Issues
 
 ### Issue: Checkout session creation fails
