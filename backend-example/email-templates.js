@@ -22,10 +22,10 @@ if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 }
 
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@buildmybot.ai';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@buildmybot.ai';
-const SALES_EMAIL = process.env.SALES_EMAIL || 'sales@buildmybot.ai';
-const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@buildmybot.ai';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@buildmybot.app';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@buildmybot.app';
+const SALES_EMAIL = process.env.SALES_EMAIL || 'sales@buildmybot.app';
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@buildmybot.app';
 
 // Email Templates
 const templates = {
@@ -63,13 +63,13 @@ const templates = {
               <li><strong>Deploy:</strong> Get your embed code and add the bot to your website</li>
             </ol>
             
-            <a href="https://buildmybot.ai/dashboard" class="button">Go to Dashboard</a>
+            <a href="https://buildmybot.app/dashboard" class="button">Go to Dashboard</a>
             
             <h3>📚 Helpful Resources:</h3>
             <ul>
-              <li><a href="https://docs.buildmybot.ai">Documentation</a></li>
-              <li><a href="https://buildmybot.ai/tutorials">Video Tutorials</a></li>
-              <li><a href="https://buildmybot.ai/support">Support Center</a></li>
+              <li><a href="https://docs.buildmybot.app">Documentation</a></li>
+              <li><a href="https://buildmybot.app/tutorials">Video Tutorials</a></li>
+              <li><a href="https://buildmybot.app/support">Support Center</a></li>
             </ul>
             
             <p>Need help? Reply to this email or contact us at <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a></p>
@@ -108,9 +108,9 @@ const templates = {
       <p>Thank you for contacting BuildMyBot. We've received your message and will get back to you within 24 hours.</p>
       <p>In the meantime, feel free to explore:</p>
       <ul>
-        <li><a href="https://buildmybot.ai/features">Features</a></li>
-        <li><a href="https://buildmybot.ai/pricing">Pricing</a></li>
-        <li><a href="https://docs.buildmybot.ai">Documentation</a></li>
+        <li><a href="https://buildmybot.app/features">Features</a></li>
+        <li><a href="https://buildmybot.app/pricing">Pricing</a></li>
+        <li><a href="https://docs.buildmybot.app">Documentation</a></li>
       </ul>
       <p>Best regards,<br>The BuildMyBot Team</p>
     `,
@@ -131,7 +131,7 @@ const templates = {
       <p>Expect our first newsletter soon!</p>
       <p style="font-size: 12px; color: #666;">
         Don't want to receive these emails? 
-        <a href="https://buildmybot.ai/unsubscribe?email=${email}">Unsubscribe</a>
+        <a href="https://buildmybot.app/unsubscribe?email=${email}">Unsubscribe</a>
       </p>
     `,
   }),
@@ -174,9 +174,9 @@ const templates = {
       
       <h3>Getting Started:</h3>
       <ol>
-        <li><a href="https://buildmybot.ai/partner/dashboard">Access Partner Dashboard</a></li>
-        <li><a href="https://buildmybot.ai/partner/resources">Download Marketing Materials</a></li>
-        <li><a href="https://buildmybot.ai/partner/guide">Read Partner Guide</a></li>
+        <li><a href="https://buildmybot.app/partner/dashboard">Access Partner Dashboard</a></li>
+        <li><a href="https://buildmybot.app/partner/resources">Download Marketing Materials</a></li>
+        <li><a href="https://buildmybot.app/partner/guide">Read Partner Guide</a></li>
       </ol>
       
       <h3>Commission Structure:</h3>
@@ -205,7 +205,7 @@ const templates = {
         <p><strong>Next Billing Date:</strong> ${nextBillingDate}</p>
       </div>
       
-      <p><a href="https://buildmybot.ai/account/billing">View Invoice</a></p>
+      <p><a href="https://buildmybot.app/account/billing">View Invoice</a></p>
       
       <p>Thank you for being a valued customer!</p>
       
@@ -227,7 +227,7 @@ const templates = {
         <li>Update your payment information if needed</li>
       </ol>
       
-      <p><a href="https://buildmybot.ai/account/billing" style="display: inline-block; padding: 12px 30px; background: #f44336; color: white; text-decoration: none; border-radius: 5px;">Update Payment Method</a></p>
+      <p><a href="https://buildmybot.app/account/billing" style="display: inline-block; padding: 12px 30px; background: #f44336; color: white; text-decoration: none; border-radius: 5px;">Update Payment Method</a></p>
       
       <p>Your service will remain active for <strong>3 days</strong>. Please update your payment information to avoid service interruption.</p>
       
@@ -247,11 +247,11 @@ const templates = {
       <p><strong>Your service will remain active until:</strong> ${endDate}</p>
       
       <p>We'd love to know why you're leaving. Your feedback helps us improve:</p>
-      <p><a href="https://buildmybot.ai/feedback?reason=cancellation">Share Feedback (2 min survey)</a></p>
+      <p><a href="https://buildmybot.app/feedback?reason=cancellation">Share Feedback (2 min survey)</a></p>
       
       <h3>Changed your mind?</h3>
       <p>You can reactivate your subscription anytime before ${endDate}:</p>
-      <p><a href="https://buildmybot.ai/account/reactivate">Reactivate Subscription</a></p>
+      <p><a href="https://buildmybot.app/account/reactivate">Reactivate Subscription</a></p>
       
       <p>Thank you for using BuildMyBot!</p>
       

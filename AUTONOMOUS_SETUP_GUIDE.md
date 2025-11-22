@@ -521,7 +521,7 @@ Recommended pricing for your chatbot service:
 ### Community
 - GitHub Issues for bugs
 - Discussions for questions
-- Email: support@buildmybot.ai
+- Email: support@buildmybot.app
 
 ### Professional Support
 - Setup assistance available

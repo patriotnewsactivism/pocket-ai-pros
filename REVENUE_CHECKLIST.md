@@ -152,7 +152,7 @@
 
 ### Questions?
 
-Email: support@buildmybot.ai
+Email: support@buildmybot.app
 
 ---
 

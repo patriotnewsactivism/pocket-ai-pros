@@ -209,8 +209,8 @@ echo "✓ Configure CDN (optional)"
 echo ""
 
 echo -e "${BLUE}Support:${NC}"
-echo "Documentation: https://docs.buildmybot.ai"
-echo "Support: support@buildmybot.ai"
+echo "Documentation: https://docs.buildmybot.app"
+echo "Support: support@buildmybot.app"
 echo ""
 
 exit 0

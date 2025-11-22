@@ -241,7 +241,7 @@ Complete guide to push your product live and start accepting customers.
 #### 3.1 Domain Setup
 - [ ] **Purchase Domain**
   - Buy domain from registrar (Namecheap, GoDaddy, etc.)
-  - Recommended: buildmybot.ai or similar
+  - Recommended: buildmybot.app or similar
   - Enable domain privacy protection
   - Set auto-renewal
 
@@ -254,10 +254,10 @@ Complete guide to push your product live and start accepting customers.
   - Wait for DNS propagation (24-48 hours)
 
 - [ ] **Set Up Subdomains**
-  - `www.buildmybot.ai` - Main site
-  - `app.buildmybot.ai` - Dashboard (optional)
-  - `api.buildmybot.ai` - Backend API (if using separate backend)
-  - `docs.buildmybot.ai` - Documentation (optional)
+  - `www.buildmybot.app` - Main site
+  - `app.buildmybot.app` - Dashboard (optional)
+  - `api.buildmybot.app` - Backend API (if using separate backend)
+  - `docs.buildmybot.app` - Documentation (optional)
 
 #### 3.2 Hosting & Deployment
 - [ ] **Choose Hosting Provider**
@@ -485,7 +485,7 @@ Complete guide to push your product live and start accepting customers.
 #### 6.1 Customer Support Setup
 - [ ] **Help Desk/Support Ticketing**
   - Set up Zendesk, Freshdesk, or similar
-  - Create support email: support@buildmybot.ai
+  - Create support email: support@buildmybot.app
   - Define response time SLAs
   - Create canned responses for common questions
 

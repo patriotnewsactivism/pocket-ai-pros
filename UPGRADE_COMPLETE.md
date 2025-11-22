@@ -259,7 +259,7 @@ The site is prepared for:
 
 ## 📞 Support
 
-- **Email**: support@buildmybot.ai
+- **Email**: support@buildmybot.app
 - **Documentation**: See `DATABASE_SETUP.md` for detailed setup
 - **SQL Script**: `supabase-setup.sql` for database initialization
 
