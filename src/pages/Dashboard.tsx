@@ -295,7 +295,7 @@ export default function Dashboard() {
             <CardHeader>
               <CardTitle className="text-lg">Active Bots</CardTitle>
               <CardDescription>
-                {bots.length} of {profile?.bots_limit || 1} bots
+                {bots.length} / {profile?.bots_limit || 1} bots
               </CardDescription>
             </CardHeader>
             <CardContent>

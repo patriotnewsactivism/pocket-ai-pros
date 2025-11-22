@@ -3,9 +3,10 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Dashboard from '../Dashboard';
 
-// Mock Supabase
-const mockGetUser = vi.fn();
-const mockFrom = vi.fn();
+const { mockGetUser, mockFrom } = vi.hoisted(() => ({
+  mockGetUser: vi.fn(),
+  mockFrom: vi.fn(),
+}));
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {

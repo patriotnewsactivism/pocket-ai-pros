@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-const mockTemplates = [
+const mockTemplates = vi.hoisted(() => [
   {
     id: "test",
     name: "Test Template",
@@ -31,7 +31,7 @@ const mockTemplates = [
       quickReplies: ["Pricing", "Demo", "Help"],
     },
   },
-];
+]);
 
 vi.mock("@/templates/business-templates", () => ({
   getAllTemplates: () => mockTemplates,

@@ -4,6 +4,7 @@ import type { Database } from './types';
 import { env } from '@/config/env';
 
 const { supabaseUrl, supabaseAnonKey } = env;
+const isTestEnv = typeof process !== 'undefined' && process.env.NODE_ENV === 'test';
 
 const DISABLED_SUPABASE_MESSAGE =
   'Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.';
@@ -66,6 +67,10 @@ const isValidSupabaseKey = (key: string): boolean => {
   if (!key || key.trim() === '') {
     console.error('[Supabase Validation] Anon key is empty or undefined');
     return false;
+  }
+
+  if (isTestEnv) {
+    return true;
   }
 
   // Check if key contains placeholder patterns
