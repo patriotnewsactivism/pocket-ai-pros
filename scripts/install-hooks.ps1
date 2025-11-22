@@ -20,8 +20,17 @@ if (-not (Test-Path ".git\hooks")) {
 # Install pre-commit hook
 if (Test-Path ".git-hooks\pre-commit") {
     Write-Host "📋 Installing pre-commit hook..." -ForegroundColor Cyan
-    Copy-Item ".git-hooks\pre-commit" ".git\hooks\pre-commit" -Force
-    Write-Host "✅ Pre-commit hook installed" -ForegroundColor Green
+
+    # Read the file and convert CRLF to LF (Unix line endings)
+    # This is critical for Git Bash compatibility on Windows
+    $content = Get-Content ".git-hooks\pre-commit" -Raw
+    $content = $content -replace "`r`n", "`n"
+
+    # Write with UTF8 encoding without BOM and Unix line endings
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText("$PWD\.git\hooks\pre-commit", $content, $utf8NoBom)
+
+    Write-Host "✅ Pre-commit hook installed (with LF line endings)" -ForegroundColor Green
 } else {
     Write-Host "⚠️  Warning: .git-hooks\pre-commit not found" -ForegroundColor Yellow
 }

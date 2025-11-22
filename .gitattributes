@@ -1,0 +1,24 @@
+# Ensure shell scripts always have LF line endings on all platforms
+*.sh text eol=lf
+.git-hooks/* text eol=lf
+
+# Ensure Windows scripts have CRLF endings
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Auto-detect text files and normalize line endings to LF
+* text=auto
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.mp4 binary
+*.webm binary
