@@ -23,7 +23,8 @@
       "WebFetch(domain:buildmybot.app)",
       "Bash(dir:*)",
       "Bash(git push:*)",
-      "Bash(gh pr diff:*)"
+      "Bash(gh pr diff:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []
