@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2, Bot } from "lucide-react";
+import { Loader2, Bot, Eye, EyeOff } from "lucide-react";
 
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,9 @@ import { signInSchema, signUpSchema, type SignInValues, type SignUpValues } from
 export default function Auth() {
   const [isSignInLoading, setIsSignInLoading] = useState(false);
   const [isSignUpLoading, setIsSignUpLoading] = useState(false);
+  const [isPasswordResetting, setIsPasswordResetting] = useState(false);
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const [searchParams] = useSearchParams();
   const referralId = searchParams.get("ref");
   const { toast } = useToast();
@@ -259,6 +262,60 @@ export default function Auth() {
     }
   });
 
+  const handlePasswordReset = async () => {
+    if (!isSupabaseConfigured) {
+      toast({
+        title: "Authentication not configured",
+        description:
+          "Please contact the administrator to set up Supabase authentication keys (VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const email = signInForm.getValues("email").trim();
+
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Enter your email above so we can send you a secure reset link.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsPasswordResetting(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset`,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Check your email",
+        description: "We've sent password reset instructions to your inbox.",
+      });
+    } catch (error: unknown) {
+      let message = "Unable to send reset link. Please try again.";
+
+      if (error instanceof Error && error.message.length < 200) {
+        message = error.message;
+      }
+
+      toast({
+        title: "Password reset failed",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsPasswordResetting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-background p-4">
       <Card className="w-full max-w-md">
@@ -316,23 +373,51 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel htmlFor="signin-password">Password</FormLabel>
                         <FormControl>
-                          <Input
-                            id="signin-password"
-                            type="password"
-                            placeholder="••••••••"
-                            disabled={isSignInLoading}
-                            {...field}
-                          />
+                          <div className="relative">
+                            <Input
+                              id="signin-password"
+                              type={showSignInPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              disabled={isSignInLoading}
+                              className="pr-10"
+                              {...field}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={showSignInPassword ? "Hide password" : "Show password"}
+                              className="absolute right-1 top-1/2 -translate-y-1/2"
+                              onClick={() => setShowSignInPassword((prev) => !prev)}
+                              disabled={isSignInLoading}
+                            >
+                              {showSignInPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col space-y-3">
                   <Button type="submit" className="w-full" disabled={isSignInLoading}>
                     {isSignInLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Sign In
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-sm font-normal"
+                    onClick={handlePasswordReset}
+                    disabled={isSignInLoading || isPasswordResetting}
+                  >
+                    {isPasswordResetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Forgot password?
                   </Button>
                 </CardFooter>
               </form>
@@ -405,13 +490,31 @@ export default function Auth() {
                       <FormItem>
                         <FormLabel htmlFor="signup-password">Password</FormLabel>
                         <FormControl>
-                          <Input
-                            id="signup-password"
-                            type="password"
-                            placeholder="••••••••"
-                            disabled={isSignUpLoading}
-                            {...field}
-                          />
+                          <div className="relative">
+                            <Input
+                              id="signup-password"
+                              type={showSignUpPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              disabled={isSignUpLoading}
+                              className="pr-10"
+                              {...field}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={showSignUpPassword ? "Hide password" : "Show password"}
+                              className="absolute right-1 top-1/2 -translate-y-1/2"
+                              onClick={() => setShowSignUpPassword((prev) => !prev)}
+                              disabled={isSignUpLoading}
+                            >
+                              {showSignUpPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -429,7 +532,11 @@ export default function Auth() {
           </TabsContent>
         </Tabs>
 
-        <div className="p-6 pt-0 text-center text-sm text-muted-foreground">
+        <div className="p-6 pt-0 text-center text-sm text-muted-foreground space-y-2">
+          <p className="leading-relaxed">
+            Need to regain access? Use the "Forgot password?" link to receive a secure reset email and follow the instructions to
+            update your credentials.
+          </p>
           <a href="/" className="hover:text-primary">
             Back to home
           </a>
