@@ -411,7 +411,7 @@ export class Chatbot {
       }
       return (
         this.template.knowledgeBase['pricing'] ||
-          "I'd be happy to discuss our pricing with you. Would you like me to provide details or connect you with our sales team?",
+          "I'd be happy to discuss our pricing with you. Would you like me to provide details or connect you with our sales team?"
       );
     }
 
