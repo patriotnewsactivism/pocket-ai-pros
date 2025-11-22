@@ -26,8 +26,8 @@ const Footer = () => {
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />
-              <a href="mailto:support@buildmybot.ai" className="hover:text-primary transition-colors">
-                support@buildmybot.ai
+              <a href="mailto:support@buildmybot.app" className="hover:text-primary transition-colors">
+                support@buildmybot.app
               </a>
             </div>
           </div>

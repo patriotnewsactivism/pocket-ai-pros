@@ -202,9 +202,9 @@ export default function Privacy() {
               If you have questions about this Privacy Policy or our data practices, please contact us:
             </p>
             <p className="text-gray-700">
-              Email: <a href="mailto:privacy@buildmybot.ai" className="text-primary hover:underline">privacy@buildmybot.ai</a><br />
-              Website: <a href="https://buildmybot.ai" className="text-primary hover:underline">https://buildmybot.ai</a><br />
-              Data Protection Officer: <a href="mailto:dpo@buildmybot.ai" className="text-primary hover:underline">dpo@buildmybot.ai</a>
+              Email: <a href="mailto:privacy@buildmybot.app" className="text-primary hover:underline">privacy@buildmybot.app</a><br />
+              Website: <a href="https://buildmybot.app" className="text-primary hover:underline">https://buildmybot.app</a><br />
+              Data Protection Officer: <a href="mailto:dpo@buildmybot.app" className="text-primary hover:underline">dpo@buildmybot.app</a>
             </p>
           </section>
 

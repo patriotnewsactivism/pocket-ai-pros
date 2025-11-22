@@ -43,17 +43,12 @@ export default defineConfig(async ({ mode }) => {
       globals: true,
       setupFiles: ["./vitest.setup.ts", "./src/test/setup.ts"],
       css: true,
+      include: ["src/**/*.{test,spec}.{ts,tsx}"],
       coverage: {
         provider: "v8",
         reporter: ["text", "lcov"],
         include: ["src/**/*.{ts,tsx}"],
       },
     },
-  },
-  test: {
-    globals: true,
-    environment: "node",
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
-    setupFiles: [],
-  },
-}));
+  };
+});

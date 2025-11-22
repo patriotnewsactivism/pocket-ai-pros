@@ -89,8 +89,8 @@ export default function Refund() {
             <ol className="list-decimal pl-6 space-y-3 text-gray-700">
               <li>
                 <strong>Contact Support:</strong> Email us at{' '}
-                <a href="mailto:support@buildmybot.ai" className="text-primary hover:underline">
-                  support@buildmybot.ai
+                <a href="mailto:support@buildmybot.app" className="text-primary hover:underline">
+                  support@buildmybot.app
                 </a>
               </li>
               <li>
@@ -234,9 +234,9 @@ export default function Refund() {
               For refund requests or questions about this policy:
             </p>
             <p className="text-gray-700">
-              Email: <a href="mailto:support@buildmybot.ai" className="text-primary hover:underline">support@buildmybot.ai</a><br />
-              Billing Questions: <a href="mailto:billing@buildmybot.ai" className="text-primary hover:underline">billing@buildmybot.ai</a><br />
-              Website: <a href="https://buildmybot.ai" className="text-primary hover:underline">https://buildmybot.ai</a>
+              Email: <a href="mailto:support@buildmybot.app" className="text-primary hover:underline">support@buildmybot.app</a><br />
+              Billing Questions: <a href="mailto:billing@buildmybot.app" className="text-primary hover:underline">billing@buildmybot.app</a><br />
+              Website: <a href="https://buildmybot.app" className="text-primary hover:underline">https://buildmybot.app</a>
             </p>
           </section>
         </div>
@@ -246,8 +246,8 @@ export default function Refund() {
           <p className="text-gray-700 mb-4">
             Before requesting a refund, let us help you! Our support team is here to resolve any issues you 
             may be experiencing. Contact us at{' '}
-            <a href="mailto:support@buildmybot.ai" className="text-primary hover:underline font-semibold">
-              support@buildmybot.ai
+            <a href="mailto:support@buildmybot.app" className="text-primary hover:underline font-semibold">
+              support@buildmybot.app
             </a>
           </p>
           <p className="text-sm text-gray-600">

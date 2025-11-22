@@ -594,12 +594,6 @@ Be friendly, professional, and concise. If you can't answer something, offer to 
     return this.template;
   }
 
-  /**
-   * Get quick replies from template
-   */
-  getQuickReplies(): string[] {
-    return this.template.quickReplies;
-  }
 }
 
 export const getBusinessTemplate = (businessType: ChatbotBusinessType): ChatbotTemplate => {

@@ -165,8 +165,8 @@ export default function Terms() {
               If you have any questions about these Terms, please contact us at:
             </p>
             <p className="text-gray-700">
-              Email: <a href="mailto:legal@buildmybot.ai" className="text-primary hover:underline">legal@buildmybot.ai</a><br />
-              Website: <a href="https://buildmybot.ai" className="text-primary hover:underline">https://buildmybot.ai</a>
+              Email: <a href="mailto:legal@buildmybot.app" className="text-primary hover:underline">legal@buildmybot.app</a><br />
+              Website: <a href="https://buildmybot.app" className="text-primary hover:underline">https://buildmybot.app</a>
             </p>
           </section>
         </div>

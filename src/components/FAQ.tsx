@@ -93,8 +93,8 @@ const FAQ = () => {
             <p className="text-muted-foreground mb-4">
               Our team is here to help 24/7
             </p>
-            <a 
-              href="mailto:support@buildmybot.ai" 
+            <a
+              href="mailto:support@buildmybot.app"
               className="inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 transition-opacity"
             >
               Contact Support
