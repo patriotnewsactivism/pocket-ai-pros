@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2 } from "lucide-react";
@@ -16,6 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useContactForm } from "@/hooks/useApi";
+import { useToast } from "@/hooks/use-toast";
 import { contactFormSchema, type ContactFormValues } from "@/lib/schemas/contact";
 
 interface ContactDialogProps {
@@ -30,6 +31,10 @@ interface ContactFormProps {
 
 export function ContactForm({ defaultMessage, onSubmitted }: ContactFormProps) {
   const { mutate: submitContact, isPending } = useContactForm();
+  const { toast } = useToast();
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -41,6 +46,14 @@ export function ContactForm({ defaultMessage, onSubmitted }: ContactFormProps) {
   });
 
   useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     form.reset({
       name: "",
       email: "",
@@ -50,20 +63,51 @@ export function ContactForm({ defaultMessage, onSubmitted }: ContactFormProps) {
   }, [defaultMessage, form]);
 
   const onSubmit = form.handleSubmit((values) => {
+    form.clearErrors();
+    setSuccessMessage(null);
+    setStatusMessage("Submitting your request...");
     submitContact({
-      name: values.name || '',
-      email: values.email || '',
+      name: values.name || "",
+      email: values.email || "",
       company: values.company,
-      message: values.message || '',
+      message: values.message || "",
     }, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        const confirmationMessage =
+          (data as { message?: string })?.message || "Thanks! Your request has been received.";
+        toast({
+          title: "Request received",
+          description: confirmationMessage,
+        });
+        setSuccessMessage(confirmationMessage);
+        setStatusMessage("");
         form.reset({
           name: "",
           email: "",
           company: "",
           message: defaultMessage,
         });
-        onSubmitted?.();
+        if (closeTimerRef.current) {
+          clearTimeout(closeTimerRef.current);
+        }
+        closeTimerRef.current = setTimeout(() => {
+          onSubmitted?.();
+          setSuccessMessage(null);
+        }, 1200);
+      },
+      onError: (error) => {
+        const errorMessage =
+          (error as { message?: string })?.message || "Failed to submit form. Please try again.";
+        toast({
+          title: "Submission failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        setStatusMessage("");
+        form.setError("root", { message: errorMessage });
+      },
+      onSettled: () => {
+        setStatusMessage("");
       },
     });
   });
@@ -71,6 +115,11 @@ export function ContactForm({ defaultMessage, onSubmitted }: ContactFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-4">
+        <p className="sr-only" aria-live="polite">
+          {isPending
+            ? "Submitting your request..."
+            : successMessage || statusMessage || "Ready to submit the contact form."}
+        </p>
         <FormField
           control={form.control}
           name="name"
@@ -140,6 +189,16 @@ export function ContactForm({ defaultMessage, onSubmitted }: ContactFormProps) {
             </FormItem>
           )}
         />
+        {form.formState.errors.root?.message && (
+          <p className="text-sm text-destructive" role="alert" aria-live="assertive">
+            {form.formState.errors.root.message}
+          </p>
+        )}
+        {successMessage && (
+          <p className="text-sm text-green-600" role="status" aria-live="polite">
+            {successMessage}
+          </p>
+        )}
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? (
             <>

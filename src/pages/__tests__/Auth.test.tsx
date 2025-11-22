@@ -1,19 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import Auth from '../Auth';
-import * as supabaseModule from '@/integrations/supabase/client';
 
-// Mock Supabase
+const mockSignUp = vi.fn();
+const mockSignInWithPassword = vi.fn();
+const mockResetPasswordForEmail = vi.fn();
+const mockGetUser = vi.fn();
+const mockFrom = vi.fn();
+
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
-      signUp: vi.fn(),
-      signInWithPassword: vi.fn(),
-      getUser: vi.fn(),
+      signUp: mockSignUp,
+      signInWithPassword: mockSignInWithPassword,
+      resetPasswordForEmail: mockResetPasswordForEmail,
+      getUser: mockGetUser,
     },
-    from: vi.fn(() => ({
+    from: mockFrom,
+  },
+  isSupabaseConfigured: true,
+}));
+
+describe('Auth Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSignInWithPassword.mockResolvedValue({ data: {}, error: null });
+    mockSignUp.mockResolvedValue({ data: { user: null }, error: null });
+    mockResetPasswordForEmail.mockResolvedValue({ data: {}, error: null });
+    mockFrom.mockImplementation(() => ({
       insert: vi.fn(() => ({
         select: vi.fn(() => ({
           single: vi.fn(),
@@ -27,24 +43,7 @@ vi.mock('@/integrations/supabase/client', () => ({
           single: vi.fn(),
         })),
       })),
-    })),
-  },
-  isSupabaseConfigured: true,
-}));
-
-// Mock useNavigate
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
-});
-
-describe('Auth Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+    }));
   });
 
   it('should render login form by default', () => {
@@ -68,13 +67,55 @@ describe('Auth Component', () => {
       </BrowserRouter>
     );
 
-    const signUpTab = screen.getAllByRole('tab')[1]; // Get the second tab (Sign Up)
+    const signUpTab = screen.getAllByRole('tab')[1];
     await user.click(signUpTab);
 
     await waitFor(() => {
       expect(screen.getByLabelText(/Full Name/i)).toBeInTheDocument();
     });
     expect(screen.getAllByLabelText(/Email/i)[0]).toBeInTheDocument();
+  });
+
+  it('toggles password visibility on sign in form', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <BrowserRouter>
+        <Auth />
+      </BrowserRouter>
+    );
+
+    const passwordInput = screen.getByLabelText(/Password/i, { selector: 'input#signin-password' }) as HTMLInputElement;
+    const toggleButton = screen.getAllByRole('button', { name: /show password/i })[0];
+
+    expect(passwordInput.type).toBe('password');
+
+    await user.click(toggleButton);
+
+    expect(passwordInput.type).toBe('text');
+  });
+
+  it('sends a password reset email when requested', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <BrowserRouter>
+        <Auth />
+      </BrowserRouter>
+    );
+
+    const emailInput = screen.getAllByLabelText(/Email/i)[0];
+    await user.type(emailInput, 'user@example.com');
+
+    const resetButton = screen.getByRole('button', { name: /forgot password/i });
+    await user.click(resetButton);
+
+    await waitFor(() => {
+      expect(mockResetPasswordForEmail).toHaveBeenCalledWith(
+        'user@example.com',
+        expect.objectContaining({ redirectTo: expect.stringContaining('/auth/reset') })
+      );
+    });
   });
 
   it.skip('should validate email format', async () => {
@@ -86,26 +127,22 @@ describe('Auth Component', () => {
       </BrowserRouter>
     );
 
-    // Ensure we're on the sign-in tab
     expect(screen.getAllByRole('tab')[0]).toHaveAttribute('aria-selected', 'true');
 
     const emailInput = screen.getAllByLabelText(/Email/i)[0];
     const passwordInput = screen.getAllByLabelText(/Password/i)[0];
 
-    // Type invalid email and valid password
     await user.clear(emailInput);
     await user.type(emailInput, 'notanemail');
     await user.clear(passwordInput);
     await user.type(passwordInput, 'validPass123!');
 
-    // The form should show validation error or prevent submission with invalid email
     const submitButtons = screen.getAllByRole('button');
     const submitButton = submitButtons.find(btn => btn.getAttribute('type') === 'submit');
 
     if (submitButton) {
       await user.click(submitButton);
 
-      // Either validation message appears, or Supabase error due to mocked client
       await waitFor(
         () => {
           const validationMessage = screen.queryByText(/Please enter a valid email address/i);
@@ -126,8 +163,7 @@ describe('Auth Component', () => {
       </BrowserRouter>
     );
 
-    // Switch to signup
-    const signUpTab = screen.getAllByRole('tab')[1]; // Get the second tab (Sign Up)
+    const signUpTab = screen.getAllByRole('tab')[1];
     await user.click(signUpTab);
 
     await waitFor(() => {

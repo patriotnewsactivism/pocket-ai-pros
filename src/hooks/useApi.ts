@@ -5,7 +5,6 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { toast } from '@/hooks/use-toast';
 
 interface ApiResponse {
   success: boolean;
@@ -20,19 +19,6 @@ interface ApiErrorResponse {
 export function useContactForm() {
   return useMutation({
     mutationFn: api.submitContact,
-    onSuccess: (data: ApiResponse) => {
-      toast({
-        title: 'Success!',
-        description: data.message || 'Thank you for contacting us. We\'ll get back to you soon!',
-      });
-    },
-    onError: (error: ApiErrorResponse) => {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to submit form. Please try again.',
-        variant: 'destructive',
-      });
-    },
   });
 }
 

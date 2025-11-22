@@ -5,17 +5,16 @@ const envMock = vi.hoisted(() => ({
   isDevelopment: false,
 }));
 
-const insertMock = vi.hoisted(() => vi.fn().mockResolvedValue({ data: null, error: null }));
-const fromMock = vi.hoisted(() => vi.fn(() => ({ insert: insertMock }))); 
 const invokeMock = vi.hoisted(() => vi.fn());
 
 vi.mock('@/config/env', () => ({
+  __esModule: true,
   env: envMock,
 }));
 
-vi.mock('@/lib/supabase', () => ({
+vi.mock('./supabase', () => ({
+  __esModule: true,
   supabase: {
-    from: fromMock,
     functions: {
       invoke: invokeMock,
     },
@@ -30,9 +29,14 @@ describe('Chatbot', () => {
 
   beforeEach(() => {
     consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
-    insertMock.mockClear();
-    fromMock.mockClear();
     invokeMock.mockReset();
+    invokeMock.mockImplementation(async (functionName: string) => {
+      if (functionName === 'generate-chat-response') {
+        return { data: { content: 'AI generated response.' }, error: null };
+      }
+
+      return { data: { success: true }, error: null };
+    });
     envMock.enableAIChatbot = true;
   });
 
@@ -41,22 +45,24 @@ describe('Chatbot', () => {
   });
 
   it('uses the Supabase Edge Function to generate responses when enabled', async () => {
-    invokeMock.mockResolvedValueOnce({ data: { content: 'AI generated response.' }, error: null });
-
     const chatbot = new Chatbot('saas');
     const response = await chatbot.sendMessage('Tell me something unique.');
 
-    expect(invokeMock).toHaveBeenCalledWith(
-      'generate-chat-response',
-      expect.objectContaining({
-        body: expect.objectContaining({ userMessage: 'Tell me something unique.' }),
-      }),
+    const generateCall = invokeMock.mock.calls.find(([fnName]) => fnName === 'generate-chat-response');
+
+    expect(generateCall?.[1]).toEqual(
+      expect.objectContaining({ body: expect.objectContaining({ userMessage: 'Tell me something unique.' }) }),
     );
     expect(response.content).toBe('AI generated response.');
   });
 
   it('falls back to the default response when the Edge Function returns an error', async () => {
-    invokeMock.mockResolvedValueOnce({ data: null, error: { message: 'Network error' } });
+    invokeMock.mockImplementation(async (functionName: string) => {
+      if (functionName === 'generate-chat-response') {
+        return { data: null, error: { message: 'Network error' } } as const;
+      }
+      return { data: { success: true }, error: null } as const;
+    });
 
     const chatbot = new Chatbot('saas');
     const response = await chatbot.sendMessage('Discuss galaxies.');
@@ -70,7 +76,8 @@ describe('Chatbot', () => {
     const chatbot = new Chatbot('saas');
     const response = await chatbot.sendMessage('What is the roadmap?');
 
-    expect(invokeMock).not.toHaveBeenCalled();
+    const generateCalls = invokeMock.mock.calls.filter(([fnName]) => fnName === 'generate-chat-response');
+    expect(generateCalls).toHaveLength(0);
     expect(response.content).toContain('What is the roadmap?');
   });
 
@@ -79,7 +86,8 @@ describe('Chatbot', () => {
     const response = await chatbot.sendMessage('Do you offer a trial?');
 
     expect(response.content).toContain('14-day free trial');
-    expect(invokeMock).not.toHaveBeenCalled();
+    const generateCalls = invokeMock.mock.calls.filter(([fnName]) => fnName === 'generate-chat-response');
+    expect(generateCalls).toHaveLength(0);
   });
 
   it('handles pricing questions from knowledge base', async () => {
@@ -88,7 +96,8 @@ describe('Chatbot', () => {
 
     expect(response.content).toContain('Starter');
     expect(response.content).toContain('Professional');
-    expect(invokeMock).not.toHaveBeenCalled();
+    const generateCalls = invokeMock.mock.calls.filter(([fnName]) => fnName === 'generate-chat-response');
+    expect(generateCalls).toHaveLength(0);
   });
 
   it('provides capability list when asked for help', async () => {
@@ -98,7 +107,8 @@ describe('Chatbot', () => {
     expect(response.content).toContain('Account setup');
     expect(response.content).toContain('Feature explanations');
     expect(response.content).toContain('Billing questions');
-    expect(invokeMock).not.toHaveBeenCalled();
+    const generateCalls = invokeMock.mock.calls.filter(([fnName]) => fnName === 'generate-chat-response');
+    expect(generateCalls).toHaveLength(0);
   });
 
   it('extracts and captures email addresses', async () => {
@@ -107,7 +117,8 @@ describe('Chatbot', () => {
 
     expect(response.content).toContain('saved your email');
     expect(response.content).toContain('24 hours');
-    expect(invokeMock).not.toHaveBeenCalled();
+    const generateCalls = invokeMock.mock.calls.filter(([fnName]) => fnName === 'generate-chat-response');
+    expect(generateCalls).toHaveLength(0);
   });
 
   it('prompts for contact information when user wants to speak with team', async () => {
@@ -116,7 +127,8 @@ describe('Chatbot', () => {
 
     expect(response.content).toContain('connect you with our team');
     expect(response.content).toContain('email address');
-    expect(invokeMock).not.toHaveBeenCalled();
+    const generateCalls = invokeMock.mock.calls.filter(([fnName]) => fnName === 'generate-chat-response');
+    expect(generateCalls).toHaveLength(0);
   });
 
   it('initializes with correct session ID format', () => {
@@ -127,7 +139,12 @@ describe('Chatbot', () => {
   });
 
   it('maintains conversation history across messages', async () => {
-    invokeMock.mockResolvedValue({ data: { content: 'AI response' }, error: null });
+    invokeMock.mockImplementation(async (functionName: string) => {
+      if (functionName === 'generate-chat-response') {
+        return { data: { content: 'AI response' }, error: null } as const;
+      }
+      return { data: { success: true }, error: null } as const;
+    });
 
     const chatbot = new Chatbot('support');
     await chatbot.sendMessage('First message');
@@ -148,7 +165,12 @@ describe('Chatbot', () => {
   });
 
   it('handles empty AI response gracefully', async () => {
-    invokeMock.mockResolvedValueOnce({ data: { content: '' }, error: null });
+    invokeMock.mockImplementation(async (functionName: string) => {
+      if (functionName === 'generate-chat-response') {
+        return { data: { content: '' }, error: null } as const;
+      }
+      return { data: { success: true }, error: null } as const;
+    });
 
     const chatbot = new Chatbot('saas');
     const response = await chatbot.sendMessage('Tell me about your service');

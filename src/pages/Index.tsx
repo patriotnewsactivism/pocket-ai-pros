@@ -1,3 +1,4 @@
+import { Suspense, lazy, useMemo } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import TrustBadges from "@/components/TrustBadges";
@@ -14,6 +15,20 @@ import Footer from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 
 const Index = () => {
+  const isChatbotEnabled = isChatbotFeatureEnabled();
+
+  const LazyAIChatbot = useMemo(
+    () =>
+      isChatbotEnabled
+        ? lazy(() =>
+            import("@/components/AIChatbot").then((module) => ({
+              default: module.AIChatbot,
+            })),
+          )
+        : null,
+    [isChatbotEnabled],
+  );
+
   return (
     <>
       <SEO />
