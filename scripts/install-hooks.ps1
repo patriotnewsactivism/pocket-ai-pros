@@ -24,7 +24,10 @@ if (Test-Path ".git-hooks\pre-commit") {
     # Read the file and convert CRLF to LF (Unix line endings)
     # This is critical for Git Bash compatibility on Windows
     $content = Get-Content ".git-hooks\pre-commit" -Raw
+
+    # Remove all carriage returns to ensure LF-only line endings
     $content = $content -replace "`r`n", "`n"
+    $content = $content -replace "`r", ""
 
     # Write with UTF8 encoding without BOM and Unix line endings
     $utf8NoBom = New-Object System.Text.UTF8Encoding $false
