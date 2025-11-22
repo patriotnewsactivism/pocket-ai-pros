@@ -31,7 +31,8 @@ if (Test-Path ".git-hooks\pre-commit") {
     [System.IO.File]::WriteAllText("$PWD\.git\hooks\pre-commit", $content, $utf8NoBom)
 
     Write-Host "✅ Pre-commit hook installed (with LF line endings)" -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "⚠️  Warning: .git-hooks\pre-commit not found" -ForegroundColor Yellow
 }
 
