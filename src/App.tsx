@@ -5,7 +5,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Analytics } from '@/components/Analytics';
 import { LiveChat } from '@/components/LiveChat';
-import { AIChatbot } from '@/components/AIChatbot';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { initSentry } from '@/lib/sentry';
 import { resolveChatbotBusinessType } from '@/lib/chatbot-config';
@@ -54,6 +53,13 @@ const ResellerDashboard = lazy(() => import('@/pages/ResellerDashboard').catch(e
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard').catch(err => handleLazyLoadError(err, 'AdminDashboard')));
 const BotChat = lazy(() => import('@/pages/BotChat').catch(err => handleLazyLoadError(err, 'BotChat')));
 const EnvCheck = lazy(() => import('@/pages/EnvCheck').catch(err => handleLazyLoadError(err, 'EnvCheck')));
+
+// Lazy load AIChatbot component for better initial load performance
+const AIChatbot = lazy(() => 
+  import('@/components/AIChatbot')
+    .then(module => ({ default: module.AIChatbot }))
+    .catch(err => handleLazyLoadError(err, 'AIChatbot'))
+);
 
 // Create a client
 const queryClient = new QueryClient({
@@ -104,7 +110,9 @@ function App() {
           </Suspense>
           <Toaster />
           <LiveChat />
-          <AIChatbot businessType={businessType} />
+          <Suspense fallback={null}>
+            <AIChatbot businessType={businessType} />
+          </Suspense>
         </Router>
       </QueryClientProvider>
     </ErrorBoundary>
