@@ -1,8 +1,15 @@
-import { type ComponentProps } from 'react';
-import { AIChatbot } from '@/components/AIChatbot';
 import { env } from '@/config/env';
 
-export type ChatbotBusinessType = NonNullable<ComponentProps<typeof AIChatbot>['businessType']>;
+// ✅ Define the type directly instead of deriving it from the component
+export type ChatbotBusinessType = 
+  | 'ecommerce' 
+  | 'saas' 
+  | 'realestate' 
+  | 'healthcare' 
+  | 'education' 
+  | 'hospitality' 
+  | 'finance' 
+  | 'support';
 
 export const SUPPORTED_BUSINESS_TYPES: ReadonlyArray<ChatbotBusinessType> = [
   'ecommerce',
