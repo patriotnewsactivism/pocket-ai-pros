@@ -2,34 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Burgundy Red, Black, and Gold Branding:
-  - Primary: Deep Burgundy (Authority & Power)
-  - Secondary: Gold (Luxury & Quality)
-  - Accent: Muted Gold (Elegance)
+/* Burgundy, Gold, and Charcoal Branding:
+  - Primary: Burgundy for bold calls-to-action
+  - Secondary: Gold for highlights and accents
+  - Accent: Warm amber to keep gradients vivid
 */
 
 @layer base {
   :root {
-    --background: 0 0% 98%; /* Light background */
-    --foreground: 0 0% 10%; /* Dark text */
+    --background: 240 10% 7%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%; /* White cards */
-    --card-foreground: 0 0% 10%;
+    --card: 240 10% 11%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover: 240 10% 9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 210 100% 45%; /* Professional Blue */
-    --primary-foreground: 0 0% 100%; 
+    --primary: 344 70% 45%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 15% 96%; /* Light gray-blue */
-    --secondary-foreground: 0 0% 10%;
+    --secondary: 44 96% 58%;
+    --secondary-foreground: 30 61% 16%;
 
-    --muted: 210 15% 96%;
-    --muted-foreground: 0 0% 35%; /* Darker for better visibility */
+    --muted: 240 9% 16%;
+    --muted-foreground: 0 0% 80%;
 
-    --accent: 195 75% 45%; /* Teal accent */
-    --accent-foreground: 0 0% 100%;
+    --accent: 32 94% 60%;
+    --accent-foreground: 30 70% 18%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
@@ -37,40 +37,40 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 13% 91%;
-    --input: 210 13% 91%;
-    --ring: 210 100% 45%;
+    --border: 240 10% 22%;
+    --input: 240 10% 22%;
+    --ring: 344 70% 45%;
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 210 15% 12%;
-    --foreground: 0 0% 100%;
+    --background: 240 8% 5%;
+    --foreground: 0 0% 98%;
 
-    --card: 210 15% 18%;
+    --card: 240 8% 10%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 210 15% 12%;
+    --popover: 240 8% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 210 100% 50%;
+    --primary: 344 70% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 15% 20%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 44 96% 60%;
+    --secondary-foreground: 28 65% 18%;
 
-    --muted: 210 15% 22%;
-    --muted-foreground: 0 0% 75%; /* Lighter for better visibility in dark mode */
+    --muted: 240 8% 14%;
+    --muted-foreground: 0 0% 76%;
 
-    --accent: 195 75% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 32 94% 62%;
+    --accent-foreground: 30 70% 18%;
 
     --destructive: 0 63% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 15% 30%;
-    --input: 210 15% 30%;
-    --ring: 210 100% 50%;
+    --border: 240 8% 20%;
+    --input: 240 8% 20%;
+    --ring: 344 70% 50%;
   }
 }
 
