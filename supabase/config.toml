@@ -2,6 +2,7 @@ project_id = "qjwwkcoredotrjtstigt"
 
 [db]
 port = 54329
+shadow_port = 54330
 
 [analytics]
 port = 54427
