@@ -67,10 +67,6 @@ export interface ChatSession {
   status: 'active' | 'closed' | 'transferred';
 }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 type ChatSessionAction =
   | 'start_session'
   | 'log_message'
@@ -271,14 +267,6 @@ const BUSINESS_TEMPLATES = {
   },
 };
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 export interface HumanizedResponseOptions {
   baseAnswer: string;
   userMessage: string;
