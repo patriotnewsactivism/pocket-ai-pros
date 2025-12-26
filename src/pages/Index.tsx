@@ -6,6 +6,7 @@ import UseCases from "@/components/UseCases";
 import BusinessTemplates from "@/components/BusinessTemplates";
 import Testimonials from "@/components/Testimonials";
 import Integrations from "@/components/Integrations";
+import NewFeatures from "@/components/NewFeatures";
 import Pricing from "@/components/Pricing";
 import Reseller from "@/components/Reseller";
 import FAQ from "@/components/FAQ";
@@ -27,6 +28,7 @@ const Index = () => {
           <BusinessTemplates />
           <Testimonials />
           <Integrations />
+          <NewFeatures />
           <Pricing />
           <Reseller />
           <FAQ />
