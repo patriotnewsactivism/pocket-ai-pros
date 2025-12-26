@@ -7,6 +7,7 @@ import { Shield, LogOut, Bot, Users, DollarSign, TrendingUp } from "lucide-react
 import { useToast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
 import PayoutManagement from "@/components/PayoutManagement";
+import WebsiteScraper from "@/components/WebsiteScraper";
 
 interface AdminStats {
   totalUsers: number;
@@ -152,7 +153,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg flex items-center justify-center">
               <Shield className="w-6 h-6 text-white" />
@@ -162,12 +163,12 @@ export default function AdminDashboard() {
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/dashboard")}>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button className="w-full sm:w-auto" variant="outline" onClick={() => navigate("/dashboard")}>
               <Bot className="w-4 h-4 mr-2" />
               My Bots
             </Button>
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button className="w-full sm:w-auto" variant="outline" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </Button>
@@ -176,9 +177,9 @@ export default function AdminDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Stats Overview */}
-        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -255,6 +256,8 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        <WebsiteScraper />
 
         {/* Payout Management Section */}
         <PayoutManagement />

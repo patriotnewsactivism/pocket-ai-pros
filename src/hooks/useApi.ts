@@ -103,3 +103,10 @@ export function useStats() {
     refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
   });
 }
+
+// Website scraper mutation (admin only)
+export function useWebsiteScraper() {
+  return useMutation({
+    mutationFn: api.scrapeWebsite,
+  });
+}

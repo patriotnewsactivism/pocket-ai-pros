@@ -16,6 +16,7 @@ interface UserProfile {
   conversations_used: number;
   conversations_limit: number;
   bots_limit: number;
+  is_admin?: boolean | null;
 }
 
 interface BotData {
@@ -317,7 +318,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-md">
               <Bot className="w-6 h-6 text-primary-foreground" />
@@ -329,13 +330,18 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            {profile?.is_admin && (
+              <Button className="w-full sm:w-auto" variant="outline" onClick={() => navigate('/admin')}>
+                Admin Console
+              </Button>
+            )}
             {isReseller && (
-              <Button variant="outline" onClick={() => navigate('/reseller')}>
+              <Button className="w-full sm:w-auto" variant="outline" onClick={() => navigate('/reseller')}>
                 Reseller Portal
               </Button>
             )}
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button className="w-full sm:w-auto" variant="outline" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </Button>
@@ -427,7 +433,7 @@ export default function Dashboard() {
                 {bots.map((bot) => (
                   <div
                     key={bot.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    className="flex flex-col gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-md">
@@ -440,16 +446,17 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                      <div className="text-left sm:text-right">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <MessageSquare className="w-4 h-4" />
                           {bot.conversations_count} conversations
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
                         <Button
                           size="sm"
+                          className="w-full sm:w-auto"
                           onClick={() => navigate(`/bot/${bot.id}/chat`)}
                         >
                           Chat
@@ -457,6 +464,7 @@ export default function Dashboard() {
                         <Button 
                           variant="outline" 
                           size="sm"
+                          className="w-full sm:w-auto"
                           onClick={() => handleDeleteBot(bot.id)}
                         >
                           <Trash2 className="w-4 h-4" />

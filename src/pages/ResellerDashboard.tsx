@@ -114,7 +114,7 @@ export default function ResellerDashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
               <Users className="w-6 h-6 text-primary-foreground" />
@@ -124,11 +124,11 @@ export default function ResellerDashboard() {
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button className="w-full sm:w-auto" variant="outline" onClick={() => navigate('/dashboard')}>
               My Bots
             </Button>
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button className="w-full sm:w-auto" variant="outline" onClick={handleSignOut}>
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
             </Button>
@@ -208,7 +208,7 @@ export default function ResellerDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Total Earned</p>
                 <p className="text-2xl font-bold">${reseller?.total_earnings?.toFixed(2) || '0.00'}</p>
@@ -303,14 +303,15 @@ export default function ResellerDashboard() {
             <CardDescription>Share this link to earn commissions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 readOnly
                 value={`${window.location.origin}/auth?ref=${reseller?.referral_code || user?.id}`}
-                className="flex-1 px-4 py-2 border rounded-lg bg-muted"
+                className="w-full flex-1 px-4 py-2 border rounded-lg bg-muted"
               />
               <Button
+                className="w-full sm:w-auto"
                 onClick={() => {
                   navigator.clipboard.writeText(`${window.location.origin}/auth?ref=${reseller?.referral_code || user?.id}`);
                   toast({
@@ -349,13 +350,13 @@ export default function ResellerDashboard() {
                 {clients.map((client) => (
                   <div
                     key={client.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
+                    className="flex flex-col gap-2 p-3 border rounded-lg sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
                       <p className="font-medium">{client.full_name || client.email}</p>
                       <p className="text-sm text-muted-foreground">{client.email}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <div className="text-sm font-semibold capitalize">
                         {client.plan === 'free' ? (
                           <span className="text-muted-foreground">Free Plan</span>

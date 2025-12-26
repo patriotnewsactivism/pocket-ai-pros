@@ -305,6 +305,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          is_admin: boolean | null
           phone: string | null
           plan: string | null
           referral_code: string | null
@@ -326,6 +327,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id?: string
+          is_admin?: boolean | null
           phone?: string | null
           plan?: string | null
           referral_code?: string | null
@@ -347,6 +349,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          is_admin?: boolean | null
           phone?: string | null
           plan?: string | null
           referral_code?: string | null

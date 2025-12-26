@@ -16,6 +16,31 @@ export class ApiError extends Error {
   }
 }
 
+export interface ScrapeWebsitePayload {
+  url: string;
+  maxPages?: number;
+  maxDepth?: number;
+  includeSubdomains?: boolean;
+  maxChars?: number;
+}
+
+export interface ScrapeWebsiteResponse {
+  pages: Array<{
+    url: string;
+    title: string;
+    text: string;
+    textLength: number;
+    linksFound: number;
+  }>;
+  errors: Array<{ url: string; message: string }>;
+  summary: {
+    pagesScraped: number;
+    totalChars: number;
+    durationMs: number;
+    truncated: boolean;
+  };
+}
+
 // API Methods using Supabase directly
 export const api = {
   // Contact form submission
@@ -187,6 +212,27 @@ export const api = {
         messagesProcessed: 150000,
         uptime: 99.9,
       };
+    }
+  },
+
+  async scrapeWebsite(payload: ScrapeWebsitePayload): Promise<ScrapeWebsiteResponse> {
+    try {
+      const { supabase } = await import('./supabase');
+      const { data, error } = await supabase.functions.invoke('scrape-website', {
+        body: payload,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      return data as ScrapeWebsiteResponse;
+    } catch (error) {
+      throw new ApiError(
+        error instanceof Error ? error.message : 'Failed to scrape website',
+        500,
+        error
+      );
     }
   },
 };

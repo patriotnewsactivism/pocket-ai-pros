@@ -52,11 +52,13 @@ CREATE TABLE IF NOT EXISTS users (
     company VARCHAR(255),
     plan VARCHAR(50) DEFAULT 'starter',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50) DEFAULT 'active'
+    status VARCHAR(50) DEFAULT 'active',
+    is_admin BOOLEAN DEFAULT false
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_status ON users(status);
+CREATE INDEX IF NOT EXISTS idx_users_is_admin ON users(is_admin) WHERE is_admin = true;
 
 -- Bots Table (for statistics)
 CREATE TABLE IF NOT EXISTS bots (
@@ -222,6 +224,11 @@ CREATE POLICY "Anyone can view business templates" ON business_templates
 INSERT INTO users (name, email, company, plan, status) VALUES
 ('Demo User', 'demo@buildmybot.app', 'Demo Company', 'professional', 'active')
 ON CONFLICT (email) DO NOTHING;
+
+-- Seed admin accounts (if present)
+UPDATE users
+SET is_admin = true
+WHERE email IN ('mreardon@wtpnews.org', 'jadj19@gmail.com');
 
 INSERT INTO bots (user_id, name, description, status, total_messages) VALUES
 ((SELECT id FROM users WHERE email = 'demo@buildmybot.app'), 'Customer Support Bot', 'Handles customer inquiries', 'active', 1250),
