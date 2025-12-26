@@ -1,7 +1,12 @@
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import { Suspense, lazy, useMemo } from "react";
+=======
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+>>>>>>> Stashed changes
 =======
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -33,6 +38,7 @@ const Index = () => {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   const isChatbotEnabled = isChatbotFeatureEnabled();
 
   const LazyAIChatbot = useMemo(
@@ -47,6 +53,8 @@ const Index = () => {
     [isChatbotEnabled],
   );
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -66,6 +74,9 @@ const Index = () => {
   }, [location]);
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
