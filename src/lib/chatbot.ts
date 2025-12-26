@@ -629,3 +629,4 @@ export const getBusinessTemplate = (businessType: ChatbotBusinessType): ChatbotT
 export const getAvailableBusinessTypes = (): ChatbotBusinessType[] => {
   return Object.keys(chatbotTemplates) as ChatbotBusinessType[];
 };
+
