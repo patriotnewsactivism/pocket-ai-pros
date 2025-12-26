@@ -69,6 +69,7 @@ export interface ChatSession {
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 type ChatSessionAction =
   | 'start_session'
   | 'log_message'
@@ -269,6 +270,8 @@ const BUSINESS_TEMPLATES = {
   },
 };
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
