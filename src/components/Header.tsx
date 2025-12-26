@@ -31,27 +31,15 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <button 
-              onClick={() => scrollToSection("features")}
-              className="text-foreground hover:text-primary transition-colors"
-              aria-label="Navigate to features section"
-            >
+            <Link to="/#features" className="text-foreground hover:text-primary transition-colors" aria-label="Navigate to features section">
               Features
-            </button>
-            <button 
-              onClick={() => scrollToSection("pricing")}
-              className="text-foreground hover:text-primary transition-colors"
-              aria-label="Navigate to pricing section"
-            >
+            </Link>
+            <Link to="/#pricing" className="text-foreground hover:text-primary transition-colors" aria-label="Navigate to pricing section">
               Pricing
-            </button>
-            <button
-              onClick={() => scrollToSection("reseller")}
-              className="text-foreground hover:text-primary transition-colors"
-              aria-label="Navigate to reseller program section"
-            >
+            </Link>
+            <Link to="/#reseller" className="text-foreground hover:text-primary transition-colors" aria-label="Navigate to reseller program section">
               Reseller Program
-            </button>
+            </Link>
             <Link to="/auth"><Button variant="hero" size="sm">Get Started Free</Button></Link>
           </div>
 
@@ -69,27 +57,15 @@ const Header = () => {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 space-y-4">
-            <button 
-              onClick={() => scrollToSection("features")}
-              className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
-              aria-label="Navigate to features section"
-            >
+            <Link to="/#features" className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors" aria-label="Navigate to features section" onClick={() => setMobileMenuOpen(false)}>
               Features
-            </button>
-            <button 
-              onClick={() => scrollToSection("pricing")}
-              className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
-              aria-label="Navigate to pricing section"
-            >
+            </Link>
+            <Link to="/#pricing" className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors" aria-label="Navigate to pricing section" onClick={() => setMobileMenuOpen(false)}>
               Pricing
-            </button>
-            <button
-              onClick={() => scrollToSection("reseller")}
-              className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors"
-              aria-label="Navigate to reseller program section"
-            >
+            </Link>
+            <Link to="/#reseller" className="block w-full text-left py-2 text-foreground hover:text-primary transition-colors" aria-label="Navigate to reseller program section" onClick={() => setMobileMenuOpen(false)}>
               Reseller Program
-            </button>
+            </Link>
             <Link to="/auth" className="w-full"><Button variant="hero" size="sm" className="w-full">Get Started Free</Button></Link>
           </div>
         )}

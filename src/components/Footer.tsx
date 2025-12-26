@@ -2,13 +2,13 @@ import { Bot, Mail } from "lucide-react";
 import { ContactDialog } from "./ContactDialog";
 import { Link } from "react-router-dom";
 
+const sectionLink = (label: string, hash: string) => (
+  <Link to={`/#${hash}`} className="hover:text-primary transition-colors">
+    {label}
+  </Link>
+);
+
 const Footer = () => {
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
 
   return (
     <footer className="bg-card border-t border-border py-12">
@@ -36,24 +36,16 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Product</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <button onClick={() => scrollToSection("features")} className="hover:text-primary transition-colors">
-                  Features
-                </button>
+                {sectionLink("Features", "features")}
               </li>
               <li>
-                <button onClick={() => scrollToSection("pricing")} className="hover:text-primary transition-colors">
-                  Pricing
-                </button>
+                {sectionLink("Pricing", "pricing")}
               </li>
               <li>
-                <button onClick={() => scrollToSection("templates")} className="hover:text-primary transition-colors">
-                  Templates
-                </button>
+                {sectionLink("Templates", "templates")}
               </li>
               <li>
-                <button onClick={() => scrollToSection("integrations")} className="hover:text-primary transition-colors">
-                  Integrations
-                </button>
+                {sectionLink("Integrations", "integrations")}
               </li>
             </ul>
           </div>
@@ -72,9 +64,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <button onClick={() => scrollToSection("reseller")} className="hover:text-primary transition-colors">
-                  Reseller Program
-                </button>
+                {sectionLink("Reseller Program", "reseller")}
               </li>
               <li>
                 <ContactDialog trigger={

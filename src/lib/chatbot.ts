@@ -5,7 +5,10 @@
 
 import { supabase } from './supabase';
 import { env } from '@/config/env';
-import { BUSINESS_TEMPLATES, type BusinessTemplate } from '@/templates/business-templates';
+import { BUSINESS_TEMPLATES as BUSINESS_TEMPLATE_LIBRARY, type BusinessTemplate } from '@/templates/business-templates';
+
+// Business-specific chatbot configurations pulled from the shared template library
+const BUSINESS_TEMPLATES = BUSINESS_TEMPLATE_LIBRARY;
 
 type ChatbotBusinessType = keyof typeof BUSINESS_TEMPLATES;
 
@@ -64,6 +67,8 @@ export interface ChatSession {
   status: 'active' | 'closed' | 'transferred';
 }
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 type ChatSessionAction =
   | 'start_session'
   | 'log_message'
@@ -264,6 +269,10 @@ const BUSINESS_TEMPLATES = {
   },
 };
 
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 export interface HumanizedResponseOptions {
   baseAnswer: string;
   userMessage: string;

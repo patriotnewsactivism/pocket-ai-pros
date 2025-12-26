@@ -532,7 +532,7 @@ touch src/pages/YourPage.tsx
 - Tailwind CSS: https://tailwindcss.com
 
 ### Getting Help
-- Email: support@buildmybot.ai
+- Email: support@buildmybot.app
 - GitHub Issues: For bugs
 - GitHub Discussions: For questions
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { env } from '@/config/env';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ interface BotData {
 export default function BotChat() {
   const { botId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [bot, setBot] = useState<BotData | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,10 +31,12 @@ export default function BotChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const embedParam = (searchParams.get('embed') ?? '').toLowerCase();
+  const isEmbedded = embedParam === '1' || embedParam === 'true' || embedParam === 'yes';
 
   useEffect(() => {
     loadBot();
-  }, [botId]);
+  }, [botId, isEmbedded]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -54,7 +57,9 @@ export default function BotChat() {
         description: 'Bot not found',
         variant: 'destructive',
       });
-      navigate('/dashboard');
+      if (!isEmbedded) {
+        navigate('/dashboard');
+      }
       return;
     }
 
@@ -238,22 +243,24 @@ export default function BotChat() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <Bot className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold">{bot.name}</h1>
-              <p className="text-sm text-foreground/80 font-medium">{bot.description}</p>
+      {!isEmbedded && (
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                <Bot className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold">{bot.name}</h1>
+                <p className="text-sm text-foreground/80 font-medium">{bot.description}</p>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto">

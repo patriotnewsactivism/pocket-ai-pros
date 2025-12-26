@@ -186,10 +186,93 @@ This creates an optimized production build in the `./dist` folder.
      index index.html;
 
      location / {
-       try_files $uri $uri/ /index.html;
-     }
-   }
-   ```
+     try_files $uri $uri/ /index.html;
+    }
+  }
+  ```
+
+## Chatbot Deployment & Embeds
+
+BuildMyBot ships with a production-ready chatbot widget (`src/components/AIChatbot.tsx`) that can be dropped into any website. Use the options below depending on where you're deploying it.
+
+### 1. React / Vite / Next.js apps
+
+```tsx
+import { AIChatbot } from '@/components/AIChatbot';
+
+export default function App() {
+  return (
+    <>
+      {/* other layout components */}
+      <AIChatbot businessType="saas" />
+    </>
+  );
+}
+```
+
+- `businessType` accepts any key from `src/templates/business-templates.ts` (`ecommerce`, `saas`, `realestate`, `healthcare`, `education`, `hospitality`, `finance`, `support`).
+- Set `VITE_ENABLE_AI_CHATBOT=true` (and optionally override `VITE_BUSINESS_TYPE`) in `.env` to enable the widget globally.
+
+### 2. Shareable widget anywhere (iframe embed)
+
+Every bot has a hosted chat experience at `https://buildmybot.app/bot/<BOT_ID>/chat`. Drop the snippet below into any HTML page, landing page builder, or marketing site.
+
+```html
+<div id="buildmybot-widget" data-bot-id="YOUR_BOT_ID" data-business-type="saas"></div>
+<script>
+  (function () {
+    const target = document.getElementById('buildmybot-widget');
+    const botId = target.dataset.botId;
+    const businessType = target.dataset.businessType || 'support';
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://buildmybot.app/bot/${botId}/chat?businessType=${businessType}&embed=1`;
+    iframe.style.border = '0';
+    iframe.style.width = '100%';
+    iframe.style.height = '620px';
+    iframe.style.borderRadius = '18px';
+    iframe.loading = 'lazy';
+    target.appendChild(iframe);
+  })();
+</script>
+```
+
+- Works with ClickFunnels, Wix, Squarespace, Webflow, Carrd, and any CMS that accepts custom HTML.
+- Pass any template key through `data-business-type` to load its greeting, quick replies, and knowledge base automatically.
+
+### 3. WordPress block editor
+
+1. Go to **Appearance → Widgets** (or open the editor for the page/post you want).
+2. Add a **Custom HTML** block and paste the iframe snippet above.
+3. Update the padding/margins so the card fits your layout.
+4. Publish the page. The chatbot will load asynchronously with full Supabase + Edge Function support.
+
+### 4. Shopify Online Store 2.0
+
+1. In the Shopify admin, open **Online Store → Themes → Customize**.
+2. Add a new **Custom Liquid** section to your theme and paste the iframe snippet (Shopify accepts raw HTML/JS inside Liquid blocks).
+3. Replace `YOUR_BOT_ID` with the ID from the BuildMyBot dashboard.
+4. Save and publish. The chatbot automatically inherits Shopify fonts/colors because it lives inside your DOM.
+
+### 5. Webflow / Squarespace / Framer
+
+1. Drop an **Embed** component where you want the widget to live.
+2. Paste the HTML snippet and update `data-business-type`.
+3. Publish the page. No additional hosting steps required.
+
+### 6. Template quick reference
+
+| Business Type  | Use Case Highlights                              |
+|----------------|--------------------------------------------------|
+| `ecommerce`    | Product discovery, order tracking, returns       |
+| `saas`         | Account setup, feature guidance, billing help    |
+| `realestate`   | Property search, viewing scheduling              |
+| `healthcare`   | Appointment intake, insurance FAQs               |
+| `education`    | Course discovery, enrollment workflows           |
+| `hospitality`  | Booking assistance, amenities, concierge         |
+| `finance`      | Account info, rates, advisor routing             |
+| `support`      | General customer support with escalation         |
+
+Pick the template that matches your customer's industry and the widget will automatically load the right greeting, tone, knowledge base, and quick replies.
 
 ## Environment Variables
 
